@@ -152,7 +152,6 @@ ehthumbs.db
 
 # Project specific
 *.pdf
-!test_files/*.pdf
 temp/
 output/
 logs/
