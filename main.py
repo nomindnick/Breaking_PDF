@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""
-PDF Splitter Application - Main Entry Point
+"""PDF Splitter Application - Main Entry Point.
 
 An intelligent PDF splitter that automatically identifies and separates
 individual documents within large, multi-document PDF files.
 """
-
-import asyncio
-import sys
 from pathlib import Path
 
 import click
@@ -19,7 +15,6 @@ from fastapi.staticfiles import StaticFiles
 from pdf_splitter.core.config import settings
 from pdf_splitter.core.logging import get_logger, setup_logging
 
-
 # Initialize logger
 logger = get_logger(__name__)
 
@@ -30,9 +25,9 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=settings.app_version,
         debug=settings.debug,
-        description="Intelligent PDF document splitter with multi-signal detection"
+        description="Intelligent PDF document splitter with multi-signal detection",
     )
-    
+
     # Configure CORS
     app.add_middleware(
         CORSMiddleware,
@@ -41,99 +36,82 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Mount static files
     static_dir = Path(__file__).parent / "pdf_splitter" / "frontend" / "static"
     if static_dir.exists():
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
-    
+
     # Import and include routers
     # TODO: Import routers once api.routes is implemented
     # from pdf_splitter.api import routes
     # app.include_router(routes.router)
-    
+
     @app.on_event("startup")
     async def startup_event():
         """Initialize application on startup."""
         logger.info(
             "Starting PDF Splitter application",
             version=settings.app_version,
-            debug=settings.debug
+            debug=settings.debug,
         )
-        
+
         # Create necessary directories
         settings.create_directories()
-        
+
         # TODO: Initialize OCR engines, LLM models, etc.
-    
+
     @app.on_event("shutdown")
     async def shutdown_event():
         """Cleanup on application shutdown."""
         logger.info("Shutting down PDF Splitter application")
         # TODO: Cleanup resources
-    
+
     @app.get("/")
     async def root():
         """Root endpoint."""
         return {
             "name": settings.app_name,
             "version": settings.app_version,
-            "status": "operational"
+            "status": "operational",
         }
-    
+
     @app.get("/health")
     async def health_check():
         """Health check endpoint."""
         return {"status": "healthy"}
-    
+
     return app
 
 
 @click.command()
+@click.option("--host", default=settings.host, help="Host to bind the server to")
 @click.option(
-    "--host",
-    default=settings.host,
-    help="Host to bind the server to"
+    "--port", default=settings.port, type=int, help="Port to bind the server to"
 )
 @click.option(
-    "--port",
-    default=settings.port,
-    type=int,
-    help="Port to bind the server to"
+    "--reload", is_flag=True, default=False, help="Enable auto-reload for development"
 )
 @click.option(
-    "--reload",
-    is_flag=True,
-    default=False,
-    help="Enable auto-reload for development"
-)
-@click.option(
-    "--workers",
-    default=settings.workers,
-    type=int,
-    help="Number of worker processes"
+    "--workers", default=settings.workers, type=int, help="Number of worker processes"
 )
 def main(host: str, port: int, reload: bool, workers: int):
-    """
-    PDF Splitter Application
-    
+    """PDF Splitter Application.
+
     An intelligent tool for splitting multi-document PDFs into individual files.
     """
     # Setup logging
     setup_logging()
-    
+
     # Log startup information
     logger.info(
         "Starting PDF Splitter server",
         host=host,
         port=port,
         reload=reload,
-        workers=workers if not reload else 1
+        workers=workers if not reload else 1,
     )
-    
-    # Create FastAPI app
-    app = create_app()
-    
+
     # Run the server
     uvicorn.run(
         "main:create_app",
@@ -142,7 +120,7 @@ def main(host: str, port: int, reload: bool, workers: int):
         reload=reload,
         workers=workers if not reload else 1,
         factory=True,
-        log_config=None  # We handle logging ourselves
+        log_config=None,  # We handle logging ourselves
     )
 
 

@@ -144,11 +144,11 @@ pdf_splitter/
 
 #### 2. Preprocessing Module (`preprocessing/`)
 **Purpose**: Document preparation and text extraction
-- **pdf_handler.py**: 
+- **pdf_handler.py**:
   - PDF file validation and loading
   - Metadata extraction (page count, embedded text detection)
   - Page-level processing coordination
-- **ocr_processor.py**: 
+- **ocr_processor.py**:
   - Multi-engine OCR support (PaddleOCR primary, EasyOCR/Tesseract fallback)
   - Intelligent OCR necessity detection
   - Performance optimization and caching
@@ -160,31 +160,31 @@ pdf_splitter/
 #### 3. Detection Module (`detection/`)
 **Purpose**: Multi-signal document boundary identification
 - **base_detector.py**: Abstract interface for all detection methods
-- **llm_detector.py**: 
+- **llm_detector.py**:
   - Local LLM integration (Ollama dev, Transformers prod)
   - Context overlap analysis (30% strategy)
   - Prompt engineering and response parsing
-- **visual_detector.py**: 
+- **visual_detector.py**:
   - Layout analysis and formatting changes
   - Header/footer pattern detection
   - Whitespace and visual break identification
-- **heuristic_detector.py**: 
+- **heuristic_detector.py**:
   - Date pattern changes
   - Sender/recipient analysis
   - Subject line and document type detection
   - Page numbering pattern analysis
-- **signal_combiner.py**: 
+- **signal_combiner.py**:
   - Weighted scoring of all detection signals
   - Confidence calculation and threshold management
   - Final boundary decision logic
 
 #### 4. Splitting Module (`splitting/`)
 **Purpose**: Final document separation and output management
-- **pdf_splitter.py**: 
+- **pdf_splitter.py**:
   - Page range extraction from source PDF
   - Metadata preservation
   - Quality validation of split documents
-- **file_manager.py**: 
+- **file_manager.py**:
   - Automatic file naming based on content analysis
   - Manual naming interface support
   - Output organization and cleanup
