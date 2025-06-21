@@ -9,20 +9,20 @@ PyMuPDF==1.23.8
 pikepdf==8.10.1
 
 # OCR engines
-paddlepaddle==2.5.2
+paddlepaddle==2.6.2
 paddleocr==2.7.0.3
-easyocr==1.7.0
+# easyocr==1.7.0  # Install separately if needed
 pytesseract==0.3.10
 
 # Image processing
 Pillow==10.1.0
 opencv-python==4.8.1.78
-numpy==1.24.3
+numpy==1.26.2  # Updated for Python 3.12 compatibility
 
-# LLM support
-transformers==4.36.2
-torch==2.1.2
-sentence-transformers==2.2.2
+# LLM support - Install separately if needed
+# transformers==4.36.2
+# torch==2.1.2
+# sentence-transformers==2.2.2
 
 # Data validation
 pydantic==2.5.2
