@@ -167,3 +167,8 @@ models/
 
 # OCR cache
 ocr_cache/
+
+# Generated files from examples
+examples/**/*_extracted_text.json
+examples/**/*_text_only.json
+examples/**/*.png

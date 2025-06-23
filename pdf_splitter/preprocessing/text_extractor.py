@@ -83,6 +83,8 @@ class TextExtractor:
         """
         self.pdf_handler = pdf_handler
         self._font_cache: Dict[str, float] = {}
+        # Use shared cache manager from pdf_handler
+        self.cache_manager = pdf_handler.cache_manager
 
     def extract_all_pages(self) -> List[ExtractedPage]:
         """
@@ -135,51 +137,67 @@ class TextExtractor:
         if page_num < 0 or page_num >= self.pdf_handler.page_count:
             raise PDFTextExtractionError(f"Invalid page number: {page_num}")
 
-        try:
-            if self.pdf_handler._document is None:
-                raise PDFTextExtractionError("PDF document not loaded")
-            page = self.pdf_handler._document[page_num]
+        # Define extraction function for cache miss
+        def extract_func():
+            try:
+                if self.pdf_handler._document is None:
+                    raise PDFTextExtractionError("PDF document not loaded")
+                page = self.pdf_handler._document[page_num]
 
-            # Extract text using multiple methods
-            basic_text = self._extract_basic_text(page)
-            blocks = self._extract_text_blocks(page)
-            detailed_dict = page.get_text("dict")
+                # Extract text using multiple methods
+                basic_text = self._extract_basic_text(page)
+                blocks = self._extract_text_blocks(page)
+                detailed_dict = page.get_text("dict")
 
-            # Analyze layout and structure
-            structured_blocks = self._structure_text_blocks(blocks, detailed_dict)
-            tables = self._detect_tables(page)
+                # Analyze layout and structure
+                structured_blocks = self._structure_text_blocks(blocks, detailed_dict)
+                tables = self._detect_tables(page)
 
-            # Calculate quality metrics
-            quality_score = self._calculate_quality_score(structured_blocks, basic_text)
-            reading_order_conf = self._assess_reading_order(structured_blocks)
+                # Calculate quality metrics
+                quality_score = self._calculate_quality_score(
+                    structured_blocks, basic_text
+                )
+                reading_order_conf = self._assess_reading_order(structured_blocks)
 
-            # Get font statistics
-            font_stats = self._analyze_fonts(detailed_dict)
+                # Get font statistics
+                font_stats = self._analyze_fonts(detailed_dict)
 
-            # Detect headers and footers
-            has_headers, has_footers = self._detect_headers_footers(
-                structured_blocks, page.rect.height
-            )
+                # Detect headers and footers
+                has_headers, has_footers = self._detect_headers_footers(
+                    structured_blocks, page.rect.height
+                )
 
-            # Create result
-            return ExtractedPage(
-                page_num=page_num,
-                text=basic_text,
-                blocks=structured_blocks,
-                tables=tables,
-                quality_score=quality_score,
-                word_count=len(basic_text.split()),
-                char_count=len(basic_text),
-                avg_font_size=font_stats["avg_size"],
-                dominant_font=font_stats["dominant_font"],
-                has_headers=has_headers,
-                has_footers=has_footers,
-                reading_order_confidence=reading_order_conf,
-            )
+                # Create result
+                return ExtractedPage(
+                    page_num=page_num,
+                    text=basic_text,
+                    blocks=structured_blocks,
+                    tables=tables,
+                    quality_score=quality_score,
+                    word_count=len(basic_text.split()),
+                    char_count=len(basic_text),
+                    avg_font_size=font_stats["avg_size"],
+                    dominant_font=font_stats["dominant_font"],
+                    has_headers=has_headers,
+                    has_footers=has_footers,
+                    reading_order_confidence=reading_order_conf,
+                )
 
-        except Exception as e:
-            logger.exception(f"Error extracting page {page_num}")
-            raise PDFTextExtractionError(f"Failed to extract page {page_num}: {str(e)}")
+            except Exception as e:
+                logger.exception(f"Error extracting page {page_num}")
+                raise PDFTextExtractionError(
+                    f"Failed to extract page {page_num}: {str(e)}"
+                )
+
+        # Use cache for text extraction
+        cached_result = self.cache_manager.get_page_text(
+            pdf_path=str(self.pdf_handler._pdf_path),
+            page_num=page_num,
+            extract_func=lambda: extract_func(),
+        )
+
+        # Return result directly - cache handles serialization
+        return cached_result if cached_result else extract_func()
 
     def extract_page_text(self, page_num: int) -> PageText:
         """

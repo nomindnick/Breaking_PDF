@@ -48,12 +48,58 @@ class PDFConfig(BaseModel):
     )
     enable_repair: bool = Field(True, description="Enable automatic PDF repair")
 
+    # Cache Settings
+    render_cache_memory_mb: int = Field(
+        100, ge=10, le=1000, description="Memory limit for render cache in MB"
+    )
+    text_cache_memory_mb: int = Field(
+        50, ge=10, le=500, description="Memory limit for text cache in MB"
+    )
+    cache_ttl_seconds: int = Field(
+        3600, ge=60, description="Cache entry time-to-live in seconds"
+    )
+    memory_pressure_threshold: float = Field(
+        0.8,
+        ge=0.5,
+        le=0.95,
+        description="System memory usage threshold for aggressive eviction",
+    )
+    enable_cache_metrics: bool = Field(
+        True, description="Enable cache performance metrics collection"
+    )
+    cache_warmup_pages: int = Field(
+        10, ge=0, le=50, description="Number of pages to pre-cache during warmup"
+    )
+
     # Time Estimates (seconds)
     ocr_time_per_page: float = Field(
         1.5, gt=0, description="Estimated OCR time per page"
     )
     extraction_time_per_page: float = Field(
         0.1, gt=0, description="Estimated text extraction time per page"
+    )
+
+    # Processing Parameters
+    table_detection_tolerance: float = Field(
+        5.0, gt=0, description="Pixel tolerance for table column detection"
+    )
+    header_footer_threshold: float = Field(
+        0.1,
+        ge=0.0,
+        le=1.0,
+        description="Page ratio threshold for header/footer detection",
+    )
+    reading_order_tolerance: float = Field(
+        10.0, gt=0, description="Pixel tolerance for reading order detection"
+    )
+    memory_estimation_per_page_mb: float = Field(
+        1.5, gt=0, description="Estimated memory usage per page in MB"
+    )
+    cache_aggressive_eviction_ratio: float = Field(
+        0.5,
+        ge=0.1,
+        le=0.9,
+        description="Fraction of cache to evict under memory pressure",
     )
 
     @field_validator("max_dpi")

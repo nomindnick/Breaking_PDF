@@ -124,3 +124,9 @@ class PermissionError(FileSystemError):
     """Raised when there are permission issues with files or directories."""
 
     pass
+
+
+class PDFCacheError(PDFHandlerError):
+    """Raised when cache operations fail."""
+
+    pass

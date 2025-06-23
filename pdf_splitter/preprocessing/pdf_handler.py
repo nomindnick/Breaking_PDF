@@ -31,6 +31,7 @@ from pdf_splitter.core.exceptions import (
     PDFTextExtractionError,
     PDFValidationError,
 )
+from pdf_splitter.preprocessing.advanced_cache import PDFProcessingCache
 
 logger = logging.getLogger(__name__)
 
@@ -150,9 +151,9 @@ class PDFHandler:
         self.config = config or PDFConfig()
         self._document: Optional[fitz.Document] = None
         self._pdf_path: Optional[Path] = None
-        self._page_cache: Dict[int, np.ndarray] = {}
+        # Replace simple caches with advanced caching system
+        self.cache_manager = PDFProcessingCache(self.config)
         self._metadata: Optional[PDFMetadata] = None
-        self._page_info_cache: Dict[int, PageInfo] = {}
 
         logger.info(f"PDFHandler initialized with config: {self.config}")
 
@@ -236,8 +237,9 @@ class PDFHandler:
                 result.creator = doc.metadata.get("creator", "")
 
                 # Estimate memory usage (rough estimate)
-                # Assume ~1-2 MB per page when rendered at 150 DPI
-                result.estimated_memory_mb = result.page_count * 1.5
+                result.estimated_memory_mb = (
+                    result.page_count * self.config.memory_estimation_per_page_mb
+                )
 
                 if result.page_count == 0:
                     result.errors.append("PDF has no pages")
@@ -322,8 +324,10 @@ class PDFHandler:
 
         self._document = None
         self._pdf_path = None
-        self._page_cache.clear()
-        self._page_info_cache.clear()
+        # Clear all caches
+        self.cache_manager.render_cache.clear()
+        self.cache_manager.text_cache.clear()
+        self.cache_manager.analysis_cache.clear()
         self._metadata = None
 
         # Force garbage collection for large documents
@@ -378,8 +382,10 @@ class PDFHandler:
             raise PDFHandlerError(f"Invalid page number: {page_num}")
 
         # Check cache first
-        if page_num in self._page_info_cache:
-            return self._page_info_cache[page_num].page_type
+        cache_key = (str(self._pdf_path), page_num, "page_info")
+        cached_info = self.cache_manager.analysis_cache.get(cache_key)
+        if cached_info:
+            return PageType(cached_info.get("page_type"))
 
         page = self._document[page_num]  # type: ignore[index]
 
@@ -414,8 +420,8 @@ class PDFHandler:
         else:
             page_type = PageType.SEARCHABLE
 
-        # Cache the result
-        self._page_info_cache[page_num] = PageInfo(
+        # Cache the result in advanced cache
+        page_info = PageInfo(
             page_num=page_num,
             width=page.rect.width,
             height=page.rect.height,
@@ -424,6 +430,11 @@ class PDFHandler:
             text_percentage=text_percentage,
             image_count=image_count,
             has_annotations=len(list(page.annots())) > 0,
+        )
+
+        # Store in analysis cache
+        self.cache_manager.analysis_cache.put(
+            (str(self._pdf_path), page_num, "page_info"), page_info.__dict__
         )
 
         logger.debug(
@@ -455,40 +466,42 @@ class PDFHandler:
 
         dpi = dpi or self.config.default_dpi
 
-        # Check cache (only for default DPI)
-        cache_key = page_num
-        if dpi == self.config.default_dpi and cache_key in self._page_cache:
-            logger.debug(f"Page {page_num} served from cache")
-            return self._page_cache[cache_key].copy()
+        # Define render function for cache miss
+        def render_func():
+            try:
+                page = self._document[page_num]  # type: ignore[index]
 
-        try:
-            page = self._document[page_num]  # type: ignore[index]
+                # Calculate matrix for desired DPI
+                # PDF default is 72 DPI
+                mat = fitz.Matrix(dpi / 72.0, dpi / 72.0)
 
-            # Calculate matrix for desired DPI
-            # PDF default is 72 DPI
-            mat = fitz.Matrix(dpi / 72.0, dpi / 72.0)
+                # Render to pixmap
+                pix = page.get_pixmap(matrix=mat, alpha=False)
 
-            # Render to pixmap
-            pix = page.get_pixmap(matrix=mat, alpha=False)
+                # Convert to numpy array (RGB format)
+                img_array = np.frombuffer(pix.samples, dtype=np.uint8)
+                img_array = img_array.reshape(pix.height, pix.width, 3)
 
-            # Convert to numpy array (RGB format)
-            img_array = np.frombuffer(pix.samples, dtype=np.uint8)
-            img_array = img_array.reshape(pix.height, pix.width, 3)
+                logger.debug(
+                    f"Rendered page {page_num} at {dpi} DPI: {img_array.shape}"
+                )
 
-            # Cache if using default DPI and cache has space
-            if (
-                dpi == self.config.default_dpi
-                and len(self._page_cache) < self.config.page_cache_size
-            ):
-                self._page_cache[cache_key] = img_array.copy()
+                return img_array
 
-            logger.debug(f"Rendered page {page_num} at {dpi} DPI: {img_array.shape}")
+            except Exception as e:
+                logger.exception(f"Failed to render page {page_num}")
+                raise PDFRenderError(f"Failed to render page {page_num}: {str(e)}")
 
-            return img_array
+        # Use advanced cache with metrics tracking
+        rendered_array = self.cache_manager.get_rendered_page(
+            pdf_path=str(self._pdf_path),
+            page_num=page_num,
+            dpi=dpi,
+            render_func=render_func,
+        )
 
-        except Exception as e:
-            logger.exception(f"Failed to render page {page_num}")
-            raise PDFRenderError(f"Failed to render page {page_num}: {str(e)}")
+        # Return a copy to prevent cache modification
+        return rendered_array.copy() if rendered_array is not None else render_func()
 
     def extract_text(self, page_num: int) -> PageText:
         """
@@ -616,7 +629,14 @@ class PDFHandler:
         def analyze_page(page_num: int) -> PageInfo:
             # This will populate the cache
             self.get_page_type(page_num)
-            return self._page_info_cache[page_num]
+            # Retrieve from cache
+            cache_key = (str(self._pdf_path), page_num, "page_info")
+            cached_info = self.cache_manager.analysis_cache.get(cache_key)
+            if cached_info:
+                return PageInfo(**cached_info)
+            else:
+                # Should never happen since get_page_type populates cache
+                raise PDFHandlerError(f"Failed to analyze page {page_num}")
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             page_infos = list(executor.map(analyze_page, range(self.page_count)))
@@ -643,11 +663,24 @@ class PDFHandler:
             raise PDFHandlerError("No PDF loaded")
 
         # Analyze pages if not already done
-        if not self._page_info_cache:
+        # Check if we have any cached analysis
+        has_analysis = False
+        for page_num in range(min(1, self.page_count)):  # Check first page
+            cache_key = (str(self._pdf_path), page_num, "page_info")
+            if self.cache_manager.analysis_cache.get(cache_key):
+                has_analysis = True
+                break
+
+        if not has_analysis:
             self.analyze_all_pages()
 
-        # Count page types
-        page_types = [info.page_type for info in self._page_info_cache.values()]
+        # Count page types from cache
+        page_types = []
+        for page_num in range(self.page_count):
+            cache_key = (str(self._pdf_path), page_num, "page_info")
+            cached_info = self.cache_manager.analysis_cache.get(cache_key)
+            if cached_info:
+                page_types.append(PageType(cached_info.get("page_type")))
 
         requires_ocr = sum(
             1 for pt in page_types if pt in [PageType.IMAGE_BASED, PageType.MIXED]
@@ -748,10 +781,8 @@ class PDFHandler:
                 batch_size=len(batch_pages),
             )
 
-            # Clear caches periodically to manage memory
-            if len(self._page_cache) > self.config.page_cache_size * 2:
-                self._page_cache.clear()
-                gc.collect()
+            # Cache management is handled automatically by PDFProcessingCache
+            gc.collect()
 
     def save_page_image(
         self,
@@ -780,3 +811,67 @@ class PDFHandler:
             logger.info(f"Saved page {page_num} to {output_path}")
         except ImportError:
             raise PDFHandlerError("Pillow is required for saving images")
+
+    def warmup_cache(self, page_range: Optional[range] = None):
+        """
+        Pre-populate cache with pages likely to be accessed.
+
+        Args:
+            page_range: Range of pages to warmup. If None, uses config default.
+        """
+        if not self.is_loaded:
+            raise PDFHandlerError("No PDF loaded")
+
+        # Determine pages to warmup
+        if page_range is None:
+            warmup_count = min(self.config.cache_warmup_pages, self.page_count)
+            page_range = range(warmup_count)
+
+        logger.info(f"Warming up cache for {len(page_range)} pages")
+
+        # Warmup render and text caches
+        def render_for_warmup(pdf_path, page_num, dpi):
+            return self.render_page(page_num, dpi)
+
+        def extract_for_warmup(pdf_path, page_num):
+            return self.extract_text(page_num).__dict__
+
+        self.cache_manager.warmup_pages(
+            pdf_path=str(self._pdf_path),
+            page_range=page_range,
+            render_func=render_for_warmup,
+            extract_func=extract_for_warmup,
+        )
+
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """
+        Get comprehensive cache statistics.
+
+        Returns:
+            Dictionary containing cache performance metrics
+        """
+        stats = self.cache_manager.get_combined_stats()
+
+        # Add PDF-specific context
+        stats["pdf_info"] = {
+            "current_pdf": str(self._pdf_path) if self._pdf_path else None,
+            "page_count": self.page_count if self.is_loaded else 0,
+            "cache_enabled": self.config.enable_cache_metrics,
+        }
+
+        return stats
+
+    def log_cache_performance(self):
+        """Log cache performance metrics."""
+        if not self.config.enable_cache_metrics:
+            return
+
+        self.cache_manager.log_performance()
+
+        # Log summary stats
+        stats = self.get_cache_stats()
+        logger.info(
+            f"Cache Summary - Total Memory: {stats['total_memory_mb']:.1f}MB, "
+            f"Render Hit Rate: {stats['render_cache']['hit_rate']}, "
+            f"Text Hit Rate: {stats['text_cache']['hit_rate']}"
+        )
