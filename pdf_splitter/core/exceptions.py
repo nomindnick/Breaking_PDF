@@ -42,6 +42,24 @@ class PDFValidationError(PDFProcessingError):
     pass
 
 
+class PDFHandlerError(PDFProcessingError):
+    """Raised when general PDF handler operations fail."""
+
+    pass
+
+
+class PDFRenderError(PDFProcessingError):
+    """Raised when PDF page rendering fails."""
+
+    pass
+
+
+class PDFTextExtractionError(PDFProcessingError):
+    """Raised when text extraction from PDF fails."""
+
+    pass
+
+
 class OCRError(PDFProcessingError):
     """Base class for OCR-related errors."""
 

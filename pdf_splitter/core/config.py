@@ -3,7 +3,66 @@
 from pathlib import Path
 from typing import List, Optional
 
+from pydantic import BaseModel, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class PDFConfig(BaseModel):
+    """Configuration for PDF handling and processing."""
+
+    # DPI Settings
+    default_dpi: int = Field(
+        150, ge=72, le=600, description="Default DPI for rendering"
+    )
+    max_dpi: int = Field(300, ge=72, le=600, description="Maximum allowed DPI")
+
+    # Processing Limits
+    max_file_size_mb: float = Field(
+        500.0, gt=0, description="Maximum PDF file size in MB"
+    )
+    max_pages: int = Field(10000, gt=0, description="Maximum pages to process")
+    page_cache_size: int = Field(
+        10, ge=0, description="Number of pages to cache in memory"
+    )
+    stream_batch_size: int = Field(
+        5, ge=1, le=50, description="Default batch size for streaming"
+    )
+
+    # Quality Thresholds
+    min_text_confidence: float = Field(
+        0.7, ge=0.0, le=1.0, description="Minimum confidence for text extraction"
+    )
+    min_text_coverage_percent: float = Field(
+        5.0,
+        ge=0.0,
+        le=100.0,
+        description="Minimum text coverage to consider page searchable",
+    )
+
+    # Performance Settings
+    analysis_threads: int = Field(
+        4, ge=1, le=16, description="Threads for parallel page analysis"
+    )
+    timeout_per_page: float = Field(
+        30.0, gt=0, description="Timeout in seconds per page"
+    )
+    enable_repair: bool = Field(True, description="Enable automatic PDF repair")
+
+    # Time Estimates (seconds)
+    ocr_time_per_page: float = Field(
+        1.5, gt=0, description="Estimated OCR time per page"
+    )
+    extraction_time_per_page: float = Field(
+        0.1, gt=0, description="Estimated text extraction time per page"
+    )
+
+    @field_validator("max_dpi")
+    @classmethod
+    def validate_max_dpi(cls, v: int, info) -> int:
+        """Ensure max_dpi is greater than or equal to default_dpi."""
+        if "default_dpi" in info.data and v < info.data["default_dpi"]:
+            raise ValueError("max_dpi must be greater than or equal to default_dpi")
+        return v
 
 
 class Settings(BaseSettings):
@@ -57,6 +116,9 @@ class Settings(BaseSettings):
     # External services
     ollama_host: Optional[str] = "http://localhost:11434"
 
+    # PDF configuration
+    pdf: PDFConfig = Field(default_factory=PDFConfig)
+
     @property
     def max_file_size_bytes(self) -> int:
         """Convert max file size from MB to bytes."""
@@ -70,3 +132,8 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+
+def get_pdf_config() -> PDFConfig:
+    """Get PDF configuration from settings."""
+    return settings.pdf
