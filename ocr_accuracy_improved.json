@@ -1,0 +1,314 @@
+{
+  "engine": "paddleocr",
+  "pages_processed": 5,
+  "overall_metrics": {
+    "avg_word_accuracy": 0.02773722627737226,
+    "avg_char_accuracy": 0.032326985601486294,
+    "avg_word_f1": 0.06839378238341969,
+    "avg_processing_time": 0.7512587070465088,
+    "total_processing_time": 3.756293535232544
+  },
+  "page_metrics": {
+    "page_1": {
+      "word_accuracy": 0.1386861313868613,
+      "char_accuracy": 0.16163492800743148,
+      "sequence_similarity": 0.16163492800743148,
+      "word_precision": 0.6470588235294118,
+      "word_recall": 0.2323943661971831,
+      "word_f1": 0.34196891191709844,
+      "ocr_word_count": 52,
+      "truth_word_count": 222,
+      "ocr_char_count": 440,
+      "truth_char_count": 1713,
+      "processing_time": 2.613950729370117,
+      "ocr_confidence": 0.8441440165042877,
+      "quality_score": 0.8441440165042877
+    },
+    "page_2": {
+      "word_accuracy": 0.0,
+      "char_accuracy": 0.0,
+      "sequence_similarity": 0.0,
+      "word_precision": 0.0,
+      "word_recall": 0.0,
+      "word_f1": 0.0,
+      "ocr_word_count": 1,
+      "truth_word_count": 87,
+      "ocr_char_count": 1,
+      "truth_char_count": 674,
+      "processing_time": 0.31989121437072754,
+      "ocr_confidence": 0.6963761448860168,
+      "quality_score": 0.3899706411361694
+    },
+    "page_3": {
+      "word_accuracy": 0.0,
+      "char_accuracy": 0.0,
+      "sequence_similarity": 0.0,
+      "word_precision": 0.0,
+      "word_recall": 0.0,
+      "word_f1": 0.0,
+      "ocr_word_count": 0,
+      "truth_word_count": 125,
+      "ocr_char_count": 0,
+      "truth_char_count": 1075,
+      "processing_time": 0.304032564163208,
+      "ocr_confidence": 0.5069857239723206,
+      "quality_score": 0.31940100610256195
+    },
+    "page_4": {
+      "word_accuracy": 0.0,
+      "char_accuracy": 0.0,
+      "sequence_similarity": 0.0,
+      "word_precision": 0.0,
+      "word_recall": 0.0,
+      "word_f1": 0.0,
+      "ocr_word_count": 0,
+      "truth_word_count": 24,
+      "ocr_char_count": 0,
+      "truth_char_count": 139,
+      "processing_time": 0.2585451602935791,
+      "ocr_confidence": 0.0,
+      "quality_score": 0.0
+    },
+    "page_5": {
+      "word_accuracy": 0.0,
+      "char_accuracy": 0.0,
+      "sequence_similarity": 0.0,
+      "word_precision": 0.0,
+      "word_recall": 0.0,
+      "word_f1": 0.0,
+      "ocr_word_count": 0,
+      "truth_word_count": 179,
+      "ocr_char_count": 0,
+      "truth_char_count": 1247,
+      "processing_time": 0.2598738670349121,
+      "ocr_confidence": 0.0,
+      "quality_score": 0.0
+    }
+  },
+  "document_metrics": {
+    "Doc_1-4_Email Chain": {
+      "pages": "1-4",
+      "type": "Email Chain",
+      "metrics": {
+        "word_accuracy": 0.10176125244618395,
+        "char_accuracy": 0.08205635195254572,
+        "sequence_similarity": 0.08205635195254572,
+        "word_precision": 0.6346153846153846,
+        "word_recall": 0.13580246913580246,
+        "word_f1": 0.22372881355932203,
+        "ocr_word_count": 53,
+        "truth_word_count": 458,
+        "ocr_char_count": 442,
+        "truth_char_count": 3604
+      }
+    },
+    "Doc_5-6_Email Chain": {
+      "pages": "5-6",
+      "type": "Email Chain",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 276,
+        "ocr_char_count": 0,
+        "truth_char_count": 2045
+      }
+    },
+    "Doc_7-8_Submittal": {
+      "pages": "7-8",
+      "type": "Submittal",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 447,
+        "ocr_char_count": 0,
+        "truth_char_count": 3028
+      }
+    },
+    "Doc_9-12_Schedule of Values": {
+      "pages": "9-12",
+      "type": "Schedule of Values",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 727,
+        "ocr_char_count": 0,
+        "truth_char_count": 5123
+      }
+    },
+    "Doc_13_Email": {
+      "pages": "13",
+      "type": "Email",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 125,
+        "ocr_char_count": 0,
+        "truth_char_count": 963
+      }
+    },
+    "Doc_14-17_Application for Payment": {
+      "pages": "14-17",
+      "type": "Application for Payment",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 1432,
+        "ocr_char_count": 0,
+        "truth_char_count": 9248
+      }
+    },
+    "Doc_18-19_Invoice": {
+      "pages": "18-19",
+      "type": "Invoice",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 257,
+        "ocr_char_count": 0,
+        "truth_char_count": 1874
+      }
+    },
+    "Doc_20-22_Invoice": {
+      "pages": "20-22",
+      "type": "Invoice",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 796,
+        "ocr_char_count": 0,
+        "truth_char_count": 5496
+      }
+    },
+    "Doc_23-25_Request for Information": {
+      "pages": "23-25",
+      "type": "Request for Information",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 191,
+        "ocr_char_count": 0,
+        "truth_char_count": 1271
+      }
+    },
+    "Doc_26-31_Plans and Specifications": {
+      "pages": "26-31",
+      "type": "Plans and Specifications",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 1769,
+        "ocr_char_count": 0,
+        "truth_char_count": 10200
+      }
+    },
+    "Doc_32-33_Cost Proposal": {
+      "pages": "32-33",
+      "type": "Cost Proposal",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 286,
+        "ocr_char_count": 0,
+        "truth_char_count": 2079
+      }
+    },
+    "Doc_34_Cost Proposal": {
+      "pages": "34",
+      "type": "Cost Proposal",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 154,
+        "ocr_char_count": 0,
+        "truth_char_count": 1109
+      }
+    },
+    "Doc_35_Cost Proposal": {
+      "pages": "35",
+      "type": "Cost Proposal",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 121,
+        "ocr_char_count": 0,
+        "truth_char_count": 919
+      }
+    },
+    "Doc_36_Email": {
+      "pages": "36",
+      "type": "Email",
+      "metrics": {
+        "word_accuracy": 0.0,
+        "char_accuracy": 0.0,
+        "sequence_similarity": 0.0,
+        "word_precision": 0.0,
+        "word_recall": 0.0,
+        "word_f1": 0.0,
+        "ocr_word_count": 0,
+        "truth_word_count": 110,
+        "ocr_char_count": 0,
+        "truth_char_count": 907
+      }
+    }
+  }
+}

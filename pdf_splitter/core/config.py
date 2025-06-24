@@ -12,7 +12,7 @@ class PDFConfig(BaseModel):
 
     # DPI Settings
     default_dpi: int = Field(
-        150, ge=72, le=600, description="Default DPI for rendering"
+        300, ge=72, le=600, description="Default DPI for rendering"
     )
     max_dpi: int = Field(300, ge=72, le=600, description="Maximum allowed DPI")
 

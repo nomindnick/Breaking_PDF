@@ -1,0 +1,60 @@
+{
+  "ocr_settings": {
+    "default": {
+      "dpi": 300,
+      "enable_mkldnn": false,
+      "use_angle_cls": true,
+      "preprocessing_enabled": true
+    },
+    "document_type_overrides": {
+      "email": {
+        "dpi": 300,
+        "preprocessing": [
+          "denoise"
+        ]
+      },
+      "form": {
+        "dpi": 200,
+        "preprocessing": [
+          "adaptive_threshold",
+          "morphology_close"
+        ],
+        "det_db_thresh": 0.2
+      },
+      "table": {
+        "dpi": 200,
+        "colorspace": "gray",
+        "preprocessing": [
+          "enhance_contrast",
+          "sharpen"
+        ],
+        "rec_batch_num": 10
+      },
+      "technical": {
+        "dpi": 400,
+        "preprocessing": [
+          "bilateral_filter",
+          "enhance_contrast"
+        ]
+      },
+      "mixed": {
+        "dpi": 300,
+        "colorspace": "gray",
+        "preprocessing": [
+          "otsu_threshold"
+        ]
+      }
+    }
+  },
+  "performance_optimizations": {
+    "max_workers": 4,
+    "batch_size": 5,
+    "cache_enabled": true,
+    "smart_preprocessing": true
+  },
+  "quality_thresholds": {
+    "low_quality": 0.3,
+    "high_quality": 0.8,
+    "min_confidence": 0.5
+  }
+}

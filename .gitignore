@@ -172,3 +172,25 @@ ocr_cache/
 examples/**/*_extracted_text.json
 examples/**/*_text_only.json
 examples/**/*.png
+
+# OCR diagnostic and temporary files
+scripts/test_*.py
+scripts/debug_*.py
+scripts/diagnose_*.py
+scripts/analyze_*.py
+scripts/compare_*.py
+scripts/examine_*.py
+scripts/minimal_*.py
+scripts/quick_*.py
+scripts/final_*.py
+
+# Analysis outputs (keep only essential reports)
+analysis_output/
+!analysis_output/ocr_analysis_report.md
+!analysis_output/optimized_pipeline_results.json
+
+# Temporary test images
+*.png
+!docs/**/*.png
+test_*.png
+debug_*.png

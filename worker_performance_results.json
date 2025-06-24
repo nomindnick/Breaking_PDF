@@ -1,0 +1,35 @@
+{
+  "test_pdf": "test_files/Test_PDF_Set_1.pdf",
+  "pages_tested": 12,
+  "results": [
+    {
+      "worker_count": 1,
+      "pages_processed": 12,
+      "avg_time_per_page": 0.29821291897032,
+      "pages_per_second": 3.395817788463803,
+      "speedup": 1.0
+    },
+    {
+      "worker_count": 2,
+      "pages_processed": 12,
+      "avg_time_per_page": 0.2062958280245463,
+      "pages_per_second": 4.847703890602254,
+      "speedup": 1.4275512387828246
+    },
+    {
+      "worker_count": 4,
+      "pages_processed": 12,
+      "avg_time_per_page": 0.16737265719307795,
+      "pages_per_second": 5.97484607515304,
+      "speedup": 1.7594719291036915
+    },
+    {
+      "worker_count": 6,
+      "pages_processed": 12,
+      "avg_time_per_page": 0.2057601809501648,
+      "pages_per_second": 4.860063175967779,
+      "speedup": 1.4311907996001074
+    }
+  ],
+  "optimal_workers": 4
+}

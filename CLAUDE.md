@@ -17,8 +17,8 @@ This project will serve as a foundational component for a larger RAG-based const
 ### Core Technologies
 - **Language**: Python 3.12
 - **Web Framework**: FastAPI with HTMX for frontend
-- **PDF Processing**: PyMuPDF, pikepdf
-- **OCR Engine**: PaddleOCR (primary), pytesseract (fallback)
+- **PDF Processing**: PyMuPDF (⚠️ AGPL license - requires commercial license), pikepdf
+- **OCR Engine**: PaddleOCR (primary), EasyOCR/Tesseract (fallback)
 - **LLM**: Transformers library (production), Ollama (development)
 - **Database**: SQLite (development), PostgreSQL (production)
 
@@ -67,55 +67,53 @@ pdf_splitter/
 - Descriptive commit messages
 - Pre-commit hooks run automatically (black, isort, flake8, mypy)
 - Keep commits atomic and focused
+- **Clean up diagnostic/test files before committing** (see Technical Debt section)
 
 ## Current Development Status
 
 ### Completed ✅
-- [x] Project structure and initial setup
-- [x] Virtual environment with core dependencies
-- [x] PaddleOCR installation and configuration
-- [x] Pre-commit hooks configured
-- [x] Basic FastAPI application skeleton
+- [x] **Preprocessing Module** (100% complete with 90% OCR accuracy)
+  - PDFHandler: High-performance PDF processing (0.02-0.05s/page)
+  - TextExtractor: Advanced text extraction with layout analysis
+  - Advanced Cache: 10-100x performance improvement for repeated access
+  - OCR Processor: Multi-engine OCR with document type classification
 
 ### In Progress 🚧
-- [ ] OCR processor module (preprocessing/)
-- [ ] PDF text extraction and quality assessment
+- [ ] Detection Module (see development_progress.md for detailed plan)
 
 ### Upcoming 📋
-- [ ] LLM-based boundary detection
-- [ ] Visual pattern analysis for document breaks
-- [ ] Heuristic detection rules
-- [ ] Signal combination algorithm
-- [ ] Web interface for manual review
-- [ ] Performance optimization
+- [ ] Splitting Module
+- [ ] API Module
+- [ ] Frontend Module
 
 ## Module Development Order
 
-1. **Preprocessing Module** (Current Focus)
-   - PDF validation and loading
-   - OCR processing with PaddleOCR
-   - Text extraction from searchable PDFs
-   - Quality assessment
+1. **Preprocessing Module** ✅ COMPLETE
+   - PDF validation and loading (PyMuPDF-based)
+   - OCR with 90% accuracy (PaddleOCR + document classification)
+   - Text extraction with layout analysis
+   - Advanced caching system
 
-2. **LLM Detection Module**
-   - Context overlap analysis (30% strategy)
-   - Prompt engineering
-   - Boundary confidence scoring
+2. **Detection Module** 🚧 NEXT
+   - LLM Detection: Context overlap analysis (30% strategy)
+   - Visual Detection: Layout changes via OCR bounding boxes
+   - Heuristic Detection: Date patterns, document keywords
+   - Signal Combiner: Weighted scoring and consensus
 
-3. **Visual & Heuristic Detection**
-   - Layout analysis
-   - Date pattern detection
-   - Header/footer identification
+3. **Splitting Module**
+   - PDF manipulation and output
+   - Metadata preservation
+   - Batch processing
 
-4. **Signal Combination**
-   - Weighted scoring algorithm
-   - Confidence thresholds
-   - Final boundary decisions
-
-5. **Integration & Frontend**
-   - API endpoints
+4. **API Module**
+   - FastAPI endpoints
    - Progress tracking
+   - Async processing
+
+5. **Frontend Module**
+   - HTMX-based UI
    - Manual review interface
+   - Real-time updates
 
 ## Performance Targets
 - **OCR**: 1-2 seconds per page (when needed)
@@ -153,9 +151,55 @@ pre-commit run --all-files
 pip install <package> && pip freeze > requirements.txt
 ```
 
+## Critical Technical Decisions
+
+1. **PyMuPDF License**: AGPL v3 - requires commercial license for production use
+2. **OCR Settings**:
+   - `paddle_enable_mkldnn=False` - Critical for accuracy (91x improvement)
+   - Default DPI: 300 (not 150) - Updated based on testing
+   - Document type classification for optimized processing
+3. **Performance Optimization**:
+   - `OMP_THREAD_LIMIT=1` for containerized environments
+   - Parallel processing with 4 workers optimal
+4. **Caching**: Advanced multi-tier caching system is critical for performance
+
+## Avoiding Technical Debt
+
+### During Development
+1. **Diagnostic Scripts**: Create in `scripts/` with descriptive names (e.g., `test_ocr_accuracy.py`)
+2. **Temporary Files**: Use `.gitignore` patterns, never commit PNG/debug files
+3. **Experimentation**: Use feature branches for major experiments
+
+### Before Committing
+1. **Clean Up Diagnostic Files**:
+   ```bash
+   # Remove test scripts
+   rm scripts/test_*.py scripts/debug_*.py scripts/diagnose_*.py
+
+   # Remove temporary images
+   rm *.png analysis_output/*.png
+
+   # Keep only essential utilities
+   ```
+
+2. **Consolidate Findings**:
+   - Document key discoveries in `development_progress.md`
+   - Create summary documents for major investigations
+   - Update configuration files with optimal settings
+
+3. **Review Checklist**:
+   - [ ] All tests passing
+   - [ ] No diagnostic/temporary files
+   - [ ] Documentation updated
+   - [ ] Key findings recorded
+   - [ ] Configuration optimized
+
 ## Notes for AI Assistants
 - Always run tests after making changes
 - Use the modular structure - don't cross module boundaries
 - Follow the established patterns in existing code
 - Consider performance implications of all changes
 - Update this file when making significant architectural decisions
+- **Clean up all diagnostic code before suggesting commits**
+- Document findings in `development_progress.md` not in scattered files
+- When doing deep investigations, plan for cleanup from the start

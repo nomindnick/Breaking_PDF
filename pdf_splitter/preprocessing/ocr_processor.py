@@ -54,7 +54,7 @@ class OCRConfig(BaseModel):
     paddle_cls_model_dir: Optional[str] = None
     paddle_use_gpu: bool = False
     paddle_cpu_threads: int = 4
-    paddle_enable_mkldnn: bool = True
+    paddle_enable_mkldnn: bool = False
     paddle_rec_batch_num: int = 6
 
     # Processing settings
@@ -452,9 +452,20 @@ class OCRProcessor:
 
         # Preprocess if enabled and not skipped
         if self.config.preprocessing_enabled and not skip_preprocessing:
-            preprocess_result = self.preprocess_image(image)
-            processed_image = preprocess_result.image
-            preprocessing_applied = preprocess_result.operations_applied
+            # Check if preprocessing is really needed for this image
+            image_quality = self._assess_image_quality(image)
+
+            # Skip preprocessing for high-quality computer-generated images
+            if image_quality > 0.8 and page_type != PageType.MIXED:
+                processed_image = image
+                warnings.append(
+                    f"Skipped preprocessing for high-quality image "
+                    f"(quality={image_quality:.2f})"
+                )
+            else:
+                preprocess_result = self.preprocess_image(image)
+                processed_image = preprocess_result.image
+                preprocessing_applied = preprocess_result.operations_applied
         else:
             processed_image = image
 
