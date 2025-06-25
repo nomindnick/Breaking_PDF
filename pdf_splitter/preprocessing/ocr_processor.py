@@ -30,6 +30,31 @@ os.environ["OMP_THREAD_LIMIT"] = "1"
 
 logger = logging.getLogger(__name__)
 
+# Image processing constants
+MEDIAN_BLUR_KERNEL_SIZE = 3
+GAUSSIAN_BLUR_KERNEL_SIZE = (5, 5)
+SHARPNESS_VARIANCE_DIVISOR = 10000.0
+NOISE_MULTIPLIER = 10.0
+QUALITY_THRESHOLD_DENOISE = 0.7
+QUALITY_THRESHOLD_ADAPTIVE = 0.6
+
+# Quality metric weights
+CONTRAST_WEIGHT = 0.4
+SHARPNESS_WEIGHT = 0.4
+NOISE_SCORE_WEIGHT = 0.2
+
+# OCR confidence thresholds
+SUSPICIOUS_PATTERN_MIN_RATIO = 0.3
+
+# Suspicious OCR error patterns
+SUSPICIOUS_PATTERNS = [
+    "|||",  # Multiple pipes often indicate table parsing issues
+    "```",  # Multiple backticks
+    "...",  # Excessive dots (more than 3)
+    "___",  # Multiple underscores
+    "!!!",  # Multiple exclamation marks
+]
+
 
 class OCREngine(str, Enum):
     """Available OCR engines."""
@@ -282,8 +307,8 @@ class OCRProcessor:
             operations.append("grayscale_conversion")
 
         # Denoise if enabled and needed
-        if self.config.denoise_enabled and original_quality < 0.7:
-            processed = cv2.medianBlur(processed, 3)
+        if self.config.denoise_enabled and original_quality < QUALITY_THRESHOLD_DENOISE:
+            processed = cv2.medianBlur(processed, MEDIAN_BLUR_KERNEL_SIZE)
             operations.append("noise_reduction")
 
         # Deskew if enabled
@@ -294,7 +319,7 @@ class OCRProcessor:
                 operations.append(f"deskew_{angle:.1f}deg")
 
         # Adaptive thresholding for binarization
-        if original_quality < 0.6:
+        if original_quality < QUALITY_THRESHOLD_ADAPTIVE:
             processed = cv2.adaptiveThreshold(
                 processed,
                 255,
@@ -338,17 +363,21 @@ class OCRProcessor:
 
         # 2. Sharpness (Laplacian variance)
         laplacian = cv2.Laplacian(gray, cv2.CV_64F)
-        sharpness = np.var(laplacian) / 10000.0
+        sharpness = np.var(laplacian) / SHARPNESS_VARIANCE_DIVISOR
         sharpness = min(sharpness, 1.0)
 
         # 3. Noise level (high-frequency content)
         # Use difference between original and blurred
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        blurred = cv2.GaussianBlur(gray, GAUSSIAN_BLUR_KERNEL_SIZE, 0)
         noise = np.mean(np.abs(gray.astype(float) - blurred.astype(float))) / 255.0
-        noise_score = 1.0 - min(noise * 10, 1.0)
+        noise_score = 1.0 - min(noise * NOISE_MULTIPLIER, 1.0)
 
         # Combine metrics
-        quality = contrast * 0.4 + sharpness * 0.4 + noise_score * 0.2
+        quality = (
+            contrast * CONTRAST_WEIGHT
+            + sharpness * SHARPNESS_WEIGHT
+            + noise_score * NOISE_SCORE_WEIGHT
+        )
 
         return min(quality, 1.0)
 
@@ -690,15 +719,7 @@ class OCRProcessor:
 
         # Suspicious patterns (common OCR errors)
         suspicious_patterns = 0
-        suspicious_indicators = [
-            "|||",  # Multiple pipes often indicate table parsing issues
-            "```",  # Multiple backticks
-            "...",  # Excessive dots (more than 3)
-            "___",  # Multiple underscores
-            "!!!",  # Multiple exclamation marks
-        ]
-
-        for pattern in suspicious_indicators:
+        for pattern in SUSPICIOUS_PATTERNS:
             suspicious_patterns += full_text.count(pattern)
 
         return OCRQualityMetrics(

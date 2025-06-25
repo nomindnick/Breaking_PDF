@@ -24,6 +24,13 @@ from pdf_splitter.preprocessing.pdf_handler import PageText, PageType, PDFHandle
 
 logger = logging.getLogger(__name__)
 
+# Text extraction constants
+TABLE_ALIGNMENT_TOLERANCE = 5.0  # pixels
+TABLE_MIN_AVG_COLUMNS = 1.5  # Average columns per row threshold
+HEADER_FOOTER_PAGE_RATIO = 0.1  # Top/bottom 10% of page
+MIN_FONT_SIZE_DIFFERENCE = 2.0  # Points
+READING_ORDER_TOLERANCE = 10.0  # Pixels for reading order detection
+
 
 class TextBlock(BaseModel):
     """Represents a block of text with layout information."""
@@ -323,7 +330,7 @@ class TextExtractor:
 
         # Look for horizontal alignment patterns
         rows: Dict[float, List[Any]] = defaultdict(list)
-        tolerance = 5.0  # pixels
+        tolerance = TABLE_ALIGNMENT_TOLERANCE
 
         for block in sorted_blocks:
             y_pos = block[1]
@@ -344,7 +351,7 @@ class TextExtractor:
         if len(row_counts) > 2 and max(row_counts) > 1:
             # Possible table detected
             avg_cols = mean(row_counts)
-            if avg_cols > 1.5:  # Average more than 1.5 columns per row
+            if avg_cols > TABLE_MIN_AVG_COLUMNS:
                 tables.append(
                     {
                         "rows": len(rows),

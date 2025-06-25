@@ -573,7 +573,7 @@ class PDFHandler:
                 f"Failed to extract text from page {page_num}: {str(e)}"
             )
 
-    def _estimate_text_confidence(self, text: str, blocks: List) -> float:
+    def _estimate_text_confidence(self, text: str, blocks: List[Any]) -> float:
         """
         Estimate confidence of extracted text quality.
 

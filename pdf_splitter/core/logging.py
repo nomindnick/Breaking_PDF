@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import structlog
 from rich.console import Console
@@ -12,46 +12,73 @@ from .config import settings
 
 
 def setup_logging(
-    log_level: Optional[str] = None,
-    log_file: Optional[Path] = None,
+    level: Optional[str] = None,
+    log_file: Optional[Union[str, Path]] = None,
     structured: bool = True,
+    colored: bool = True,
+    json_logs: bool = False,
 ) -> None:
     """
     Configure application logging with both structured and human-readable formats.
 
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional path to log file
         structured: Whether to use structured logging
+        colored: Whether to use colored output (when not using json_logs)
+        json_logs: Whether to output logs in JSON format
     """
-    level = log_level or settings.log_level
+    log_level = level or settings.log_level
 
-    if structured:
+    # Reset structlog configuration to ensure clean state
+    structlog.reset_defaults()
+
+    # Configure standard logging level first
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level))
+
+    # Remove existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+
+    if json_logs or structured:
         # Configure structlog for structured logging
+        processors = [
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.processors.JSONRenderer()
+            if json_logs
+            else structlog.dev.ConsoleRenderer(),
+        ]
+
         structlog.configure(
-            processors=[
-                structlog.stdlib.filter_by_level,
-                structlog.stdlib.add_logger_name,
-                structlog.stdlib.add_log_level,
-                structlog.stdlib.PositionalArgumentsFormatter(),
-                structlog.processors.TimeStamper(fmt="iso"),
-                structlog.processors.StackInfoRenderer(),
-                structlog.processors.format_exc_info,
-                structlog.processors.UnicodeDecoder(),
-                structlog.processors.JSONRenderer(),
-            ],
+            processors=processors,
             context_class=dict,
             logger_factory=structlog.stdlib.LoggerFactory(),
-            cache_logger_on_first_use=True,
+            cache_logger_on_first_use=True,  # Enable caching for same instances
         )
+
+        # Ensure console output for structured logs if no file specified
+        if not log_file and not json_logs:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(getattr(logging, log_level))
+            root_logger.addHandler(console_handler)
+
+        # Add file handler if specified
+        if log_file:
+            log_file_path = Path(log_file) if isinstance(log_file, str) else log_file
+            file_handler = logging.FileHandler(str(log_file_path))
+            file_handler.setLevel(getattr(logging, log_level))
+            root_logger.addHandler(file_handler)
     else:
         # Configure standard logging with Rich handler for console output
         console = Console()
-
-        # Remove existing handlers
-        root_logger = logging.getLogger()
-        for handler in root_logger.handlers[:]:
-            root_logger.removeHandler(handler)
 
         # Console handler with Rich
         console_handler = RichHandler(
@@ -60,20 +87,14 @@ def setup_logging(
             tracebacks_show_locals=settings.debug,
             markup=True,
         )
-        console_handler.setLevel(getattr(logging, level))
-
-        # Configure format
-        logging.basicConfig(
-            level=getattr(logging, level),
-            format="%(message)s",
-            datefmt="[%X]",
-            handlers=[console_handler],
-        )
+        console_handler.setLevel(getattr(logging, log_level))
+        root_logger.addHandler(console_handler)
 
         # Add file handler if specified
         if log_file:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(getattr(logging, level))
+            log_file_path = Path(log_file) if isinstance(log_file, str) else log_file
+            file_handler = logging.FileHandler(str(log_file_path))
+            file_handler.setLevel(getattr(logging, log_level))
             file_formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )
@@ -95,4 +116,5 @@ def get_logger(name: str) -> structlog.BoundLogger:
 
 
 # Configure logging on import
-setup_logging(structured=not settings.debug)
+# Commented out to avoid interfering with tests
+# setup_logging(structured=not settings.debug)

@@ -5,7 +5,7 @@ import sys
 import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
 import numpy as np
 import psutil
@@ -37,8 +37,8 @@ class CacheMetrics:
         """Average time saved per cache hit."""
         return self.total_time_saved / self.hits if self.hits > 0 else 0.0
 
-    def log_summary(self):
-        """Log cache performance summary."""
+    def log_summary(self) -> None:
+        """Log cache performance summary with hit rate and time saved."""
         logger.info(
             f"Cache Performance - Hit Rate: {self.hit_rate:.1%}, "
             f"Time Saved: {self.total_time_saved:.2f}s, "
@@ -56,8 +56,8 @@ class CacheEntry(Generic[T]):
     access_count: int = 0
     last_access: float = field(default_factory=time.time)
 
-    def access(self):
-        """Update access statistics."""
+    def access(self) -> None:
+        """Update access statistics for LRU tracking."""
         self.access_count += 1
         self.last_access = time.time()
 
@@ -74,13 +74,22 @@ class AdvancedLRUCache(Generic[T]):
     - Warm-up capability for predictive caching
     """
 
-    def __init__(  # noqa: D107
+    def __init__(
         self,
         max_memory_mb: int = 100,
         max_items: int = 1000,
         ttl_seconds: Optional[int] = None,
         memory_pressure_threshold: float = 0.8,
     ):
+        """
+        Initialize advanced LRU cache with memory management.
+
+        Args:
+            max_memory_mb: Maximum memory usage in MB
+            max_items: Maximum number of items to cache
+            ttl_seconds: Time-to-live for cache entries (None = no expiry)
+            memory_pressure_threshold: System memory threshold for aggressive eviction
+        """
         self.cache: OrderedDict[Any, CacheEntry[T]] = OrderedDict()
         self.max_memory_mb = max_memory_mb
         self.max_items = max_items
@@ -90,7 +99,10 @@ class AdvancedLRUCache(Generic[T]):
         self.metrics = CacheMetrics()
 
     def get(
-        self, key: Any, compute_func=None, compute_time: float = 0.0
+        self,
+        key: Any,
+        compute_func: Optional[Callable[[], T]] = None,
+        compute_time: float = 0.0,
     ) -> Optional[T]:
         """
         Get item from cache or compute if missing.
@@ -133,7 +145,7 @@ class AdvancedLRUCache(Generic[T]):
 
         return None
 
-    def put(self, key: Any, value: T, size_mb: Optional[float] = None):
+    def put(self, key: Any, value: T, size_mb: Optional[float] = None) -> None:
         """Add item to cache with automatic memory management."""
         # Calculate size if not provided
         if size_mb is None:
@@ -157,7 +169,7 @@ class AdvancedLRUCache(Generic[T]):
         self.cache[key] = entry
         self.current_memory_mb += size_mb
 
-    def evict(self, key: Any):
+    def evict(self, key: Any) -> None:
         """Manually evict a specific key."""
         if key in self.cache:
             entry = self.cache.pop(key)
@@ -209,7 +221,7 @@ class AdvancedLRUCache(Generic[T]):
             logger.debug(f"Failed to estimate size for {type(value)}: {e}")
             return 1.0  # Default 1MB if estimation fails
 
-    def warmup(self, keys: list, compute_func):
+    def warmup(self, keys: List[Any], compute_func: Callable[[Any], T]) -> None:
         """Pre-populate cache with likely-to-be-used items."""
         for key in keys:
             if key not in self.cache:
@@ -219,7 +231,7 @@ class AdvancedLRUCache(Generic[T]):
                 except Exception as e:
                     logger.debug(f"Failed to warmup cache for {key}: {e}")
 
-    def clear(self):
+    def clear(self) -> None:
         """Clear entire cache."""
         self.cache.clear()
         self.current_memory_mb = 0.0

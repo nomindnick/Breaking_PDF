@@ -3,12 +3,14 @@
 from pathlib import Path
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class PDFConfig(BaseModel):
+class PDFConfig(BaseSettings):
     """Configuration for PDF handling and processing."""
+
+    model_config = SettingsConfigDict(env_prefix="PDF_")
 
     # DPI Settings
     default_dpi: int = Field(

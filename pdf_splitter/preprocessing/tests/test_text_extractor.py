@@ -296,6 +296,65 @@ class TestTextExtractor:
                         if len(extracted.blocks) > 5:
                             assert extracted.reading_order_confidence > 0.5
 
+    def test_extract_basic_text(self, text_extractor, pdf_handler):
+        """Test basic text extraction method."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                # Access internal method through extract_page
+                page = text_extractor.extract_page(0)
+                # Basic text should be extracted
+                assert page.text
+                assert len(page.text) > 0
+
+    def test_extract_text_blocks(self, text_extractor, pdf_handler):
+        """Test text block extraction."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                page = text_extractor.extract_page(0)
+
+                # Should have text blocks
+                assert page.blocks
+                assert len(page.blocks) > 0
+
+                # Verify block structure
+                for block in page.blocks:
+                    assert isinstance(block, TextBlock)
+                    assert block.text
+                    assert len(block.bbox) == 4
+                    assert all(isinstance(x, (int, float)) for x in block.bbox)
+
+    def test_analyze_fonts_coverage(self, text_extractor, pdf_handler):
+        """Test font analysis with various scenarios."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                page = text_extractor.extract_page(0)
+
+                # Check font info exists
+                if page.blocks:
+                    blocks_with_fonts = [b for b in page.blocks if b.font_info]
+                    if blocks_with_fonts:
+                        font_info = blocks_with_fonts[0].font_info
+                        assert "size" in font_info
+                        assert font_info["size"] > 0
+
     def test_empty_page_handling(self, text_extractor, pdf_handler):
         """Test handling of empty or nearly empty pages."""
         test_pdf = (
@@ -321,6 +380,76 @@ class TestTextExtractor:
                             # It's ok if extraction fails on empty pages
                             pass
                         break
+
+    def test_calculate_quality_metrics(self, text_extractor, pdf_handler):
+        """Test quality metrics calculation."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                page = text_extractor.extract_page(0)
+
+                # Quality score should be calculated
+                assert hasattr(page, "quality_score")
+                assert 0.0 <= page.quality_score <= 1.0
+
+                # Test with different page types if available
+                for i in range(min(3, pdf_handler.page_count)):
+                    try:
+                        page = text_extractor.extract_page(i)
+                        assert 0.0 <= page.quality_score <= 1.0
+                    except Exception:
+                        pass  # Skip problematic pages
+
+    def test_error_handling_in_extraction(
+        self, text_extractor, pdf_handler, monkeypatch
+    ):
+        """Test error handling during extraction."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                # Test with simulated error in text extraction
+                def mock_extract_error(*args, **kwargs):
+                    raise Exception("Simulated extraction error")
+
+                # Patch internal method to raise error
+                monkeypatch.setattr(
+                    text_extractor, "_extract_basic_text", mock_extract_error
+                )
+
+                # Should handle error gracefully
+                with pytest.raises(PDFTextExtractionError):
+                    text_extractor.extract_page(0)
+
+    def test_extract_with_no_document(self, text_extractor, pdf_handler):
+        """Test extraction when document is None."""
+        test_pdf = (
+            Path(__file__).parent.parent.parent.parent.parent
+            / "test_files"
+            / "Test_PDF_Set_2_ocr.pdf"
+        )
+
+        if test_pdf.exists():
+            with pdf_handler.load_pdf(test_pdf):
+                # Temporarily set document to None
+                original_doc = pdf_handler._document
+                pdf_handler._document = None
+
+                with pytest.raises(PDFTextExtractionError) as exc_info:
+                    text_extractor.extract_page(0)
+                assert "PDF document not loaded" in str(exc_info.value)
+
+                # Restore document
+                pdf_handler._document = original_doc
 
 
 class TestTextExtractionIntegration:

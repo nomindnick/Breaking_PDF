@@ -41,7 +41,7 @@ class TestExceptionHierarchy:
 
         # PDFRenderError
         exc = PDFRenderError("Render failed")
-        assert isinstance(exc, PDFHandlerError)
+        assert isinstance(exc, PDFProcessingError)
         assert str(exc) == "Render failed"
 
     def test_ocr_exceptions(self):

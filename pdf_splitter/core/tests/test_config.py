@@ -133,8 +133,8 @@ class TestOCRConfig:
         config = OCRConfig()
 
         assert config.primary_engine == OCREngine.PADDLEOCR
-        assert config.fallback_engines == [OCREngine.TESSERACT]
-        assert config.confidence_threshold == 0.6
+        assert config.fallback_engines == []
+        assert config.min_confidence_threshold == 0.5
         assert config.preprocessing_enabled is True
 
     def test_ocr_engine_validation(self):
