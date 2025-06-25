@@ -294,10 +294,17 @@ class PDFProcessingCache:
         )
         return result
 
-    def warmup_pages(self, pdf_path: str, page_range: range, render_func, extract_func):
+    def warmup_pages(
+        self,
+        pdf_path: str,
+        page_range: range,
+        render_func,
+        extract_func,
+        dpi: int = 300,
+    ):
         """Pre-cache likely-to-be-accessed pages."""
         # Warmup render cache
-        render_keys = [(pdf_path, p, 150) for p in page_range]
+        render_keys = [(pdf_path, p, dpi) for p in page_range]
         self.render_cache.warmup(render_keys[:10], lambda k: render_func(*k))
 
         # Warmup text cache

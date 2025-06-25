@@ -841,6 +841,7 @@ class PDFHandler:
             page_range=page_range,
             render_func=render_for_warmup,
             extract_func=extract_for_warmup,
+            dpi=self.config.default_dpi,
         )
 
     def get_cache_stats(self) -> Dict[str, Any]:

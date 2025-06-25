@@ -61,6 +61,8 @@ pdf_splitter/
 - Aim for > 80% code coverage
 - Use pytest fixtures for common test data
 - Test both success and failure cases
+- Use shared fixtures from global conftest.py
+- Leverage test_utils.py for common testing patterns
 
 ### Git Workflow
 - Feature branches for new development
@@ -133,6 +135,38 @@ Key settings in `.env`:
 - `DEBUG`: Development mode flag
 - `LOG_LEVEL`: Logging verbosity
 
+## Testing Infrastructure
+
+### Shared Test Fixtures (conftest.py)
+The project includes a comprehensive set of shared fixtures:
+- **Configuration**: `pdf_config`, `ocr_config` - Default test configurations
+- **Handlers**: `pdf_handler`, `loaded_pdf_handler` - Pre-configured handlers
+- **Mocks**: `mock_pdf_page`, `mock_pdf_document` - For unit testing
+- **Images**: `test_image_rgb`, `noisy_test_image` - Test image data
+- **Utilities**: `temp_dir`, `performance_timer` - Helper fixtures
+
+### Test Utilities (test_utils.py)
+Common testing functions available:
+- `create_test_pdf()` - Generate test PDFs programmatically
+- `assert_pdf_valid()` - Validate PDF files
+- `assert_text_quality()` - Check extracted text quality
+- `measure_performance()` - Performance benchmarking
+- `create_mock_*()` - Mock object creators
+
+### Testing Patterns
+```python
+# Example using shared fixtures
+def test_with_config(pdf_config):
+    assert pdf_config.default_dpi == 150
+
+# Example using test utilities
+from pdf_splitter.test_utils import create_test_pdf, assert_pdf_valid
+
+def test_pdf_creation(temp_dir):
+    pdf_path = create_test_pdf(num_pages=5, output_path=temp_dir / "test.pdf")
+    assert_pdf_valid(pdf_path)
+```
+
 ## Common Commands
 ```bash
 # Activate virtual environment
@@ -143,6 +177,15 @@ python main.py --reload
 
 # Run tests
 pytest
+
+# Run tests with coverage
+pytest --cov=pdf_splitter --cov-report=html
+
+# Run specific test module
+pytest pdf_splitter/preprocessing/tests/
+
+# Run tests excluding slow tests
+pytest -m "not slow"
 
 # Run pre-commit checks
 pre-commit run --all-files

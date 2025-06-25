@@ -34,7 +34,7 @@ class TestCacheIntegration:
         """Create PDFHandler with caching enabled."""
         config = PDFConfig(
             enable_cache_metrics=True,
-            render_cache_memory_mb=50,
+            render_cache_memory_mb=300,  # Increased to hold ~3 pages at 300 DPI
             text_cache_memory_mb=25,
             cache_warmup_pages=5,
         )
@@ -113,14 +113,16 @@ class TestCacheIntegration:
         """Test that cache respects memory limits."""
         # Create new handler with small memory limit
         config = PDFConfig(
-            render_cache_memory_mb=10, enable_cache_metrics=True  # Small limit
+            render_cache_memory_mb=10,
+            enable_cache_metrics=True,
+            default_dpi=72,  # Lower DPI to test memory limits with smaller images
         )
         handler = PDFHandler(config)
 
         with handler.load_pdf(test_pdf_path):
-            # Render many pages
+            # Render many pages at low DPI
             for i in range(20):
-                handler.render_page(i % 10)
+                handler.render_page(i % 10, dpi=72)
 
             # Check memory usage stays within limits (with small tolerance)
             stats = handler.get_cache_stats()
