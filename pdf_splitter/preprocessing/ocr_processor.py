@@ -9,7 +9,6 @@ This module provides state-of-the-art OCR capabilities optimized for CPU-only sy
 - Seamless integration with existing PDF processing pipeline
 """
 
-import gc
 import logging
 import os
 import time
@@ -201,6 +200,28 @@ class OCRProcessor:
             f"OCRProcessor initialized with primary engine: "
             f"{self.config.primary_engine}"
         )
+
+    def cleanup(self) -> None:
+        """Clean up OCR engine resources."""
+        for engine_type, engine in self._engines.items():
+            try:
+                # PaddleOCR doesn't have explicit cleanup
+                # EasyOCR doesn't have explicit cleanup
+                # Tesseract cleanup handled by pytesseract
+                logger.debug(f"Cleaned up {engine_type} engine")
+            except Exception as e:
+                logger.warning(f"Error cleaning up {engine_type}: {e}")
+
+        self._engines.clear()
+        self._primary_engine_initialized = False
+        logger.info("OCR engines cleaned up")
+
+    def __del__(self):
+        """Cleanup on deletion."""
+        try:
+            self.cleanup()
+        except Exception:
+            pass  # Ignore errors during cleanup
 
     def _initialize_engine(self, engine_type: OCREngine) -> Any:
         """
@@ -947,14 +968,6 @@ class OCRProcessor:
             "preprocessing_enabled": self.config.preprocessing_enabled,
             "parallel_workers": self.config.max_workers,
         }
-
-    def cleanup(self):
-        """Clean up resources and temporary files."""
-        # Clear engine instances
-        self._engines.clear()
-
-        # Force garbage collection
-        gc.collect()
 
         logger.info("OCR processor cleanup complete")
 

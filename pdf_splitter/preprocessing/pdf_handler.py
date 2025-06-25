@@ -27,7 +27,6 @@ except ImportError:
 from pdf_splitter.core.config import PDFConfig
 from pdf_splitter.core.exceptions import (
     PDFHandlerError,
-    PDFRenderError,
     PDFTextExtractionError,
     PDFValidationError,
 )
@@ -490,7 +489,7 @@ class PDFHandler:
 
             except Exception as e:
                 logger.exception(f"Failed to render page {page_num}")
-                raise PDFRenderError(f"Failed to render page {page_num}: {str(e)}")
+                raise PDFHandlerError(f"Failed to render page {page_num}: {str(e)}")
 
         # Use advanced cache with metrics tracking
         rendered_array = self.cache_manager.get_rendered_page(

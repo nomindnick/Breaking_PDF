@@ -165,7 +165,7 @@ class Settings(BaseSettings):
     ollama_host: Optional[str] = "http://localhost:11434"
 
     # PDF configuration
-    pdf: PDFConfig = Field(default_factory=PDFConfig)
+    pdf: PDFConfig = Field(default_factory=lambda: PDFConfig())
 
     @property
     def max_file_size_bytes(self) -> int:

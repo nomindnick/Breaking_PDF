@@ -167,6 +167,11 @@ def test_pdf_creation(temp_dir):
     assert_pdf_valid(pdf_path)
 ```
 
+### Important Testing Notes
+- **PDFConfig in Tests**: When creating PDFConfig instances in test fixtures, only pass valid configuration parameters. The model uses Pydantic validation and will reject unknown fields.
+- **Resource Cleanup**: The caching system now properly closes PIL Images when evicting entries to prevent resource leaks.
+- **OCR Cleanup**: OCR engines have cleanup methods that are called on deletion to free resources.
+
 ## Common Commands
 ```bash
 # Activate virtual environment

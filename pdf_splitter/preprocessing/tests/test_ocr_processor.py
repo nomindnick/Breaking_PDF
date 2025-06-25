@@ -57,7 +57,6 @@ class TestOCRProcessor:
         return PDFConfig(
             default_dpi=150,
             max_file_size_mb=100,
-            cache_enabled=False,  # Disable cache for tests
         )
 
     @pytest.fixture

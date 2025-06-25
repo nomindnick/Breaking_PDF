@@ -80,6 +80,7 @@ class AdvancedLRUCache(Generic[T]):
         max_items: int = 1000,
         ttl_seconds: Optional[int] = None,
         memory_pressure_threshold: float = 0.8,
+        eviction_ratio: float = 0.5,
     ):
         """
         Initialize advanced LRU cache with memory management.
@@ -89,12 +90,14 @@ class AdvancedLRUCache(Generic[T]):
             max_items: Maximum number of items to cache
             ttl_seconds: Time-to-live for cache entries (None = no expiry)
             memory_pressure_threshold: System memory threshold for aggressive eviction
+            eviction_ratio: Ratio of items to evict during aggressive eviction
         """
         self.cache: OrderedDict[Any, CacheEntry[T]] = OrderedDict()
         self.max_memory_mb = max_memory_mb
         self.max_items = max_items
         self.ttl_seconds = ttl_seconds
         self.memory_pressure_threshold = memory_pressure_threshold
+        self.eviction_ratio = eviction_ratio
         self.current_memory_mb = 0.0
         self.metrics = CacheMetrics()
 
@@ -173,6 +176,14 @@ class AdvancedLRUCache(Generic[T]):
         """Manually evict a specific key."""
         if key in self.cache:
             entry = self.cache.pop(key)
+
+            # Close PIL Image if applicable
+            if hasattr(entry.value, "close"):
+                try:
+                    entry.value.close()
+                except Exception:
+                    pass  # Ignore errors during cleanup
+
             self.current_memory_mb -= entry.size_mb
             self.metrics.evictions += 1
 
@@ -180,15 +191,21 @@ class AdvancedLRUCache(Generic[T]):
         """Evict least recently used item."""
         if self.cache:
             key, entry = self.cache.popitem(last=False)
+
+            # Close PIL Image if applicable
+            if hasattr(entry.value, "close"):
+                try:
+                    entry.value.close()
+                except Exception:
+                    pass  # Ignore errors during cleanup
+
             self.current_memory_mb -= entry.size_mb
             self.metrics.evictions += 1
             logger.debug(f"Evicted cache entry: {key}")
 
     def _aggressive_eviction(self):
         """Evict portion of cache when system memory is under pressure."""
-        # Get eviction ratio from config if available
-        eviction_ratio = getattr(self, "eviction_ratio", 0.5)
-        target_size = int(len(self.cache) * (1 - eviction_ratio))
+        target_size = int(len(self.cache) * (1 - self.eviction_ratio))
         while len(self.cache) > target_size:
             self._evict_lru()
         logger.warning(f"Memory pressure detected - evicted to {len(self.cache)} items")
@@ -232,7 +249,15 @@ class AdvancedLRUCache(Generic[T]):
                     logger.debug(f"Failed to warmup cache for {key}: {e}")
 
     def clear(self) -> None:
-        """Clear entire cache."""
+        """Clear entire cache and cleanup resources."""
+        # Close PIL Images before clearing
+        for item in self.cache.values():
+            if hasattr(item, "close"):
+                try:
+                    item.close()
+                except Exception:
+                    pass  # Ignore errors during cleanup
+
         self.cache.clear()
         self.current_memory_mb = 0.0
         logger.info("Cache cleared")
@@ -269,6 +294,7 @@ class PDFProcessingCache:
             max_memory_mb=config.render_cache_memory_mb,
             max_items=config.page_cache_size,
             ttl_seconds=3600,  # 1 hour TTL
+            eviction_ratio=config.cache_aggressive_eviction_ratio,
         )
 
         # Extracted text (memory-light, access-heavy)
@@ -276,11 +302,15 @@ class PDFProcessingCache:
             max_memory_mb=config.text_cache_memory_mb,
             max_items=config.page_cache_size * 2,
             ttl_seconds=7200,  # 2 hour TTL
+            eviction_ratio=config.cache_aggressive_eviction_ratio,
         )
 
         # Page analysis results (very light)
         self.analysis_cache = AdvancedLRUCache[dict](
-            max_memory_mb=10, max_items=1000, ttl_seconds=3600
+            max_memory_mb=10,
+            max_items=1000,
+            ttl_seconds=3600,
+            eviction_ratio=config.cache_aggressive_eviction_ratio,
         )
 
     def get_rendered_page(
