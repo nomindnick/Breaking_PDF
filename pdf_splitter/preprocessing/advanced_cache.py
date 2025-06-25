@@ -5,6 +5,7 @@ import sys
 import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
+from threading import RLock
 from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
 import numpy as np
@@ -100,6 +101,7 @@ class AdvancedLRUCache(Generic[T]):
         self.eviction_ratio = eviction_ratio
         self.current_memory_mb = 0.0
         self.metrics = CacheMetrics()
+        self._lock = RLock()  # Thread-safe operations
 
     def get(
         self,
@@ -115,32 +117,33 @@ class AdvancedLRUCache(Generic[T]):
             compute_func: Optional function to compute value if missing
             compute_time: Estimated time to compute (for metrics)
         """
-        # Check for expired entries
-        if key in self.cache:
-            entry = self.cache[key]
+        with self._lock:
+            # Check for expired entries
+            if key in self.cache:
+                entry = self.cache[key]
 
-            # Check TTL
-            if (
-                self.ttl_seconds
-                and time.time() - entry.creation_time > self.ttl_seconds
-            ):
-                self.evict(key)
-            else:
-                # Cache hit!
-                self.metrics.hits += 1
-                self.metrics.total_time_saved += compute_time
-                self.metrics.total_memory_saved_mb += entry.size_mb
+                # Check TTL
+                if (
+                    self.ttl_seconds
+                    and time.time() - entry.creation_time > self.ttl_seconds
+                ):
+                    self.evict(key)
+                else:
+                    # Cache hit!
+                    self.metrics.hits += 1
+                    self.metrics.total_time_saved += compute_time
+                    self.metrics.total_memory_saved_mb += entry.size_mb
 
-                # Move to end (most recently used)
-                self.cache.move_to_end(key)
-                entry.access()
+                    # Move to end (most recently used)
+                    self.cache.move_to_end(key)
+                    entry.access()
 
-                return entry.value
+                    return entry.value
 
-        # Cache miss
-        self.metrics.misses += 1
+            # Cache miss
+            self.metrics.misses += 1
 
-        # Compute if function provided
+        # Compute if function provided (outside lock to avoid blocking)
         if compute_func:
             value = compute_func()
             self.put(key, value)
@@ -154,38 +157,40 @@ class AdvancedLRUCache(Generic[T]):
         if size_mb is None:
             size_mb = self._estimate_size(value)
 
-        # Check system memory pressure
-        if self._check_memory_pressure():
-            self._aggressive_eviction()
+        with self._lock:
+            # Check system memory pressure
+            if self._check_memory_pressure():
+                self._aggressive_eviction()
 
-        # Normal eviction to make space
-        while (
-            self.current_memory_mb + size_mb > self.max_memory_mb
-            or len(self.cache) >= self.max_items
-        ):
-            if not self.cache:
-                break
-            self._evict_lru()
+            # Normal eviction to make space
+            while (
+                self.current_memory_mb + size_mb > self.max_memory_mb
+                or len(self.cache) >= self.max_items
+            ):
+                if not self.cache:
+                    break
+                self._evict_lru()
 
-        # Add new entry
-        entry = CacheEntry(value=value, size_mb=size_mb, creation_time=time.time())
-        self.cache[key] = entry
-        self.current_memory_mb += size_mb
+            # Add new entry
+            entry = CacheEntry(value=value, size_mb=size_mb, creation_time=time.time())
+            self.cache[key] = entry
+            self.current_memory_mb += size_mb
 
     def evict(self, key: Any) -> None:
         """Manually evict a specific key."""
-        if key in self.cache:
-            entry = self.cache.pop(key)
+        with self._lock:
+            if key in self.cache:
+                entry = self.cache.pop(key)
 
-            # Close PIL Image if applicable
-            if hasattr(entry.value, "close"):
-                try:
-                    entry.value.close()
-                except Exception:
-                    pass  # Ignore errors during cleanup
+                # Close PIL Image if applicable
+                if hasattr(entry.value, "close"):
+                    try:
+                        entry.value.close()
+                    except Exception:
+                        pass  # Ignore errors during cleanup
 
-            self.current_memory_mb -= entry.size_mb
-            self.metrics.evictions += 1
+                self.current_memory_mb -= entry.size_mb
+                self.metrics.evictions += 1
 
     def _evict_lru(self):
         """Evict least recently used item."""
@@ -241,26 +246,30 @@ class AdvancedLRUCache(Generic[T]):
     def warmup(self, keys: List[Any], compute_func: Callable[[Any], T]) -> None:
         """Pre-populate cache with likely-to-be-used items."""
         for key in keys:
-            if key not in self.cache:
-                try:
-                    value = compute_func(key)
-                    self.put(key, value)
-                except Exception as e:
-                    logger.debug(f"Failed to warmup cache for {key}: {e}")
+            with self._lock:
+                if key not in self.cache:
+                    # Release lock during computation
+                    pass
+            try:
+                value = compute_func(key)
+                self.put(key, value)
+            except Exception as e:
+                logger.debug(f"Failed to warmup cache for {key}: {e}")
 
     def clear(self) -> None:
         """Clear entire cache and cleanup resources."""
-        # Close PIL Images before clearing
-        for item in self.cache.values():
-            if hasattr(item, "close"):
-                try:
-                    item.close()
-                except Exception:
-                    pass  # Ignore errors during cleanup
+        with self._lock:
+            # Close PIL Images before clearing
+            for entry in self.cache.values():
+                if hasattr(entry.value, "close"):
+                    try:
+                        entry.value.close()
+                    except Exception:
+                        pass  # Ignore errors during cleanup
 
-        self.cache.clear()
-        self.current_memory_mb = 0.0
-        logger.info("Cache cleared")
+            self.cache.clear()
+            self.current_memory_mb = 0.0
+            logger.info("Cache cleared")
 
     def get_stats(self) -> Dict[str, Any]:
         """Get comprehensive cache statistics."""

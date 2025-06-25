@@ -10,6 +10,7 @@ This module provides the foundational layer for PDF processing, offering:
 
 import gc
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from enum import Enum
@@ -30,6 +31,7 @@ from pdf_splitter.core.exceptions import (
     PDFTextExtractionError,
     PDFValidationError,
 )
+from pdf_splitter.core.rate_limiter import ConcurrencyLimiter, TokenBucketRateLimiter
 from pdf_splitter.preprocessing.advanced_cache import PDFProcessingCache
 
 logger = logging.getLogger(__name__)
@@ -154,6 +156,14 @@ class PDFHandler:
         self.cache_manager = PDFProcessingCache(self.config)
         self._metadata: Optional[PDFMetadata] = None
 
+        # Rate limiting for concurrent operations
+        self._render_limiter = ConcurrencyLimiter(
+            max_concurrent=4
+        )  # Max 4 concurrent renders
+        self._ocr_limiter = TokenBucketRateLimiter(
+            rate=2.0, capacity=10  # 2 OCR operations per second  # Burst capacity of 10
+        )
+
         logger.info(f"PDFHandler initialized with config: {self.config}")
 
     @property
@@ -168,6 +178,58 @@ class PDFHandler:
             return 0
         return len(self._document)  # type: ignore[arg-type]
 
+    def _secure_path_validation(self, pdf_path: Path) -> Path:
+        """
+        Validate and sanitize PDF path for security.
+
+        Args:
+            pdf_path: Path to validate
+
+        Returns:
+            Sanitized absolute path
+
+        Raises:
+            PDFValidationError: If path is invalid or insecure
+        """
+        # Convert to Path object if string
+        if isinstance(pdf_path, str):
+            pdf_path = Path(pdf_path)
+
+        # Resolve to absolute path (follows symlinks)
+        try:
+            resolved_path = pdf_path.resolve(strict=True)
+        except (OSError, RuntimeError) as e:
+            raise PDFValidationError(f"Invalid path: {pdf_path} - {e}")
+
+        # Security checks
+        # 1. Must be a file, not directory
+        if not resolved_path.is_file():
+            raise PDFValidationError(f"Path is not a file: {resolved_path}")
+
+        # 2. Must have .pdf extension
+        if resolved_path.suffix.lower() != ".pdf":
+            raise PDFValidationError(f"File must have .pdf extension: {resolved_path}")
+
+        # 3. Check for path traversal attempts
+        try:
+            # Ensure the path doesn't contain suspicious patterns
+            path_str = str(resolved_path)
+            if any(
+                pattern in path_str
+                for pattern in ["../", "..\\", "%2e%2e", "%252e%252e"]
+            ):
+                raise PDFValidationError(
+                    f"Suspicious path pattern detected: {resolved_path}"
+                )
+        except Exception as e:
+            raise PDFValidationError(f"Path validation error: {e}")
+
+        # 4. Check file is readable
+        if not os.access(resolved_path, os.R_OK):
+            raise PDFValidationError(f"File is not readable: {resolved_path}")
+
+        return resolved_path
+
     def validate_pdf(self, pdf_path: Path) -> PDFValidationResult:
         """
         Validate a PDF file for processing suitability.
@@ -181,6 +243,21 @@ class PDFHandler:
         Raises:
             PDFValidationError: If the file cannot be accessed
         """
+        # Secure path validation first
+        try:
+            pdf_path = self._secure_path_validation(pdf_path)
+        except PDFValidationError as e:
+            result = PDFValidationResult(
+                is_valid=False,
+                page_count=0,
+                file_size_mb=0,
+                estimated_memory_mb=0,
+                is_encrypted=False,
+                is_damaged=False,
+            )
+            result.errors.append(str(e))
+            return result
+
         logger.info(f"Validating PDF: {pdf_path}")
 
         result = PDFValidationResult(
@@ -192,14 +269,7 @@ class PDFHandler:
             is_damaged=False,
         )
 
-        # Check file exists and is readable
-        if not pdf_path.exists():
-            result.errors.append(f"File does not exist: {pdf_path}")
-            return result
-
-        if not pdf_path.is_file():
-            result.errors.append(f"Path is not a file: {pdf_path}")
-            return result
+        # Path has already been validated by _secure_path_validation
 
         # Get file size
         file_size_bytes = pdf_path.stat().st_size
@@ -278,6 +348,9 @@ class PDFHandler:
             PDFValidationError: If validation fails
             PDFHandlerError: If loading fails
         """
+        # Always perform secure path validation
+        pdf_path = self._secure_path_validation(pdf_path)
+
         logger.info(f"Loading PDF: {pdf_path}")
 
         # Validate if requested
@@ -314,23 +387,34 @@ class PDFHandler:
             self.close()
 
     def close(self):
-        """Close the current PDF and free resources."""
-        if self._document:
+        """Close the current PDF and free resources with guaranteed cleanup."""
+        try:
+            if self._document:
+                try:
+                    self._document.close()
+                except Exception as e:
+                    logger.warning(f"Error closing PDF document: {e}")
+        finally:
+            # Ensure cleanup happens even if document.close() fails
+            self._document = None
+            self._pdf_path = None
+
+            # Clear all caches safely
             try:
-                self._document.close()
+                if self.cache_manager:
+                    self.cache_manager.render_cache.clear()
+                    self.cache_manager.text_cache.clear()
+                    self.cache_manager.analysis_cache.clear()
             except Exception as e:
-                logger.warning(f"Error closing PDF document: {e}")
+                logger.warning(f"Error clearing caches: {e}")
 
-        self._document = None
-        self._pdf_path = None
-        # Clear all caches
-        self.cache_manager.render_cache.clear()
-        self.cache_manager.text_cache.clear()
-        self.cache_manager.analysis_cache.clear()
-        self._metadata = None
+            self._metadata = None
 
-        # Force garbage collection for large documents
-        gc.collect()
+            # Force garbage collection for large documents
+            try:
+                gc.collect()
+            except Exception:
+                pass  # gc.collect() rarely fails, but be safe
 
     def _extract_metadata(self):
         """Extract and cache document metadata."""
@@ -445,7 +529,7 @@ class PDFHandler:
 
     def render_page(self, page_num: int, dpi: Optional[int] = None) -> np.ndarray:
         """
-        Render a PDF page to a numpy array.
+        Render a PDF page to a numpy array with rate limiting.
 
         Args:
             page_num: Zero-based page number
@@ -456,6 +540,7 @@ class PDFHandler:
 
         Raises:
             PDFRenderError: If rendering fails
+            RateLimitExceeded: If rate limit is exceeded
         """
         if not self.is_loaded:
             raise PDFHandlerError("No PDF loaded")
@@ -465,42 +550,46 @@ class PDFHandler:
 
         dpi = dpi or self.config.default_dpi
 
-        # Define render function for cache miss
-        def render_func():
-            try:
-                page = self._document[page_num]  # type: ignore[index]
+        # Apply rate limiting for concurrent renders
+        with self._render_limiter(timeout=30):  # 30 second timeout
+            # Define render function for cache miss
+            def render_func():
+                try:
+                    page = self._document[page_num]  # type: ignore[index]
 
-                # Calculate matrix for desired DPI
-                # PDF default is 72 DPI
-                mat = fitz.Matrix(dpi / 72.0, dpi / 72.0)
+                    # Calculate matrix for desired DPI
+                    # PDF default is 72 DPI
+                    mat = fitz.Matrix(dpi / 72.0, dpi / 72.0)
 
-                # Render to pixmap
-                pix = page.get_pixmap(matrix=mat, alpha=False)
+                    # Render to pixmap
+                    pix = page.get_pixmap(matrix=mat, alpha=False)
 
-                # Convert to numpy array (RGB format)
-                img_array = np.frombuffer(pix.samples, dtype=np.uint8)
-                img_array = img_array.reshape(pix.height, pix.width, 3)
+                    # Convert to numpy array (RGB format)
+                    img_array = np.frombuffer(pix.samples, dtype=np.uint8)
+                    img_array = img_array.reshape(pix.height, pix.width, 3)
 
-                logger.debug(
-                    f"Rendered page {page_num} at {dpi} DPI: {img_array.shape}"
-                )
+                    logger.debug(
+                        f"Rendered page {page_num} at {dpi} DPI: {img_array.shape}"
+                    )
 
-                return img_array
+                    return img_array
 
-            except Exception as e:
-                logger.exception(f"Failed to render page {page_num}")
-                raise PDFHandlerError(f"Failed to render page {page_num}: {str(e)}")
+                except Exception as e:
+                    logger.exception(f"Failed to render page {page_num}")
+                    raise PDFHandlerError(f"Failed to render page {page_num}: {str(e)}")
 
-        # Use advanced cache with metrics tracking
-        rendered_array = self.cache_manager.get_rendered_page(
-            pdf_path=str(self._pdf_path),
-            page_num=page_num,
-            dpi=dpi,
-            render_func=render_func,
-        )
+            # Use advanced cache with metrics tracking
+            rendered_array = self.cache_manager.get_rendered_page(
+                pdf_path=str(self._pdf_path),
+                page_num=page_num,
+                dpi=dpi,
+                render_func=render_func,
+            )
 
-        # Return a copy to prevent cache modification
-        return rendered_array.copy() if rendered_array is not None else render_func()
+            # Return a copy to prevent cache modification
+            return (
+                rendered_array.copy() if rendered_array is not None else render_func()
+            )
 
     def extract_text(self, page_num: int) -> PageText:
         """

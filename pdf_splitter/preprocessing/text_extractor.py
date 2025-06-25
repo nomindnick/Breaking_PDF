@@ -14,22 +14,16 @@ import logging
 import re
 from collections import defaultdict
 from statistics import mean
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from pydantic import BaseModel, Field
 
 from pdf_splitter.core.exceptions import PDFTextExtractionError
+from pdf_splitter.preprocessing.extraction_config import TextExtractionConfig
 from pdf_splitter.preprocessing.pdf_handler import PageText, PageType, PDFHandler
 
 logger = logging.getLogger(__name__)
-
-# Text extraction constants
-TABLE_ALIGNMENT_TOLERANCE = 5.0  # pixels
-TABLE_MIN_AVG_COLUMNS = 1.5  # Average columns per row threshold
-HEADER_FOOTER_PAGE_RATIO = 0.1  # Top/bottom 10% of page
-MIN_FONT_SIZE_DIFFERENCE = 2.0  # Points
-READING_ORDER_TOLERANCE = 10.0  # Pixels for reading order detection
 
 
 class TextBlock(BaseModel):
@@ -81,14 +75,18 @@ class TextExtractor:
     multiple extraction methods to ensure maximum accuracy and completeness.
     """
 
-    def __init__(self, pdf_handler: PDFHandler):
+    def __init__(
+        self, pdf_handler: PDFHandler, config: Optional[TextExtractionConfig] = None
+    ):
         """
         Initialize the text extractor with a PDF handler.
 
         Args:
             pdf_handler: An initialized PDFHandler instance
+            config: Text extraction configuration (uses defaults if None)
         """
         self.pdf_handler = pdf_handler
+        self.config = config or TextExtractionConfig()
         self._font_cache: Dict[str, float] = {}
         # Use shared cache manager from pdf_handler
         self.cache_manager = pdf_handler.cache_manager
@@ -330,7 +328,7 @@ class TextExtractor:
 
         # Look for horizontal alignment patterns
         rows: Dict[float, List[Any]] = defaultdict(list)
-        tolerance = TABLE_ALIGNMENT_TOLERANCE
+        tolerance = self.config.table_alignment_tolerance
 
         for block in sorted_blocks:
             y_pos = block[1]
@@ -351,7 +349,7 @@ class TextExtractor:
         if len(row_counts) > 2 and max(row_counts) > 1:
             # Possible table detected
             avg_cols = mean(row_counts)
-            if avg_cols > TABLE_MIN_AVG_COLUMNS:
+            if avg_cols > self.config.table_min_avg_columns:
                 tables.append(
                     {
                         "rows": len(rows),

@@ -14,7 +14,6 @@ import pytest
 from pdf_splitter.core.config import PDFConfig
 from pdf_splitter.core.exceptions import (
     PDFHandlerError,
-    PDFRenderError,
     PDFTextExtractionError,
     PDFValidationError,
 )
@@ -441,7 +440,7 @@ class TestPDFHandler:
         mock_fitz_open.return_value = mock_doc
 
         with pdf_handler.load_pdf(mock_pdf_path, validate=False):
-            with pytest.raises(PDFRenderError, match="Failed to render page"):
+            with pytest.raises(PDFHandlerError, match="Failed to render page"):
                 pdf_handler.render_page(0)
 
     @patch("fitz.open")

@@ -87,8 +87,8 @@ class TestLoggingSetup:
 class TestLoggingOutput:
     """Test logging output formatting."""
 
-    @patch("sys.stdout", new_callable=MagicMock)
-    def test_structured_output(self, mock_stdout):
+    @patch("sys.stderr", new_callable=MagicMock)
+    def test_structured_output(self, mock_stderr):
         """Test structured log output."""
         structlog.reset_defaults()
         setup_logging(level="INFO")
@@ -96,8 +96,8 @@ class TestLoggingOutput:
         logger = get_logger(__name__)
         logger.info("Test event", param1="value1", param2=42)
 
-        # Check that something was written to stdout
-        assert mock_stdout.write.called
+        # Check that something was written to stderr
+        assert mock_stderr.write.called
 
     def test_json_output(self):
         """Test JSON formatted output."""
