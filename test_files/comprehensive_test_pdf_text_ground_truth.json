@@ -1,0 +1,131 @@
+{
+  "total_pages": 21,
+  "page_texts": {
+    "1": {
+      "doc_type": "email",
+      "page_type": "mixed",
+      "expected_text": "From: john.smith@construction.com\nTo: jane.doe@client.com\nDate: Wed, 25 Jun 2025 15:58:32 \nSubject: RE: Project Status Update\n\nHi Jane,\n\nThank you for your email regarding the project status. I wanted to provide you with an update on our progress.\n\nWe have completed the foundation work and are currently working on the structural framing. The project remains on schedule, and we expect to complete this phase by the end of next week.\n\nPlease find attached the latest progress photos and updated schedule.\n\nBest regards,\nJohn Smith\nProject Manager\n\nPage 1 of 3",
+      "is_scanned": false
+    },
+    "2": {
+      "doc_type": "email",
+      "page_type": "mixed",
+      "expected_text": "From: john.smith@construction.com\nTo: jane.doe@client.com\nDate: Wed, 25 Jun 2025 15:58:32 \nSubject: RE: Project Status Update\n\nHi Jane,\n\nThank you for your email regarding the project status. I wanted to provide you with an update on our progress.\n\nWe have completed the foundation work and are currently working on the structural framing. The project remains on schedule, and we expect to complete this phase by the end of next week.\n\nPlease find attached the latest progress photos and updated schedule.\n\nBest regards,\nJohn Smith\nProject Manager\n\nPage 2 of 3",
+      "is_scanned": true
+    },
+    "3": {
+      "doc_type": "email",
+      "page_type": "mixed",
+      "expected_text": "From: john.smith@construction.com\nTo: jane.doe@client.com\nDate: Wed, 25 Jun 2025 15:58:32 \nSubject: RE: Project Status Update\n\nHi Jane,\n\nThank you for your email regarding the project status. I wanted to provide you with an update on our progress.\n\nWe have completed the foundation work and are currently working on the structural framing. The project remains on schedule, and we expect to complete this phase by the end of next week.\n\nPlease find attached the latest progress photos and updated schedule.\n\nBest regards,\nJohn Smith\nProject Manager\n\nPage 3 of 3",
+      "is_scanned": false
+    },
+    "4": {
+      "doc_type": "invoice",
+      "page_type": "scanned",
+      "expected_text": "ABC Construction Services\nINVOICE #INV-2024-004\nDate: 06/25/2025\nBill To:\nXYZ Development Corp\n789 Business Blvd\nMetropolis, ST 98765\nDescription Amount\nSite Preparation - 80 hours @ $125/hr $10,000.00\nConcrete Work - 120 hours @ $150/hr $18,000.00\nMaterials - Concrete, Rebar, Forms $15,750.00\nEquipment Rental - 2 weeks $3,500.00\nTotal: $47,250.00",
+      "is_scanned": true
+    },
+    "5": {
+      "doc_type": "invoice",
+      "page_type": "scanned",
+      "expected_text": "ABC Construction Services\nINVOICE #INV-2024-005\nDate: 06/25/2025\nBill To:\nXYZ Development Corp\n789 Business Blvd\nMetropolis, ST 98765\nDescription Amount\nSite Preparation - 80 hours @ $125/hr $10,000.00\nConcrete Work - 120 hours @ $150/hr $18,000.00\nMaterials - Concrete, Rebar, Forms $15,750.00\nEquipment Rental - 2 weeks $3,500.00\nTotal: $47,250.00",
+      "is_scanned": true
+    },
+    "6": {
+      "doc_type": "letter",
+      "page_type": "searchable",
+      "expected_text": "SMITH & ASSOCIATES ENGINEERING\nJune 25, 2025\nMs. Sarah Johnson\nProject Director\nCity Planning Department\n100 Civic Center Dr\nDowntown, ST 11111\nDear Ms. Johnson:\nFollowing our conversation yesterday, I am writing to formally submit our permit application for the Downtown Office Complex project.\n\nThe application package includes all required documentation, including:\n- Completed permit application forms\n- Architectural drawings and specifications\n- Structural engineering calculations\n- Environmental impact assessment\n- Traffic study results\n\nWe have addressed all comments from the preliminary review and believe the application is now complete. Please let me know if you require any additional information.\n\nWe look forward to your review and approval of this application.\n\nPage 1 of 2\nRespectfully submitted,\nRobert Smith, P.E.",
+      "is_scanned": false
+    },
+    "7": {
+      "doc_type": "letter",
+      "page_type": "searchable",
+      "expected_text": "SMITH & ASSOCIATES ENGINEERING\nJune 25, 2025\nMs. Sarah Johnson\nProject Director\nCity Planning Department\n100 Civic Center Dr\nDowntown, ST 11111\nDear Ms. Johnson:\nFollowing our conversation yesterday, I am writing to formally submit our permit application for the Downtown Office Complex project.\n\nThe application package includes all required documentation, including:\n- Completed permit application forms\n- Architectural drawings and specifications\n- Structural engineering calculations\n- Environmental impact assessment\n- Traffic study results\n\nWe have addressed all comments from the preliminary review and believe the application is now complete. Please let me know if you require any additional information.\n\nWe look forward to your review and approval of this application.\n\nPage 2 of 2\nRespectfully submitted,\nRobert Smith, P.E.",
+      "is_scanned": false
+    },
+    "8": {
+      "doc_type": "rfi",
+      "page_type": "scanned",
+      "expected_text": "REQUEST FOR INFORMATION (RFI)\nRFI Number: RFI-2024-008\nDate: 06/25/2025\nProject: Downtown Office Complex - Phase 2\nTo: Architectural Team\nFrom: General Contractor - BuildCo Inc.\nResponse Required By: 07/02/2025\nDescription:\nThe specifications call for \"premium grade exterior cladding\" on the north facade, but the material schedule lists standard grade aluminum panels. \n\nPlease clarify which material should be used and provide updated specifications if necessary.\n\nThis RFI is critical for maintaining the project schedule as the cladding installation is scheduled to begin next month.\n\nPage 1 of 2",
+      "is_scanned": true
+    },
+    "9": {
+      "doc_type": "rfi",
+      "page_type": "scanned",
+      "expected_text": "REQUEST FOR INFORMATION (RFI)\nRFI Number: RFI-2024-009\nDate: 06/25/2025\nProject: Downtown Office Complex - Phase 2\nTo: Architectural Team\nFrom: General Contractor - BuildCo Inc.\nResponse Required By: 07/02/2025\nDescription:\nThe specifications call for \"premium grade exterior cladding\" on the north facade, but the material schedule lists standard grade aluminum panels. \n\nPlease clarify which material should be used and provide updated specifications if necessary.\n\nThis RFI is critical for maintaining the project schedule as the cladding installation is scheduled to begin next month.\n\nPage 2 of 2",
+      "is_scanned": true
+    },
+    "10": {
+      "doc_type": "memo",
+      "page_type": "searchable",
+      "expected_text": "MEMORANDUM\n\nDate: June 25, 2025\nTo: All Staff\nFrom: Management\nSubject: Project Update\n\nThis is a brief memo to update you on the current project status.\n\nAll milestones are on track and we expect to complete the project on schedule.\n\nThank you for your continued efforts.\n\nPage 1 of 1",
+      "is_scanned": false
+    },
+    "11": {
+      "doc_type": "invoice",
+      "page_type": "scanned",
+      "expected_text": "ABC Construction Services\nINVOICE #INV-2024-011\nDate: 06/25/2025\nBill To:\nXYZ Development Corp\n789 Business Blvd\nMetropolis, ST 98765\nDescription Amount\nSite Preparation - 80 hours @ $125/hr $10,000.00\nConcrete Work - 120 hours @ $150/hr $18,000.00\nMaterials - Concrete, Rebar, Forms $15,750.00\nEquipment Rental - 2 weeks $3,500.00\nTotal: $47,250.00",
+      "is_scanned": true
+    },
+    "12": {
+      "doc_type": "invoice",
+      "page_type": "scanned",
+      "expected_text": "ABC Construction Services\nINVOICE #INV-2024-012\nDate: 06/25/2025\nBill To:\nXYZ Development Corp\n789 Business Blvd\nMetropolis, ST 98765\nDescription Amount\nSite Preparation - 80 hours @ $125/hr $10,000.00\nConcrete Work - 120 hours @ $150/hr $18,000.00\nMaterials - Concrete, Rebar, Forms $15,750.00\nEquipment Rental - 2 weeks $3,500.00\nTotal: $47,250.00",
+      "is_scanned": true
+    },
+    "13": {
+      "doc_type": "email",
+      "page_type": "scanned",
+      "expected_text": "From: john.smith@construction.com\nTo: jane.doe@client.com\nDate: Wed, 25 Jun 2025 15:58:32 \nSubject: RE: Project Status Update\n\nHi Jane,\n\nThank you for your email regarding the project status. I wanted to provide you with an update on our progress.\n\nWe have completed the foundation work and are currently working on the structural framing. The project remains on schedule, and we expect to complete this phase by the end of next week.\n\nPlease find attached the latest progress photos and updated schedule.\n\nBest regards,\nJohn Smith\nProject Manager\n\nPage 1 of 2",
+      "is_scanned": true
+    },
+    "14": {
+      "doc_type": "email",
+      "page_type": "scanned",
+      "expected_text": "From: john.smith@construction.com\nTo: jane.doe@client.com\nDate: Wed, 25 Jun 2025 15:58:32 \nSubject: RE: Project Status Update\n\nHi Jane,\n\nThank you for your email regarding the project status. I wanted to provide you with an update on our progress.\n\nWe have completed the foundation work and are currently working on the structural framing. The project remains on schedule, and we expect to complete this phase by the end of next week.\n\nPlease find attached the latest progress photos and updated schedule.\n\nBest regards,\nJohn Smith\nProject Manager\n\nPage 2 of 2",
+      "is_scanned": true
+    },
+    "15": {
+      "doc_type": "letter",
+      "page_type": "mixed",
+      "expected_text": "SMITH & ASSOCIATES ENGINEERING\nJune 25, 2025\nMs. Sarah Johnson\nProject Director\nCity Planning Department\n100 Civic Center Dr\nDowntown, ST 11111\nDear Ms. Johnson:\nFollowing our conversation yesterday, I am writing to formally submit our permit application for the Downtown Office Complex project.\n\nThe application package includes all required documentation, including:\n- Completed permit application forms\n- Architectural drawings and specifications\n- Structural engineering calculations\n- Environmental impact assessment\n- Traffic study results\n\nWe have addressed all comments from the preliminary review and believe the application is now complete. Please let me know if you require any additional information.\n\nWe look forward to your review and approval of this application.\n\nPage 1 of 3\nRespectfully submitted,\nRobert Smith, P.E.",
+      "is_scanned": false
+    },
+    "16": {
+      "doc_type": "letter",
+      "page_type": "mixed",
+      "expected_text": "SMITH & ASSOCIATES ENGINEERING\nJune 25, 2025\nMs. Sarah Johnson\nProject Director\nCity Planning Department\n100 Civic Center Dr\nDowntown, ST 11111\nDear Ms. Johnson:\nFollowing our conversation yesterday, I am writing to formally submit our permit application for the Downtown Office Complex project.\n\nThe application package includes all required documentation, including:\n- Completed permit application forms\n- Architectural drawings and specifications\n- Structural engineering calculations\n- Environmental impact assessment\n- Traffic study results\n\nWe have addressed all comments from the preliminary review and believe the application is now complete. Please let me know if you require any additional information.\n\nWe look forward to your review and approval of this application.\n\nPage 2 of 3\nRespectfully submitted,\nRobert Smith, P.E.",
+      "is_scanned": true
+    },
+    "17": {
+      "doc_type": "letter",
+      "page_type": "mixed",
+      "expected_text": "SMITH & ASSOCIATES ENGINEERING\nJune 25, 2025\nMs. Sarah Johnson\nProject Director\nCity Planning Department\n100 Civic Center Dr\nDowntown, ST 11111\nDear Ms. Johnson:\nFollowing our conversation yesterday, I am writing to formally submit our permit application for the Downtown Office Complex project.\n\nThe application package includes all required documentation, including:\n- Completed permit application forms\n- Architectural drawings and specifications\n- Structural engineering calculations\n- Environmental impact assessment\n- Traffic study results\n\nWe have addressed all comments from the preliminary review and believe the application is now complete. Please let me know if you require any additional information.\n\nWe look forward to your review and approval of this application.\n\nPage 3 of 3\nRespectfully submitted,\nRobert Smith, P.E.",
+      "is_scanned": false
+    },
+    "18": {
+      "doc_type": "rfi",
+      "page_type": "searchable",
+      "expected_text": "REQUEST FOR INFORMATION (RFI)\nRFI Number: RFI-2024-018\nDate: 06/25/2025\nProject: Downtown Office Complex - Phase 2\nTo: Architectural Team\nFrom: General Contractor - BuildCo Inc.\nResponse Required By: 07/02/2025\nDescription:\nThe specifications call for \"premium grade exterior cladding\" on the north facade, but the material schedule lists standard grade aluminum panels. \n\nPlease clarify which material should be used and provide updated specifications if necessary.\n\nThis RFI is critical for maintaining the project schedule as the cladding installation is scheduled to begin next month.\n\nPage 1 of 2",
+      "is_scanned": false
+    },
+    "19": {
+      "doc_type": "rfi",
+      "page_type": "searchable",
+      "expected_text": "REQUEST FOR INFORMATION (RFI)\nRFI Number: RFI-2024-019\nDate: 06/25/2025\nProject: Downtown Office Complex - Phase 2\nTo: Architectural Team\nFrom: General Contractor - BuildCo Inc.\nResponse Required By: 07/02/2025\nDescription:\nThe specifications call for \"premium grade exterior cladding\" on the north facade, but the material schedule lists standard grade aluminum panels. \n\nPlease clarify which material should be used and provide updated specifications if necessary.\n\nThis RFI is critical for maintaining the project schedule as the cladding installation is scheduled to begin next month.\n\nPage 2 of 2",
+      "is_scanned": false
+    },
+    "20": {
+      "doc_type": "specification",
+      "page_type": "searchable",
+      "expected_text": "TECHNICAL SPECIFICATION\n\nProject: Downtown Office Complex\nDocument: Structural Requirements\nRevision: 2.1\nDate: June 25, 2025\n\n1. SCOPE OF WORK\nThis specification covers the structural requirements for the Downtown Office Complex project.\n\n2. MATERIALS\nAll structural steel shall conform to ASTM A992 standards.\nConcrete shall have a minimum compressive strength of 4000 psi.\n\n3. DESIGN LOADS\nLive Load: 50 psf (offices), 100 psf (corridors)\nDead Load: As calculated\nWind Load: Per local building code\n\nPage 1 of 2",
+      "is_scanned": false
+    },
+    "21": {
+      "doc_type": "specification",
+      "page_type": "searchable",
+      "expected_text": "TECHNICAL SPECIFICATION\n\nProject: Downtown Office Complex\nDocument: Structural Requirements\nRevision: 2.1\nDate: June 25, 2025\n\n1. SCOPE OF WORK\nThis specification covers the structural requirements for the Downtown Office Complex project.\n\n2. MATERIALS\nAll structural steel shall conform to ASTM A992 standards.\nConcrete shall have a minimum compressive strength of 4000 psi.\n\n3. DESIGN LOADS\nLive Load: 50 psf (offices), 100 psf (corridors)\nDead Load: As calculated\nWind Load: Per local building code\n\nPage 2 of 2",
+      "is_scanned": false
+    }
+  }
+}

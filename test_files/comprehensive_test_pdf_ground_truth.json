@@ -1,0 +1,74 @@
+{
+  "documents": [
+    {
+      "pages": "1-3",
+      "type": "Email",
+      "page_type": "mixed",
+      "quality": "high",
+      "summary": "Test email document with 3 pages"
+    },
+    {
+      "pages": "4-5",
+      "type": "Invoice",
+      "page_type": "scanned",
+      "quality": "medium",
+      "summary": "Test invoice document with 2 pages"
+    },
+    {
+      "pages": "6-7",
+      "type": "Letter",
+      "page_type": "searchable",
+      "quality": "N/A",
+      "summary": "Test letter document with 2 pages"
+    },
+    {
+      "pages": "8-9",
+      "type": "Rfi",
+      "page_type": "scanned",
+      "quality": "low",
+      "summary": "Test rfi document with 2 pages"
+    },
+    {
+      "pages": "10",
+      "type": "Memo",
+      "page_type": "searchable",
+      "quality": "N/A",
+      "summary": "Test memo document with 1 pages"
+    },
+    {
+      "pages": "11-12",
+      "type": "Invoice",
+      "page_type": "scanned",
+      "quality": "high",
+      "summary": "Test invoice document with 2 pages"
+    },
+    {
+      "pages": "13-14",
+      "type": "Email",
+      "page_type": "scanned",
+      "quality": "low",
+      "summary": "Test email document with 2 pages"
+    },
+    {
+      "pages": "15-17",
+      "type": "Letter",
+      "page_type": "mixed",
+      "quality": "medium",
+      "summary": "Test letter document with 3 pages"
+    },
+    {
+      "pages": "18-19",
+      "type": "Rfi",
+      "page_type": "searchable",
+      "quality": "N/A",
+      "summary": "Test rfi document with 2 pages"
+    },
+    {
+      "pages": "20-21",
+      "type": "Specification",
+      "page_type": "searchable",
+      "quality": "N/A",
+      "summary": "Test specification document with 2 pages"
+    }
+  ]
+}
