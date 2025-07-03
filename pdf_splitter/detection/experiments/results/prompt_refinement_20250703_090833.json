@@ -1,0 +1,286 @@
+{
+  "experiment": "prompt_refinement",
+  "model": "phi4-mini:3.8b",
+  "timestamp": "2025-07-03T09:08:33.410108",
+  "results": [
+    {
+      "name": "Original (baseline)",
+      "prompt_template": "Your task is to determine if two document snippets are part of a single document or are different documents.\n\nYou will be given the bottom part of Page 1 and the top portion of Page 2. Your task is to determine whether Page 1 and Page 2 are part of a single document or if Page 1 is the end of one document and Page 2 is the start of a new document.\n\nPlease only respond with \"Same Document\" or \"Different Documents\"\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}",
+      "context_size": 300,
+      "metrics": {
+        "precision": 0.273,
+        "recall": 0.6,
+        "f1_score": 0.375,
+        "true_positives": 3,
+        "false_positives": 8,
+        "false_negatives": 2
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 37.62,
+        "avg_time_per_boundary": 2.69
+      }
+    },
+    {
+      "name": "With page break guidance",
+      "prompt_template": "Your task is to determine if two document snippets are part of a single document or are different documents.\n\nYou will be given the bottom part of Page 1 and the top portion of Page 2. Your task is to determine whether Page 1 and Page 2 are part of a single document or if Page 1 is the end of one document and Page 2 is the start of a new document.\n\nIMPORTANT: A simple page break within a document is NOT a document boundary. Look for signs of a completely new document starting, such as:\n- New letterhead or header\n- Complete change in formatting or topic\n- New date that suggests a different document\n- Signature at the bottom of Page 1 followed by a new document header on Page 2\n\nPlease only respond with \"Same Document\" or \"Different Documents\"\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}",
+      "context_size": 300,
+      "metrics": {
+        "precision": 0.357,
+        "recall": 1.0,
+        "f1_score": 0.526,
+        "true_positives": 5,
+        "false_positives": 9,
+        "false_negatives": 0
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 42.17,
+        "avg_time_per_boundary": 3.01
+      }
+    },
+    {
+      "name": "Focus on endings",
+      "prompt_template": "Analyze if Page 1 ends a document and Page 2 starts a new one.\n\nSigns that Page 1 ENDS a document:\n- Signature line or signature block\n- \"Sincerely,\" or similar closing\n- Final paragraph with conclusive language\n- Document footer or end mark\n\nSigns that Page 2 STARTS a new document:\n- New letterhead or document header\n- New date at the top\n- \"Dear\" or similar greeting\n- Document title or subject line\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}\n\nBased on these signs, are these pages from the Same Document or Different Documents?",
+      "context_size": 300,
+      "metrics": {
+        "precision": 0.4,
+        "recall": 0.4,
+        "f1_score": 0.4,
+        "true_positives": 2,
+        "false_positives": 3,
+        "false_negatives": 3
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          4,
+          8,
+          13,
+          14
+        ]
+      },
+      "performance": {
+        "total_time": 120.41,
+        "avg_time_per_boundary": 8.6
+      }
+    },
+    {
+      "name": "Stricter criteria",
+      "prompt_template": "Determine if there is a document boundary between these pages.\n\nYou should ONLY say \"Different Documents\" if you see CLEAR evidence such as:\n1. Page 1 ends with a signature AND Page 2 has a new header/date\n2. Page 1 has a clear ending (like \"Sincerely\") AND Page 2 starts a new letter/memo\n3. Obvious format change indicating separate documents\n\nOtherwise, assume they are the Same Document.\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}\n\nResponse (Same Document or Different Documents):",
+      "context_size": 300,
+      "metrics": {
+        "precision": 0.357,
+        "recall": 1.0,
+        "f1_score": 0.526,
+        "true_positives": 5,
+        "false_positives": 9,
+        "false_negatives": 0
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 47.14,
+        "avg_time_per_boundary": 3.37
+      }
+    },
+    {
+      "name": "Few-shot examples",
+      "prompt_template": "Determine if these pages are from the same document or different documents.\n\nExample 1:\nPage 1 bottom: \"...will continue on the next page with additional details about...\"\nPage 2 top: \"...the project timeline and resource allocation.\"\nAnswer: Same Document (continuous text)\n\nExample 2:\nPage 1 bottom: \"Sincerely,\n\nJohn Smith\nProject Manager\"\nPage 2 top: \"MEMORANDUM\n\nDate: March 15, 2023\nTo: All Staff\"\nAnswer: Different Documents (letter ends, memo begins)\n\nNow analyze:\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}\n\nAnswer:",
+      "context_size": 300,
+      "metrics": {
+        "precision": 0.333,
+        "recall": 0.8,
+        "f1_score": 0.471,
+        "true_positives": 4,
+        "false_positives": 8,
+        "false_negatives": 1
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          12,
+          14,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 59.59,
+        "avg_time_per_boundary": 4.26
+      }
+    },
+    {
+      "name": "Original with 200 chars",
+      "prompt_template": "Your task is to determine if two document snippets are part of a single document or are different documents.\n\nYou will be given the bottom part of Page 1 and the top portion of Page 2. Your task is to determine whether Page 1 and Page 2 are part of a single document or if Page 1 is the end of one document and Page 2 is the start of a new document.\n\nPlease only respond with \"Same Document\" or \"Different Documents\"\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}",
+      "context_size": 200,
+      "metrics": {
+        "precision": 0.357,
+        "recall": 1.0,
+        "f1_score": 0.526,
+        "true_positives": 5,
+        "false_positives": 9,
+        "false_negatives": 0
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 27.5,
+        "avg_time_per_boundary": 1.96
+      }
+    },
+    {
+      "name": "Original with 400 chars",
+      "prompt_template": "Your task is to determine if two document snippets are part of a single document or are different documents.\n\nYou will be given the bottom part of Page 1 and the top portion of Page 2. Your task is to determine whether Page 1 and Page 2 are part of a single document or if Page 1 is the end of one document and Page 2 is the start of a new document.\n\nPlease only respond with \"Same Document\" or \"Different Documents\"\n\nBottom of Page 1:\n{page1_bottom}\n\nTop of Page 2:\n{page2_top}",
+      "context_size": 400,
+      "metrics": {
+        "precision": 0.308,
+        "recall": 0.8,
+        "f1_score": 0.444,
+        "true_positives": 4,
+        "false_positives": 9,
+        "false_negatives": 1
+      },
+      "boundaries": {
+        "expected": [
+          5,
+          7,
+          9,
+          13,
+          14
+        ],
+        "detected": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          15
+        ]
+      },
+      "performance": {
+        "total_time": 50.53,
+        "avg_time_per_boundary": 3.61
+      }
+    }
+  ]
+}

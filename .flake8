@@ -1,0 +1,2 @@
+# Long lines in templates are acceptable for readability
+per-file-ignores = pdf_splitter/detection/experiments/prompt_refinement_test.py:E501
