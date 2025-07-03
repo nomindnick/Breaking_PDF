@@ -1,120 +1,176 @@
 # LLM Detection Experiments
 
-This module provides a framework for experimenting with different LLM models and strategies for document boundary detection.
+This module provides a systematic framework for experimenting with LLM-based document boundary detection using progressive difficulty testing and comprehensive prompt engineering.
 
-## Structure
+## Overview
+
+The experiments framework uses synthetic test cases of varying difficulty to systematically evaluate different models and prompting strategies before testing on real PDFs. This approach ensures robust, data-driven optimization of the LLM detection system.
+
+## Quick Start
+
+```bash
+# 1. Verify system setup
+python pdf_splitter/detection/experiments/verify_prompt_system.py
+
+# 2. Run a quick test with one model/prompt
+python pdf_splitter/detection/experiments/systematic_prompt_test.py \
+  --quick-test phi4-mini:3.8b A1_asymmetric
+
+# 3. Run full systematic testing
+python pdf_splitter/detection/experiments/systematic_prompt_test.py \
+  --models phi4-mini:3.8b gemma3:latest
+```
+
+## Framework Components
+
+### Core Modules
+
+1. **experiment_runner.py** - Base experiment framework with Ollama integration
+2. **synthetic_boundary_tests.py** - Original synthetic test cases (difficulty 1-10)
+3. **enhanced_synthetic_tests.py** - Extended test suite with progressive testing
+4. **systematic_prompt_test.py** - Main testing orchestrator
+5. **verify_prompt_system.py** - System verification tool
+
+### Prompt Templates
+
+Located in `prompts/` directory:
+
+- **A1_asymmetric** - Conservative single-token output
+- **A2_high_confidence** - High confidence requirement
+- **B1_json_confidence** - JSON output with confidence scores
+- **B2_confidence_threshold** - Explicit confidence rating
+- **C1_silent_checklist** - Structured checklist approach
+- **C2_self_check** - Double-check mechanism
+- **D1_conservative_few_shot** - Few-shot with conservative examples
+
+### Test Data
+
+Synthetic test cases span difficulty levels 1-10:
+- **Easy (1-3)**: Obvious boundaries (signatures, headers)
+- **Medium (4-6)**: Ambiguous cases requiring context
+- **Hard (7-10)**: Edge cases and challenging transitions
+
+## Adding New Experiments
+
+### 1. Create a New Prompt Template
+
+Add a `.txt` file to `prompts/`:
 
 ```
-experiments/
-├── configs/           # Experiment configurations (auto-generated)
-├── results/          # JSON results from experiments
-├── analysis/         # Jupyter notebooks for analysis (create as needed)
-├── prompts/          # Prompt templates
-├── experiment_runner.py    # Core experiment framework
-└── run_experiments.py      # CLI for running experiments
+prompts/my_new_prompt.txt
+```
+
+Use template variables:
+- `{page1_bottom}` - Bottom text of first page
+- `{page2_top}` - Top text of second page
+
+### 2. Add Prompt Configuration
+
+In your test script, define the prompt configuration:
+
+```python
+prompts = {
+    "my_prompt": {
+        "template": "...",  # or load from file
+        "config": {
+            "temperature": 0.0,
+            "max_tokens": 10,
+            "stop": ["S", "D"]  # optional
+        },
+        "post_process": "custom"  # optional
+    }
+}
+```
+
+### 3. Test Progressively
+
+Use the enhanced synthetic tester for progressive testing:
+
+```python
+from enhanced_synthetic_tests import EnhancedSyntheticTester
+
+tester = EnhancedSyntheticTester()
+results = tester.test_easy_medium_hard_progression(
+    models=["phi4-mini:3.8b"],
+    confidence_threshold=0.4
+)
 ```
 
 ## Running Experiments
 
-### Basic Usage
+### Systematic Testing
 
 ```bash
-# Run with default settings (Llama3, context overlap strategy)
-python -m pdf_splitter.detection.experiments.run_experiments
+# Test all prompts on synthetic data, then test winners on real PDFs
+python systematic_prompt_test.py --models phi4-mini:3.8b gemma3:latest
 
-# Test specific models
-python -m pdf_splitter.detection.experiments.run_experiments \
-    --models llama3:8b-instruct-q5_K_M gemma3:latest phi4-mini:3.8b \
-    --strategies context_overlap chain_of_thought
+# Skip real PDF testing
+python systematic_prompt_test.py --no-real-pdf
 
-# Compare existing results
-python -m pdf_splitter.detection.experiments.run_experiments \
-    --compare-only \
-    --models llama3:8b-instruct-q5_K_M gemma3:latest
+# Adjust confidence threshold for B1/B2 prompts
+python systematic_prompt_test.py --confidence-threshold 0.6
 ```
 
-### Available Strategies
+### Direct Testing
 
-1. **context_overlap**: Sliding window with configurable overlap
-   - Tests 20%, 30%, and 40% overlap
-   - Good baseline strategy
+```bash
+# Test enhanced synthetic framework directly
+python enhanced_synthetic_tests.py
 
-2. **type_first**: Classify document type, then detect boundaries
-   - Two-pass approach
-   - May improve accuracy for diverse document sets
-
-3. **chain_of_thought**: Step-by-step reasoning
-   - Higher latency but potentially more accurate
-   - Good for understanding model reasoning
-
-4. **multi_signal**: Combine multiple detection signals
-   - Placeholder for integration with visual/heuristic detectors
-
-## Adding New Experiments
-
-### 1. Create a New Strategy
-
-Edit `experiment_runner.py` and add a new method:
-
-```python
-def _run_my_strategy(self, config, pages, result):
-    # Your strategy implementation
-    predictions = []
-    # ...
-    return predictions
+# Run original synthetic tests
+python synthetic_boundary_tests.py
 ```
 
-### 2. Create a New Prompt Template
+## Analyzing Results
 
-Add a `.txt` file to the `prompts/` directory:
-
-```
-prompts/my_template.txt
-```
-
-Then reference it in your experiment config:
-```python
-config = ExperimentConfig(
-    name="my_experiment",
-    model="llama3:latest",
-    strategy="my_strategy",
-    prompt_template="my_template"
-)
-```
-
-### 3. Analyze Results
-
-Results are saved as JSON in the `results/` directory. Each file contains:
+Results are saved as JSON in `results/` with:
 - Configuration used
-- Predicted vs actual boundaries
 - Performance metrics (precision, recall, F1)
 - Timing information
-- Model responses and errors
+- Detailed predictions
+- Error logs
 
-## Performance Targets
+### Interpreting Metrics
 
-- **Accuracy**: > 95% F1 score
-- **Latency**: < 2 seconds per boundary check
-- **Consistency**: Low variance across runs
+- **Precision**: How many detected boundaries were correct
+- **Recall**: How many true boundaries were found
+- **F1 Score**: Harmonic mean of precision and recall
+- **Target**: High recall (>90%) with acceptable precision (>40%)
 
-## Tips for Experimentation
+## Best Practices
 
-1. **Start Simple**: Begin with context_overlap strategy as baseline
-2. **Test Incrementally**: Change one variable at a time
-3. **Monitor Errors**: Check the errors field in results
-4. **Validate Prompts**: Test prompts manually with Ollama first
-5. **Consider Edge Cases**: First/last pages, single-page documents
+1. **Start Simple**: Test basic prompts before complex ones
+2. **Progressive Testing**: Validate on easy cases before testing hard ones
+3. **Multiple Models**: Test across different model sizes and architectures
+4. **Document Everything**: Keep notes on what works and what doesn't
+5. **Version Control**: Track prompt iterations and results
 
-## Ollama Setup
+## Historical Context
 
-Ensure Ollama is running:
+See `HISTORICAL_FINDINGS.md` for learnings from previous experiments that led to this framework.
+
+## Troubleshooting
+
+### Ollama Issues
 ```bash
+# Ensure Ollama is running
 ollama serve
+
+# Pull required models
+ollama pull phi4-mini:3.8b
+ollama pull gemma3:latest
 ```
 
-Pull required models:
-```bash
-ollama pull llama3:8b-instruct-q5_K_M
-ollama pull gemma3:latest
-ollama pull phi4-mini:3.8b
-```
+### Poor Results
+1. Verify models can follow simple instructions first
+2. Check response parsing matches model output format
+3. Try lower temperatures (0.0-0.1)
+4. Ensure sufficient context (200-300 chars recommended)
+
+## Next Steps
+
+1. Continue testing new prompt strategies
+2. Add more challenging synthetic test cases
+3. Test on diverse PDF types
+4. Optimize for production deployment
+5. Integrate with visual and heuristic detectors

@@ -1,0 +1,7 @@
+Rate document boundary likelihood (0-1) then classify.
+
+Page 1: {page1_bottom}
+Page 2: {page2_top}
+
+Confidence: 0.X
+Label: S or D

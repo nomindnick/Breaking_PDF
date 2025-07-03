@@ -1,0 +1,7 @@
+Classify this transition twice silently, then give final answer.
+If both classifications match, use that; if different, choose 'S'.
+
+Page 1: {page1_bottom}
+Page 2: {page2_top}
+
+Final: S or D

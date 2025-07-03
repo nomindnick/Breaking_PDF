@@ -1,0 +1,6 @@
+Classify this page transition and provide confidence.
+
+Page 1: {page1_bottom}
+Page 2: {page2_top}
+
+Respond JSON: {{"label":"S","conf":0.85}} or {{"label":"D","conf":0.92}}

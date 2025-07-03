@@ -1,0 +1,7 @@
+Think silently: ① Topic continuity? ② Page sequence? ③ Document markers?
+Then output 'S' or 'D'.
+
+Page 1: {page1_bottom}
+Page 2: {page2_top}
+
+Classification:

@@ -96,13 +96,18 @@ class OllamaClient:
         temperature: float = 0.1,
         max_tokens: int = 500,
         timeout: int = 30,
+        stop: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Generate a response from Ollama."""
+        options = {"num_predict": max_tokens}
+        if stop:
+            options["stop"] = stop
+
         payload = {
             "model": model,
             "prompt": prompt,
             "temperature": temperature,
-            "options": {"num_predict": max_tokens},
+            "options": options,
             "stream": False,
         }
 
@@ -193,6 +198,8 @@ class LLMExperimentRunner:
             predictions = self._run_multi_signal_strategy(config, pages, result)
         elif config.strategy == "chain_of_thought":
             predictions = self._run_chain_of_thought_strategy(config, pages, result)
+        elif config.strategy == "synthetic_pairs":
+            predictions = self._run_synthetic_pairs_strategy(config, pages, result)
         else:
             result.errors.append(f"Unknown strategy: {config.strategy}")
             return result
@@ -384,6 +391,102 @@ Answer with just the type:"""
                 predictions.append(boundary)
 
         return predictions
+
+    def _run_synthetic_pairs_strategy(
+        self,
+        config: ExperimentConfig,
+        pages: List[ProcessedPage],
+        result: ExperimentResult,
+    ) -> List[BoundaryResult]:
+        """Run synthetic pairs strategy for testing with page pairs."""
+        predictions = []
+
+        # Process consecutive page pairs
+        for i in range(len(pages) - 1):
+            page1 = pages[i]
+            page2 = pages[i + 1]
+
+            # Extract bottom of page 1 and top of page 2
+            # Take last 300 chars of page 1 and first 300 chars of page 2
+            page1_text = page1.text.strip()
+            page2_text = page2.text.strip()
+
+            page1_bottom = page1_text[-300:] if len(page1_text) > 300 else page1_text
+            page2_top = page2_text[:300] if len(page2_text) > 300 else page2_text
+
+            # Use the prompt template specified in config
+            template = self.prompt_templates.get(
+                config.prompt_template, self.prompt_templates["default"]
+            )
+
+            # Format prompt for pairs
+            if "{page1_bottom}" in template and "{page2_top}" in template:
+                # Template is designed for pairs
+                prompt = template.format(
+                    page1_bottom=page1_bottom,
+                    page2_top=page2_top,
+                    page1=page1_bottom,
+                    page2=page2_top,
+                )
+            else:
+                # Fallback for templates not designed for pairs
+                prompt = (
+                    f"Page {page1.page_number} ends with:\n{page1_bottom}\n\n"
+                    f"Page {page2.page_number} begins with:\n{page2_top}\n\n"
+                    "Are these pages from the Same Document or Different Documents?"
+                )
+
+            # Check for stop tokens in config
+            stop_tokens = None
+            if hasattr(config, "stop_tokens"):
+                stop_tokens = config.stop_tokens
+
+            # Call LLM
+            response = self.ollama.generate(
+                model=config.model,
+                prompt=prompt,
+                temperature=config.temperature,
+                max_tokens=config.max_tokens,
+                timeout=config.timeout,
+                stop=stop_tokens,
+            )
+
+            # Process response for pairs
+            boundary = self._process_pair_response(response, page2.page_number, result)
+            if boundary:
+                predictions.append(boundary)
+
+        return predictions
+
+    def _process_pair_response(
+        self, response: Dict[str, Any], page_number: int, result: ExperimentResult
+    ) -> Optional[BoundaryResult]:
+        """Process LLM response for page pair classification."""
+        if "error" in response:
+            result.errors.append(f"Page {page_number}: {response['error']}")
+            return None
+
+        try:
+            response_text = response.get("response", "").strip()
+            result.model_responses.append(
+                {"page": page_number, "response": response_text}
+            )
+
+            # Check for "Different" classification
+            response_upper = response_text.upper()
+            if any(marker in response_upper for marker in ["DIFFERENT", "D"]):
+                return BoundaryResult(
+                    page_number=page_number,
+                    boundary_type=BoundaryType.DOCUMENT_START,
+                    confidence=0.9,  # High confidence for explicit classification
+                    detector_type=DetectorType.LLM,
+                    reasoning=f"Classified as different document: {response_text[:50]}",
+                )
+
+        except Exception as e:
+            result.errors.append(f"Page {page_number}: Failed to parse response - {e}")
+
+        return None
 
     def _generate_prompt(
         self,

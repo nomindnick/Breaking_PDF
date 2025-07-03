@@ -1,0 +1,7 @@
+Assume pages are consecutive unless you see a clear document break.
+Output 'D' ONLY when certain a break exists, else 'S'.
+
+Page 1: {page1_bottom}
+Page 2: {page2_top}
+
+Reply with S or D only.
