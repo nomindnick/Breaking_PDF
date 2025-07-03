@@ -82,7 +82,12 @@ pdf_splitter/
   - Comprehensive Testing: 90%+ code coverage, OCR accuracy validated
 
 ### In Progress 🚧
-- [ ] Detection Module (ready to begin - see development_progress.md for detailed plan)
+- [ ] **Detection Module** (experimental phase - see development_progress.md for detailed approach)
+  - ✅ Base architecture complete (BaseDetector abstract class)
+  - ✅ Data models defined (ProcessedPage, BoundaryResult, DetectionContext)
+  - ✅ LLM experimentation framework with Ollama integration
+  - 🔬 Currently: Testing different models and strategies
+  - 📊 Goal: Achieve >95% accuracy before implementing other detectors
 
 ### Upcoming 📋
 - [ ] Splitting Module
@@ -97,11 +102,16 @@ pdf_splitter/
    - Text extraction with layout analysis
    - Advanced caching system
 
-2. **Detection Module** 🚧 NEXT
-   - LLM Detection: Context overlap analysis (30% strategy)
-   - Visual Detection: Layout changes via OCR bounding boxes
-   - Heuristic Detection: Date patterns, document keywords
-   - Signal Combiner: Weighted scoring and consensus
+2. **Detection Module** 🚧 IN PROGRESS - EXPERIMENTAL PHASE
+   - **Current Focus**: LLM Detection experimentation
+     - Testing multiple prompting strategies
+     - Evaluating different model sizes and types
+     - Building comprehensive experiment framework
+   - **Planned Components** (after LLM validation):
+     - Visual Detection: Layout changes via OCR bounding boxes
+     - Heuristic Detection: Date patterns, document keywords
+     - Signal Combiner: Weighted scoring and consensus
+   - **Approach**: Make LLM detection "rock solid" first, then add other signals
 
 3. **Splitting Module**
    - PDF manipulation and output
@@ -195,11 +205,29 @@ pytest pdf_splitter/preprocessing/tests/
 # Run tests excluding slow tests
 pytest -m "not slow"
 
+# Run ALL tests including OCR and integration tests
+RUN_OCR_TESTS=true RUN_INTEGRATION_TESTS=true pytest
+
 # Run pre-commit checks
 pre-commit run --all-files
 
 # Install new dependencies
 pip install <package> && pip freeze > requirements.txt
+```
+
+### Running All Tests
+Some tests are skipped by default to speed up development:
+- **OCR Tests**: Require `RUN_OCR_TESTS=true` environment variable
+- **Integration Tests**: Require `RUN_INTEGRATION_TESTS=true` environment variable
+
+These tests validate OCR accuracy and end-to-end functionality but take longer to run due to:
+- OCR engine initialization overhead
+- Processing actual PDF files
+- Comprehensive accuracy measurements
+
+To run the complete test suite with all tests enabled:
+```bash
+RUN_OCR_TESTS=true RUN_INTEGRATION_TESTS=true pytest
 ```
 
 ## Critical Technical Decisions

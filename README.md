@@ -19,7 +19,12 @@ An intelligent PDF splitter that automatically identifies and separates individu
 - **Test Infrastructure**: Comprehensive test suite with shared fixtures and utilities
 
 ### In Development 🚧
-- **Detection Module**: Document boundary detection algorithms
+- **Detection Module**: Document boundary detection algorithms (experimental phase)
+  - ✅ Base architecture established (BaseDetector abstract class)
+  - ✅ LLM experimentation framework with Ollama integration
+  - 🔬 Testing multiple models (Llama3, Gemma3, Phi4, Phi3) and strategies
+  - 📊 Goal: Achieve >95% F1 score before implementing other detectors
+  - See `pdf_splitter/detection/experiments/README.md` for experimentation guide
 
 ### Planned 📋
 - **Splitting Module**: PDF manipulation and output

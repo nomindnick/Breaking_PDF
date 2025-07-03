@@ -229,10 +229,13 @@ Build and perfect one module at a time before moving to the next:
    - Handle both searchable and image PDFs
    - Optimize for speed and accuracy
 
-2. **LLM Detection Module** (Weeks 3-4)
-   - Implement boundary detection logic
-   - Optimize prompts and context handling
-   - Achieve reliable accuracy on test data
+2. **LLM Detection Module** (Weeks 3-4) - **IN PROGRESS - Experimental Phase**
+   - ✅ Base architecture established (BaseDetector abstract class)
+   - ✅ Experimentation framework with Ollama integration
+   - ✅ Multiple prompt templates created
+   - 🔬 Testing models: Llama3 (8B), Gemma3, Phi4-mini, Phi3-mini
+   - 🔬 Testing strategies: context_overlap, type_first, chain_of_thought
+   - 📊 Target: >95% F1 score before implementing other detectors
 
 3. **Visual & Heuristic Detection** (Week 5)
    - Implement complementary detection methods

@@ -1,0 +1,20 @@
+Analyze the transition between these PDF pages to detect document boundaries.
+
+{context_info}
+
+Current page {current_page}:
+{current_text}
+
+Key questions:
+1. Does the previous page appear to end/close a document?
+2. Does the current page appear to start a new document?
+3. Is there continuity in topic/formatting between pages?
+
+Common boundary patterns:
+- Email chains: Look for From:/To:/Subject: headers
+- Letters: Look for date, greeting (Dear...), and closing
+- Invoices: Look for Invoice #, Bill To, itemized lists
+- Forms/Applications: Look for form titles and fields
+- Technical docs: Look for title pages, section headers
+
+Answer: {{"boundary": true/false, "confidence": 0.0-1.0, "reasoning": "what specific evidence supports your decision"}}

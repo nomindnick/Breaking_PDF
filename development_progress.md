@@ -357,4 +357,63 @@ Created and executed comprehensive OCR accuracy testing to ensure preprocessing 
 
 ---
 
-*Preprocessing module complete and production-ready. All components tested, documented, optimized, and hardened for production use. Ready to proceed with detection module implementation.*
+## Entry #10: Detection Module - Experimental Approach
+**Date**: 2025-07-03 | **Status**: 🚧 In Progress
+
+### Summary
+Started detection module with an experimental approach, focusing on making LLM detection "rock solid" before implementing other detection signals.
+
+**Philosophy Alignment:**
+Following the project's core principle of ensuring each component is thoroughly tested and optimized before moving forward. Rather than implementing all detectors at once, we're taking an experimental approach to find the optimal LLM configuration first.
+
+**Architecture Established:**
+1. **Base Detector Interface** (`base_detector.py`)
+   - Abstract base class defining standard interface
+   - Data models: ProcessedPage, BoundaryResult, DetectionContext
+   - Shared utilities for all detectors
+   - 97% test coverage with 16 passing tests
+
+2. **Experimentation Framework**
+   - `experiment_runner.py`: Core framework with Ollama integration
+   - Support for multiple strategies:
+     - **context_overlap**: Sliding window with configurable overlap (20%, 30%, 40%)
+     - **type_first**: Classify document type, then detect boundaries
+     - **chain_of_thought**: Step-by-step reasoning for better accuracy
+     - **multi_signal**: Placeholder for future integration
+   - Comprehensive metrics tracking (precision, recall, F1, latency)
+   - Results persistence and comparison tools
+
+3. **CLI Tool** (`run_experiments.py`)
+   - Easy experimentation with different models and strategies
+   - Automatic PDF processing and ground truth loading
+   - Batch testing and results comparison
+
+**Initial Experiments:**
+- Models to test: Llama3 (8B), Gemma3, Phi4-mini (3.8B), Phi3-mini
+- Prompt templates created:
+  - Default: Basic boundary detection
+  - `focused_boundary.txt`: Emphasizes specific document markers
+  - `context_analysis.txt`: Detailed transition analysis
+
+**Key Technical Decisions:**
+1. **Ollama over Transformers**: More flexibility for testing different models
+2. **Experimental First**: Validate approach before production implementation
+3. **Multiple Strategies**: Test various approaches to find optimal configuration
+4. **Comprehensive Metrics**: Track accuracy, latency, and consistency
+
+**Next Steps:**
+1. Run experiments with all available models
+2. Test different overlap percentages and window sizes
+3. Optimize prompts based on results
+4. Implement production LLM detector with best configuration
+5. Then proceed with visual and heuristic detectors
+
+**Success Criteria:**
+- **Accuracy**: > 95% F1 score on test set
+- **Latency**: < 2 seconds per boundary check
+- **Consistency**: Low variance across runs
+- **Robustness**: Handle various document types
+
+---
+
+*Detection module experimental phase in progress. Taking methodical approach to ensure LLM detection is "rock solid" before adding additional signals.*
