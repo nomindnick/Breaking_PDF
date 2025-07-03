@@ -1,0 +1,60 @@
+{
+  "config": {
+    "name": "phi4_quick_test",
+    "model": "phi4-mini:3.8b",
+    "strategy": "context_overlap",
+    "context_overlap_percent": 0.3,
+    "window_size": 3,
+    "temperature": 0.1,
+    "max_tokens": 500,
+    "prompt_template": "default",
+    "batch_size": 10,
+    "timeout": 30,
+    "timestamp": "2025-07-02T20:12:40.779631"
+  },
+  "true_boundaries": [
+    5,
+    7,
+    9
+  ],
+  "predicted_boundaries": [],
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1_score": 0.0,
+  "total_time": 69.44076132774353,
+  "avg_time_per_boundary": 0.0,
+  "avg_time_per_page": 6.944076132774353,
+  "boundary_results": [],
+  "errors": [],
+  "total_pages": 10,
+  "model_responses": [
+    {
+      "page": 1,
+      "response": "```json\n\n{\n\n  \"boundary\": false,\n\n  \"confidence\": 1.0,\n\n  \"reasoning\": \"No new document boundary detected; subsequent page is a continuation.\"\n\n}\n\n```\n\nIn this hypothetical example of an analysis without seeing the actual content but assuming continuity based on typical scenarios, there would not be any indication that we have reached a start or end-of-document marker after Page 1. Hence it suggests there's no change in context from one to another suggesting it's part of continuous document scanning; hence \"false\" is returned for boundary presence and full confidence (1.0) with brief explanation provided stating the lack of detected new boundaries, assuming there was continuity observed between pages which typically implies a single ongoing process or document without interruptions that would signify different documents starting from Page 2 onwards."
+    },
+    {
+      "page": 2,
+      "response": "```json\n{\"boundary\": false, \"confidence\": 0.9, \"reasoning\": \"No new document start indicator detected at or after page 2; continuation from Page 1 is evident.\"}\n```"
+    },
+    {
+      "page": 3,
+      "response": "{\n\"boundary\": false,\n\"confidence\": 0.7,\n\"reasoning\": \"No distinct change in document structure observed.\"\n}"
+    },
+    {
+      "page": 5,
+      "response": "Since I don't have access to the actual scanned content on pages 4 through 6 and cannot visually inspect them for patterns indicative of a document boundary (such as headings like 'Page X', page numbers at consistent intervals throughout previous sections), I'm unable to definitively conclude whether there is an implicit or explicit indication that Page 5 marks either the end of one complete section within this specific PDF, transitioning into another new section which would indicate it potentially being part of a different document.\n\nTherefore without further information on what defines boundaries in your context (such as headings indicating chapter separation), I cannot confidently provide you with true/false status. However, if we assume that page numbering typically signifies continuity across pages within the same PDF but not necessarily between documents and given there's no indication otherwise from Page 4 to Page 6 about starting a new document:\n\nAnswer in JSON format assuming continuation without explicit boundary (based on common conventions for PDFs):\n```json\n{\"boundary\": false, \"confidence\": 0.7, \"reasoning\": \"Page numbers are incremented continuously which commonly indicates the same continuous section rather than different documents.\"}\n```\n\nPlease note that this answer is based only upon an assumption as no concrete evidence of boundaries was provided within your context data.\n\nIf you have more specific indications such as visible headers/footers or explicit markers indicating document separation, please provide them so I can reassess."
+    },
+    {
+      "page": 6,
+      "response": "```json\n\n{\"boundary\": false, \"confidence\": 0.8, \"reasoning\": \"No visible start of a new document boundary as there is continuity in content flow from page 5 to the scanned area on Page 6 and continuing onto Page 7.\"}\n\n```"
+    },
+    {
+      "page": 8,
+      "response": "{\n    \"boundary\": false,\n    \"confidence\": 0.9,\n    \"reasoning\": \"The scanned content continues seamlessly from Page 7 to Page 8 without any noticeable breaks or changes in formatting that would suggest a new document boundary.\"\n}"
+    },
+    {
+      "page": 9,
+      "response": "{\n  \"boundary\": false,\n  \"confidence\": 0.8,\n  \"reasoning\": \"The continuity of the content from page 9 to pages above and below suggests there is no new document boundary.\"\n}"
+    }
+  ]
+}

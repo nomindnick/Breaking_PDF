@@ -42,29 +42,36 @@ def process_pdf_to_pages(pdf_path: Path) -> List[ProcessedPage]:
     """Process a PDF file and convert to ProcessedPage objects."""
     config = PDFConfig()
     handler = PDFHandler(config)
-    extractor = TextExtractor(config)
 
     # Load PDF
     with handler.load_pdf(pdf_path) as loaded_handler:
+        # Create text extractor with the loaded handler
+        extractor = TextExtractor(loaded_handler)
+
         pages = []
-        for page_num in range(1, loaded_handler.page_count + 1):
-            # Get page info
-            page_info = loaded_handler.get_page_info(page_num)
+        for page_num in range(loaded_handler.page_count):
+            # Get page type (PDFHandler uses 0-based indexing)
+            page_type = loaded_handler.get_page_type(page_num)
+            page_type_str = (
+                page_type.value if hasattr(page_type, "value") else str(page_type)
+            )
 
             # Extract text
-            if page_info["type"] in ["SEARCHABLE", "MIXED"]:
-                page_text = extractor.extract_page_text(page_num)
-                text = page_text.text if hasattr(page_text, "text") else str(page_text)
+            if page_type_str in ["searchable", "mixed"]:
+                # TextExtractor expects 1-based page numbers
+                page_text = extractor.extract_page_text(page_num + 1)
+                # PageText object has a text attribute
+                text = page_text.text
             else:
                 # For scanned pages, we'd use OCR here
-                text = f"[Page {page_num} - Scanned content]"
+                text = f"[Page {page_num + 1} - Scanned content]"
 
-            # Create ProcessedPage
+            # Create ProcessedPage (use 1-based page number for consistency)
             page = ProcessedPage(
-                page_number=page_num,
+                page_number=page_num + 1,
                 text=text,
-                page_type=page_info["type"],
-                metadata=page_info,
+                page_type=page_type_str,
+                metadata={"page_type": page_type_str},
             )
             pages.append(page)
 

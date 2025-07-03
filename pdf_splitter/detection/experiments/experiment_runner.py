@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests  # type: ignore
 
-from pdf_splitter.core.logging import setup_logging
+from pdf_splitter.core.logging import get_logger, setup_logging
 from pdf_splitter.detection.base_detector import (
     BoundaryResult,
     BoundaryType,
@@ -23,8 +23,8 @@ from pdf_splitter.detection.base_detector import (
     ProcessedPage,
 )
 
-setup_logging(__name__)
-logger = setup_logging(__name__)  # type: ignore
+setup_logging()
+logger = get_logger(__name__)
 
 
 @dataclass
