@@ -4,6 +4,7 @@
 import json
 import time
 from pathlib import Path
+
 import requests
 
 # Test cases
@@ -12,21 +13,22 @@ test_cases = [
         "name": "Clear Different",
         "page1_bottom": "...thank you for your business.\nSincerely,\nJohn Smith",
         "page2_top": "INVOICE #12345\nDate: March 1, 2024",
-        "expected": "DIFFERENT"
+        "expected": "DIFFERENT",
     },
     {
         "name": "Clear Same",
         "page1_bottom": "...and therefore, the system achieves 95% efficiency.",
         "page2_top": "This level of efficiency is critical for our targets.",
-        "expected": "SAME"
+        "expected": "SAME",
     },
     {
         "name": "Chapter Break (Same)",
         "page1_bottom": "...concluding phase one.\nCHAPTER 3",
         "page2_top": "THE NEXT STAGE\nPhase two began with new challenges.",
-        "expected": "SAME"
-    }
+        "expected": "SAME",
+    },
 ]
+
 
 def test_prompt(model, prompt_file, test_case):
     """Test a single prompt with a test case."""
@@ -34,20 +36,19 @@ def test_prompt(model, prompt_file, test_case):
     prompt_path = Path(f"pdf_splitter/detection/experiments/prompts/{prompt_file}")
     if not prompt_path.exists():
         return None
-    
+
     template = prompt_path.read_text()
     formatted = template.format(
-        page1_bottom=test_case["page1_bottom"],
-        page2_top=test_case["page2_top"]
+        page1_bottom=test_case["page1_bottom"], page2_top=test_case["page2_top"]
     )
-    
+
     # Determine stop tokens based on model
     stop_tokens = []
     if "phi" in model.lower():
         stop_tokens = ["<|im_end|>"]
     elif "gemma" in model.lower():
         stop_tokens = ["<end_of_turn>"]
-    
+
     # Call model
     start = time.time()
     try:
@@ -57,60 +58,62 @@ def test_prompt(model, prompt_file, test_case):
                 "model": model,
                 "prompt": formatted,
                 "temperature": 0.0,
-                "options": {
-                    "num_predict": 200,
-                    "stop": stop_tokens
-                },
-                "stream": False
+                "options": {"num_predict": 200, "stop": stop_tokens},
+                "stream": False,
             },
-            timeout=60
+            timeout=60,
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             response_text = result.get("response", "")
             elapsed = time.time() - start
-            
+
             # Extract answer from XML if present
             answer = "Unknown"
             if "<answer>" in response_text:
                 import re
+
                 match = re.search(r"<answer>\s*([^<]+)\s*</answer>", response_text)
                 if match:
                     answer = match.group(1).strip().upper()
             elif response_text.strip().upper() in ["S", "D", "SAME", "DIFFERENT"]:
                 answer = response_text.strip().upper()
-            
+
             # Normalize answer
             if answer in ["S", "SAME"]:
                 answer = "SAME"
             elif answer in ["D", "DIFFERENT"]:
                 answer = "DIFFERENT"
-            
+
             return {
                 "answer": answer,
                 "correct": answer == test_case["expected"],
                 "time": elapsed,
-                "response": response_text[:200]
+                "response": response_text[:200],
             }
     except Exception as e:
         return {"error": str(e)}
-    
+
     return None
+
 
 # Test optimal prompts
 print("TESTING OPTIMAL PROMPTS")
 print("=" * 60)
 
-for model, prompt_file in [("phi4-mini:3.8b", "phi4_optimal.txt"), ("gemma3:latest", "gemma3_optimal.txt")]:
+for model, prompt_file in [
+    ("phi4-mini:3.8b", "phi4_optimal.txt"),
+    ("gemma3:latest", "gemma3_optimal.txt"),
+]:
     print(f"\nModel: {model}")
     print(f"Prompt: {prompt_file}")
     print("-" * 40)
-    
+
     for test_case in test_cases:
         print(f"\nTest: {test_case['name']}")
         print(f"Expected: {test_case['expected']}")
-        
+
         result = test_prompt(model, prompt_file, test_case)
         if result:
             if "error" in result:
@@ -121,7 +124,10 @@ for model, prompt_file in [("phi4-mini:3.8b", "phi4_optimal.txt"), ("gemma3:late
                 if "<thinking>" in result["response"]:
                     # Extract thinking
                     import re
-                    thinking = re.search(r"<thinking>([^<]+)</thinking>", result["response"])
+
+                    thinking = re.search(
+                        r"<thinking>([^<]+)</thinking>", result["response"]
+                    )
                     if thinking:
                         print(f"Reasoning: {thinking.group(1).strip()[:100]}...")
 
@@ -138,7 +144,7 @@ for test_case in test_cases:
 Page 1: {test_case['page1_bottom']}
 Page 2: {test_case['page2_top']}
 Answer with S (same) or D (different):"""
-    
+
     try:
         response = requests.post(
             "http://localhost:11434/api/generate",
@@ -147,22 +153,22 @@ Answer with S (same) or D (different):"""
                 "prompt": baseline_prompt,
                 "temperature": 0.0,
                 "options": {"num_predict": 10},
-                "stream": False
+                "stream": False,
             },
-            timeout=30
+            timeout=30,
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             response_text = result.get("response", "").strip().upper()
-            
+
             # Extract answer
             answer = "Unknown"
             if "S" in response_text and "D" not in response_text:
                 answer = "SAME"
             elif "D" in response_text:
                 answer = "DIFFERENT"
-            
+
             correct = answer == test_case["expected"]
             if correct:
                 baseline_correct += 1
@@ -170,6 +176,10 @@ Answer with S (same) or D (different):"""
     except:
         pass
 
-print(f"\nBaseline accuracy: {baseline_correct}/{len(test_cases)} = {baseline_correct/len(test_cases)*100:.0f}%")
+print(
+    f"\nBaseline accuracy: {baseline_correct}/{len(test_cases)} = {baseline_correct/len(test_cases)*100:.0f}%"
+)
 print("Optimal prompts accuracy: 6/6 = 100%")
-print("\nImprovement: The optimal prompts achieve perfect accuracy with clear reasoning!")
+print(
+    "\nImprovement: The optimal prompts achieve perfect accuracy with clear reasoning!"
+)

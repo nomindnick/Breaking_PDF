@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+
 import requests
 
 # Load prompts
@@ -11,7 +12,7 @@ prompts_dir = Path("pdf_splitter/detection/experiments/prompts")
 # Test case
 test_case = {
     "page1_bottom": "...and we thank you for your business.\nSincerely,\nJohn Smith",
-    "page2_top": "INVOICE #12345\nDate: March 1, 2024\nCustomer: ABC Corp"
+    "page2_top": "INVOICE #12345\nDate: March 1, 2024\nCustomer: ABC Corp",
 }
 
 # Load and test phi4_optimal
@@ -23,7 +24,7 @@ if phi4_path.exists():
     formatted = template.format(**test_case)
     print(formatted[:500] + "..." if len(formatted) > 500 else formatted)
     print("-" * 60)
-    
+
     # Test with Ollama
     print("\nTesting with phi4-mini:3.8b...")
     try:
@@ -33,13 +34,10 @@ if phi4_path.exists():
                 "model": "phi4-mini:3.8b",
                 "prompt": formatted,
                 "temperature": 0.0,
-                "options": {
-                    "num_predict": 200,
-                    "stop": ["<|im_end|>"]
-                },
-                "stream": False
+                "options": {"num_predict": 200, "stop": ["<|im_end|>"]},
+                "stream": False,
             },
-            timeout=30
+            timeout=30,
         )
         if response.status_code == 200:
             result = response.json()
@@ -49,7 +47,7 @@ if phi4_path.exists():
     except Exception as e:
         print("Error:", e)
 
-print("\n" + "="*60 + "\n")
+print("\n" + "=" * 60 + "\n")
 
 # Load and test gemma3_optimal
 gemma_path = prompts_dir / "gemma3_optimal.txt"
@@ -60,7 +58,7 @@ if gemma_path.exists():
     formatted = template.format(**test_case)
     print(formatted[:500] + "..." if len(formatted) > 500 else formatted)
     print("-" * 60)
-    
+
     # Test with Ollama
     print("\nTesting with gemma3:latest...")
     try:
@@ -70,13 +68,10 @@ if gemma_path.exists():
                 "model": "gemma3:latest",
                 "prompt": formatted,
                 "temperature": 0.0,
-                "options": {
-                    "num_predict": 200,
-                    "stop": ["<end_of_turn>"]
-                },
-                "stream": False
+                "options": {"num_predict": 200, "stop": ["<end_of_turn>"]},
+                "stream": False,
             },
-            timeout=30
+            timeout=30,
         )
         if response.status_code == 200:
             result = response.json()

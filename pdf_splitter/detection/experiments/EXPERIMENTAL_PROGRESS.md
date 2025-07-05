@@ -33,7 +33,7 @@
 - **Test Cases**: 30+ cases across 10 difficulty levels
 - **Categories**:
   - Easy (1-3): Obvious boundaries
-  - Medium (4-6): Ambiguous cases  
+  - Medium (4-6): Ambiguous cases
   - Hard (7-10): Edge cases
 - **Progressive Testing**: Easy → Medium → Hard
 
@@ -57,10 +57,23 @@
 - `E1_cod_reasoning.txt`: Chain-of-Draft with steps
 - `E2_cod_minimal.txt`: Minimal Chain-of-Draft
 
-**Results**: 
+**Quick Test Results** (3 cases):
 - Gemma3 optimal: 100% accuracy on test cases
 - Phi4 optimal: 67% accuracy on test cases
 - Baseline: 33% accuracy
+
+### 5. Full Performance Test (January 4, 2025)
+**Test Scope**:
+- 26 synthetic test cases across 10 difficulty levels
+- 6 prompts tested (A1, D1, E1, E2, phi4_optimal*, gemma3_optimal*)
+- 2 models (phi4-mini:3.8b, gemma3:latest)
+- *Note: Optimal prompts failed due to naming issue
+
+**Results**:
+- **Best F1 Score**: 0.500 (gemma3 with E1_cod_reasoning)
+- **Best Accuracy**: 61.54% (gemma3 with D1_conservative_few_shot)
+- **Chain-of-Draft Success**: E1 and E2 outperformed all baselines
+- **Issues Found**: A1_asymmetric parsing failure, optimal prompts not tested
 
 ## Key Findings
 
@@ -77,7 +90,7 @@
 
 ### 3. Technical Insights
 - XML tags enable reliable response parsing
-- Stop tokens reduce response variability  
+- Stop tokens reduce response variability
 - Conservative bias reduces false positives
 - Edge cases (like chapter breaks) require examples
 
@@ -108,10 +121,12 @@
 
 | Metric | Target | Current Best | Status |
 |--------|--------|--------------|---------|
-| Accuracy (F1) | >95% | 100% (limited test) | 🟡 Needs validation |
-| Speed | <5s/page | ~6s/page | 🟡 Close |
+| Accuracy (F1) | >95% | 50% (full test) | 🔴 Needs improvement |
+| Speed | <5s/page | 5.2-7.1s/page (CoD) | 🟡 Close |
 | Consistency | 100% | 100% (XML format) | ✅ Achieved |
-| Edge Cases | >90% | 100% (limited test) | 🟡 Needs validation |
+| Edge Cases | >90% | 33% (difficulty 9-10) | 🔴 Needs improvement |
+
+**Update (Jan 4, 2025)**: Full test results show lower performance than quick tests. Best F1 score of 0.500 indicates significant optimization needed. Optimal prompts still need testing.
 
 ## File Structure
 

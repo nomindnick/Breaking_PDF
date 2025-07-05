@@ -6,7 +6,7 @@ A well-architected prompt for a classification task is not a simple question but
 Persona and Role Assignment
 Assigning a persona to the language model is a powerful technique to frame its "mindset" and prime it to access the most relevant patterns from its vast training data.2 For this task, a generic persona like "You are a helpful assistant" is insufficient. A hyper-specific role is required to focus the model's capabilities. An effective persona would be: "You are a meticulous document analyst specializing in automated document segmentation. Your function is to determine the logical continuity between text snippets from consecutive pages".4 This instruction encourages the model to adopt an analytical, detail-oriented mode of operation, which is more suitable for a technical classification task than a conversational one.
 Task and Instruction Clarity
-The core instruction must be clear, specific, and unambiguous.5 Vague instructions lead to vague or incorrect outputs. A weak instruction such as "Is this a new document?" leaves too much room for interpretation. A strong, well-defined instruction provides explicit guidance on the objective, the inputs, and the expected analysis. For instance: "Analyze the provided text snippets, labeled 
+The core instruction must be clear, specific, and unambiguous.5 Vague instructions lead to vague or incorrect outputs. A weak instruction such as "Is this a new document?" leaves too much room for interpretation. A strong, well-defined instruction provides explicit guidance on the objective, the inputs, and the expected analysis. For instance: "Analyze the provided text snippets, labeled
 <PAGE_1_END_TEXT> and <PAGE_2_START_TEXT>. Based on semantic and structural continuity, determine if the text on Page 2 is a direct continuation of the text from Page 1. Your task is to classify the relationship as either 'SAME' or 'DIFFERENT'." This level of specificity removes ambiguity and directs the model's computational resources toward the precise analytical task required.
 Context Provision and Structure
 The context is the data upon which the model operates—in this case, the text from the bottom of the preceding page and the top of the succeeding page. How this context is presented is as important as the context itself. Using clear delimiters, such as XML-like tags or Markdown headers, helps the model parse the information and distinguish between different parts of the input.8 A well-structured context block might look like this:
@@ -42,7 +42,7 @@ A complete prompt for a single-turn task like boundary classification should be 
 
 <end_of_turn>
 <start_of_turn>model
-A critical architectural characteristic of Gemma's IT models is the absence of a dedicated system role.4 Unlike many other models that use a system prompt to set persistent, high-level instructions, with Gemma, all such instructions must be embedded within the first 
+A critical architectural characteristic of Gemma's IT models is the absence of a dedicated system role.4 Unlike many other models that use a system prompt to set persistent, high-level instructions, with Gemma, all such instructions must be embedded within the first
 user turn. The model's instruction-following capabilities are trained to interpret these initial instructions as the guiding principles for the task at hand.
 Microsoft's Phi-3-mini: Structure and Prompting Conventions
 The Phi-3 family of models from Microsoft represents a different approach to SLM design, focusing on achieving high performance in a small footprint by training on a curated dataset of extremely high-quality, "textbook-like" data. This training methodology endows the models with strong reasoning and instruction-following capabilities.2
@@ -127,7 +127,7 @@ For the document boundary detection task, the comparison is stark:
       Page 2 Analysis: Begins new exhibit (title).
       Logical Connection: Letter and exhibit are separate entities.
       Decision: DIFFERENT.
-The CoD approach is far more efficient, conveying the same logical steps with a fraction of the tokens. To implement this, the prompt can be structured with XML tags to guide the model's output, a technique shown to be effective with models like Anthropic's Claude and adaptable to others.28 The prompt would instruct the model to place its reasoning inside a 
+The CoD approach is far more efficient, conveying the same logical steps with a fraction of the tokens. To implement this, the prompt can be structured with XML tags to guide the model's output, a technique shown to be effective with models like Anthropic's Claude and adaptable to others.28 The prompt would instruct the model to place its reasoning inside a
 <thinking> block and its final answer in an <answer> block.
 Persona and Contextual Framing for Expert Analysis
 Building on the foundational principles, advanced prompting involves refining the persona and context structure to a state of hyper-specificity.
@@ -157,7 +157,7 @@ Complementary Model-Level Optimizations
 While prompt engineering is the primary focus, its effectiveness is amplified when combined with model-level optimizations, which are essential for running SLMs efficiently on local hardware.
     • Quantization: This is a near-mandatory optimization for local deployment. It is a compression technique that reduces the numerical precision of the model's parameters (weights and activations) from high-precision formats like 32-bit floating-point (FP32) to lower-precision formats like 8-bit or 4-bit integers (INT8, INT4).15 This significantly reduces the model's memory footprint and can accelerate computation on compatible hardware. However, there is a trade-off; aggressive quantization can sometimes lead to a degradation in model accuracy, as the nuanced differences between weights can be lost.21 The right level of quantization must be determined through testing.
     • Other System-Level Techniques: A holistic performance strategy should also consider other optimizations. Techniques like FlashAttention optimize the memory access patterns of the attention mechanism, reducing memory usage and increasing speed.15
-      KV Caching stores intermediate attention calculations (key-value pairs) to avoid redundant computation, which is critical for longer generative tasks but still relevant for processing the initial prompt.36 Finally, 
+      KV Caching stores intermediate attention calculations (key-value pairs) to avoid redundant computation, which is critical for longer generative tasks but still relevant for processing the initial prompt.36 Finally,
       dynamic batching can be used to process multiple page-junction classifications in parallel, dramatically increasing overall throughput if the application architecture allows for it.15
 Ultimately, the application's speed requirement defines a "latency budget" for each classification. This budget dictates the maximum complexity and token count of the prompt that can be used. This transforms prompt design from an open-ended creative exercise into a constrained optimization problem, where the goal is to pack the maximum amount of guiding information into the prompt without exceeding the acceptable latency threshold.
 A Unified Strategy and Implementation Blueprint
@@ -295,4 +295,3 @@ Very Low (eliminates decode phase)
 Low
 High (requires specific libraries)
 This matrix clarifies the strategic path. For this application, a combination of Few-Shot (3-5+ examples), Chain-of-Draft (CoD), and Constrained Output offers the optimal balance. This combination aims for the highest accuracy by providing rich context and guiding reasoning, while simultaneously achieving the lowest possible latency by engineering the inference process itself. While this approach requires a higher initial implementation and prompt maintenance effort, the resulting gains in both accuracy and speed are likely to be substantial, leading to a highly effective and performant document boundary detection system.
-

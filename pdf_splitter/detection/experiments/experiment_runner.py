@@ -44,11 +44,13 @@ class ExperimentConfig:
 
     # Prompt template name
     prompt_template: str = "default"
-    
+
     # Constrained generation settings
     use_constrained_generation: bool = False
-    constrained_vocab: Optional[List[str]] = None  # e.g., ["SAME", "DIFFERENT"] or ["S", "D"]
-    
+    constrained_vocab: Optional[
+        List[str]
+    ] = None  # e.g., ["SAME", "DIFFERENT"] or ["S", "D"]
+
     # Stop tokens (model-specific)
     stop_tokens: Optional[List[str]] = None
 
@@ -459,7 +461,9 @@ Answer with just the type:"""
             )
 
             # Process response for pairs
-            boundary = self._process_pair_response(response, page2.page_number, result, config)
+            boundary = self._process_pair_response(
+                response, page2.page_number, result, config
+            )
             if boundary:
                 predictions.append(boundary)
 
@@ -470,12 +474,12 @@ Answer with just the type:"""
     ) -> str:
         """
         Apply constrained generation by filtering response to allowed vocabulary.
-        
+
         This is a post-processing approach that simulates constrained generation
         by extracting the first occurrence of an allowed token.
         """
         response_upper = response_text.upper()
-        
+
         # Check each allowed token in order of preference
         for token in constrained_vocab:
             token_upper = token.upper()
@@ -483,16 +487,22 @@ Answer with just the type:"""
                 # Find the position and extract just the token
                 idx = response_upper.find(token_upper)
                 # Check if it's a standalone token (not part of a larger word)
-                if idx == 0 or not response_upper[idx-1].isalnum():
-                    if idx + len(token_upper) >= len(response_upper) or not response_upper[idx + len(token_upper)].isalnum():
+                if idx == 0 or not response_upper[idx - 1].isalnum():
+                    if (
+                        idx + len(token_upper) >= len(response_upper)
+                        or not response_upper[idx + len(token_upper)].isalnum()
+                    ):
                         return token
-        
+
         # If no valid token found, return the first allowed token as default
         return constrained_vocab[0] if constrained_vocab else response_text
 
     def _process_pair_response(
-        self, response: Dict[str, Any], page_number: int, result: ExperimentResult, 
-        config: Optional[ExperimentConfig] = None
+        self,
+        response: Dict[str, Any],
+        page_number: int,
+        result: ExperimentResult,
+        config: Optional[ExperimentConfig] = None,
     ) -> Optional[BoundaryResult]:
         """Process LLM response for page pair classification."""
         if "error" in response:
@@ -501,13 +511,17 @@ Answer with just the type:"""
 
         try:
             response_text = response.get("response", "").strip()
-            
+
             # Apply constrained generation if configured
-            if config and config.use_constrained_generation and config.constrained_vocab:
+            if (
+                config
+                and config.use_constrained_generation
+                and config.constrained_vocab
+            ):
                 response_text = self._apply_constrained_generation(
                     response_text, config.constrained_vocab
                 )
-            
+
             result.model_responses.append(
                 {"page": page_number, "response": response_text}
             )

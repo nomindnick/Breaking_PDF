@@ -81,7 +81,7 @@ def post_process_response(self, response: str, post_process_type: str):
 - **Achievement**: 100% on test set (needs full validation)
 - **Status**: Promising, needs scale testing
 
-### 🕐 Performance Target  
+### 🕐 Performance Target
 - **Goal**: <5 seconds per page
 - **Achievement**: ~6 seconds per page
 - **Status**: Close, can optimize further
@@ -107,7 +107,7 @@ def post_process_response(self, response: str, post_process_type: str):
 
 The experimental framework has proven that LLM detection can be accurate and reliable. We now have:
 - ✅ Validated approach with 100% accuracy potential
-- ✅ Clear path to production implementation  
+- ✅ Clear path to production implementation
 - ✅ Comprehensive testing methodology
 - ✅ Documented best practices
 - ✅ Reusable components

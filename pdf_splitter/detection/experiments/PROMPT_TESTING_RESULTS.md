@@ -29,7 +29,7 @@ This document summarizes the implementation and testing of advanced prompt engin
 
 #### E1 CoD Reasoning (`E1_cod_reasoning.txt`)
 - **Purpose**: Structured reasoning with explicit steps
-- **Format**: 
+- **Format**:
   ```
   1. Page 1 Analysis: (content type in 3-5 words)
   2. Page 2 Analysis: (content type in 3-5 words)

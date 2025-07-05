@@ -150,8 +150,10 @@ Results are saved as JSON in `results/` with:
 - `HISTORICAL_FINDINGS.md` - Learnings from initial experiments
 - `EXPERIMENTAL_PROGRESS.md` - Timeline and progress tracking
 - `PROMPT_TESTING_RESULTS.md` - Detailed results from prompt engineering tests
+- `FULL_TEST_RESULTS.md` - Comprehensive performance test results (Jan 4, 2025)
 - `PROMPT_ENGINEERING_GUIDE.md` - Guide for creating effective prompts
 - `FRAMEWORK_OVERVIEW.md` - Technical architecture details
+- `KEY_ACHIEVEMENTS.md` - Major milestones and breakthroughs
 
 ## Troubleshooting
 

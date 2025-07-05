@@ -182,14 +182,14 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
     def get_user_specified_prompts(self) -> Dict[str, Dict[str, Any]]:
         """Get the specific prompt templates requested by the user."""
         prompts_dir = Path(__file__).parent / "prompts"
-        
+
         # Load template files
         def load_template(filename: str) -> str:
             path = prompts_dir / filename
             if path.exists():
                 return path.read_text().strip()
             return ""
-        
+
         return {
             # Group A: Output Control + Conservative Bias
             "A1_asymmetric": {
@@ -239,13 +239,21 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
             # Optimal Model-Specific Prompts
             "phi4_optimal": {
                 "template": load_template("phi4_optimal.txt"),
-                "config": {"temperature": 0.0, "max_tokens": 200, "stop": ["<|im_end|>"]},
+                "config": {
+                    "temperature": 0.0,
+                    "max_tokens": 200,
+                    "stop": ["<|im_end|>"],
+                },
                 "post_process": "xml_extract",
                 "model_specific": "phi",
             },
             "gemma3_optimal": {
                 "template": load_template("gemma3_optimal.txt"),
-                "config": {"temperature": 0.0, "max_tokens": 200, "stop": ["<end_of_turn>"]},
+                "config": {
+                    "temperature": 0.0,
+                    "max_tokens": 200,
+                    "stop": ["<end_of_turn>"],
+                },
                 "post_process": "xml_extract",
                 "model_specific": "gemma",
             },
@@ -289,27 +297,31 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
             except Exception:
                 pass
             return "Unknown", None
-        
+
         elif post_process_type == "xml_extract":
             try:
                 # Extract answer from XML tags
-                answer_match = re.search(r"<answer>\s*([^<]+)\s*</answer>", response, re.IGNORECASE)
+                answer_match = re.search(
+                    r"<answer>\s*([^<]+)\s*</answer>", response, re.IGNORECASE
+                )
                 if answer_match:
                     answer = answer_match.group(1).strip().upper()
                     if answer == "SAME":
                         return "S", None
                     elif answer == "DIFFERENT":
                         return "D", None
-                
+
                 # Also check for thinking tags for diagnostics
-                thinking_match = re.search(r"<thinking>\s*([^<]+)\s*</thinking>", response, re.IGNORECASE)
+                thinking_match = re.search(
+                    r"<thinking>\s*([^<]+)\s*</thinking>", response, re.IGNORECASE
+                )
                 if thinking_match:
                     # Log the reasoning for debugging
                     pass
             except Exception:
                 pass
             return "Unknown", None
-        
+
         elif post_process_type == "cod_extract":
             try:
                 # Extract decision from CoD format
@@ -323,16 +335,16 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
             except Exception:
                 pass
             return "Unknown", None
-        
+
         elif post_process_type == "cod_minimal":
             try:
                 # Extract from minimal CoD format (→ [S or D])
                 arrow_match = re.search(r"→\s*([SD])", response)
                 if arrow_match:
                     return arrow_match.group(1).upper(), None
-                
+
                 # Fallback: look for S or D at the end
-                last_line = response.strip().split('\n')[-1]
+                last_line = response.strip().split("\n")[-1]
                 if last_line.strip() in ["S", "D"]:
                     return last_line.strip(), None
             except Exception:
@@ -377,11 +389,11 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
                     continue
                 elif model_specific == "gemma" and "gemma" not in model.lower():
                     continue
-            
+
             # Skip empty templates
             if not prompt_info.get("template"):
                 continue
-            
+
             print(f"\nTesting prompt: {prompt_name}")
             prompt_results = {
                 "name": prompt_name,
