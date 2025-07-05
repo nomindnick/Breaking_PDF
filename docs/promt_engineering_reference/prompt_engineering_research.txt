@@ -1,0 +1,298 @@
+﻿Advanced Prompt Engineering for High-Throughput Text Classification with Small Language Models: A Technical Report on Accuracy and Latency Optimization for Gemma and Phi-3
+Foundational Principles of Prompting for Boundary Classification
+The task of detecting document boundaries within a continuous stream of text extracted from a multi-document PDF file is fundamentally a high-throughput binary classification problem. For each junction between two consecutive pages, a decision must be made: does the text flow continuously ("SAME"), or does a new document begin ("DIFFERENT")? Employing a Small Language Model (SLM) such as Google's Gemma or Microsoft's Phi-3 for this task offers a powerful alternative to traditional rule-based or statistical methods, which often fail on text with inconsistent formatting or missing lexical cues.1 However, the performance of an SLM is critically dependent on the quality of its prompt. An effective prompt serves as a precise, dynamic set of instructions that guides the model's predictive process, maximizing both accuracy and inference speed.
+Deconstructing the Prompt: The Five Pillars of Effective Classification
+A well-architected prompt for a classification task is not a simple question but a structured composition of several key components. Each pillar plays a distinct role in shaping the model's behavior, and their combined effect determines the ultimate success of the boundary detection component.
+Persona and Role Assignment
+Assigning a persona to the language model is a powerful technique to frame its "mindset" and prime it to access the most relevant patterns from its vast training data.2 For this task, a generic persona like "You are a helpful assistant" is insufficient. A hyper-specific role is required to focus the model's capabilities. An effective persona would be: "You are a meticulous document analyst specializing in automated document segmentation. Your function is to determine the logical continuity between text snippets from consecutive pages".4 This instruction encourages the model to adopt an analytical, detail-oriented mode of operation, which is more suitable for a technical classification task than a conversational one.
+Task and Instruction Clarity
+The core instruction must be clear, specific, and unambiguous.5 Vague instructions lead to vague or incorrect outputs. A weak instruction such as "Is this a new document?" leaves too much room for interpretation. A strong, well-defined instruction provides explicit guidance on the objective, the inputs, and the expected analysis. For instance: "Analyze the provided text snippets, labeled 
+<PAGE_1_END_TEXT> and <PAGE_2_START_TEXT>. Based on semantic and structural continuity, determine if the text on Page 2 is a direct continuation of the text from Page 1. Your task is to classify the relationship as either 'SAME' or 'DIFFERENT'." This level of specificity removes ambiguity and directs the model's computational resources toward the precise analytical task required.
+Context Provision and Structure
+The context is the data upon which the model operates—in this case, the text from the bottom of the preceding page and the top of the succeeding page. How this context is presented is as important as the context itself. Using clear delimiters, such as XML-like tags or Markdown headers, helps the model parse the information and distinguish between different parts of the input.8 A well-structured context block might look like this:
+### CONTEXT ###
+<PAGE_1_END_TEXT>
+...text from bottom of page 1...
+</PAGE_1_END_TEXT>
+
+<PAGE_2_START_TEXT>
+...text from top of page 2...
+</PAGE_2_START_TEXT>
+This structure provides a clear, machine-readable format that minimizes the risk of the model confusing the two text snippets or misinterpreting the prompt's structure.
+Examples and Few-Shot Learning
+Providing examples within the prompt, a technique known as few-shot prompting or in-context learning, is one of the most effective strategies for improving accuracy in classification tasks.10 Instead of just telling the model what to do, few-shot prompting shows it. This approach allows the model to temporarily learn the desired pattern of input to output without the need for costly and time-consuming fine-tuning.12 The model identifies the relationships and patterns in the examples and applies them to the new, unseen data presented in the same prompt.
+The quality and nature of these examples are paramount. It is not sufficient to provide only clear-cut cases. Real-world documents present ambiguities, such as a new chapter that might resemble the start of a new document or a table that continues across a page break. The few-shot examples must therefore include these challenging edge cases to teach the model how to navigate the gray areas where classification errors are most likely to occur.10 For instance, providing an example where Page 1 ends with "Chapter 4: The Journey Begins" and Page 2 starts with the first paragraph of that chapter, labeled as "SAME," explicitly teaches the model to differentiate internal document structure from true document boundaries.
+Output Format Specification
+For a high-throughput application, specifying the output format with absolute precision is the most critical element for achieving low latency. The prompt must explicitly define the structure of the response to prevent the model from generating verbose, conversational, or otherwise unnecessary text.5 For this binary classification task, the ideal output is a single, predictable token. The instruction should be unequivocal: "Respond with only the single word 'SAME' or the single word 'DIFFERENT'. Do not provide any explanation or additional text." As will be detailed in Section 4, this instruction can be powerfully enforced through techniques like constrained generation, which fundamentally changes the inference process from slow, token-by-token generation to a rapid, forced-choice selection.14
+The Iterative Nature of Prompt Engineering: A Test-Driven Workflow
+It is a common misconception that a perfect prompt can be designed in a single attempt. In practice, prompt engineering is an empirical, iterative process of refinement and testing.7 A systematic, test-driven workflow is essential for developing a prompt that is both highly accurate and performant. This workflow involves several key stages:
+    1. Define Clear Objectives and Metrics: The first step is to establish specific, measurable goals. For this application, the objectives might be a classification F1-score greater than 99% and an average inference latency of less than 50 milliseconds per page junction. The F1-score is a particularly important metric as it balances precision and recall, providing a more robust measure of performance than simple accuracy, especially if the dataset is imbalanced (i.e., contains far more "SAME" junctions than "DIFFERENT" ones).10
+    2. Curate a Representative Test Set: A high-quality, "golden" test set is the foundation of effective prompt engineering. This dataset should be manually curated to include a diverse range of document types and transition scenarios. It must contain not only straightforward examples but also a significant number of the ambiguous and edge cases identified previously. This test set will serve as the ground truth against which all prompt variations are evaluated.
+    3. Establish a Performance Baseline: Before exploring complex prompts, it is crucial to establish a baseline. This is typically done by testing a simple zero-shot prompt (i.e., a prompt with instructions but no examples) against the test set.15 The resulting accuracy and latency metrics provide a benchmark for measuring the improvement offered by more advanced techniques.
+    4. Conduct Systematic, Controlled Iterations: The core of the workflow is the iterative refinement of the prompt. It is critical to test only one variable at a time to isolate its effect on performance.16 For example, one might start with the baseline zero-shot prompt and then, in separate experiments, add a persona, introduce a single few-shot example, or rephrase the core instruction. The impact of each change on accuracy and latency is measured against the test set. This systematic process avoids confounding variables and allows for a clear understanding of which prompt components contribute most to performance gains. This empirical approach, while methodical, is the most reliable path to developing a robust and optimized prompt for any given LLM application.
+Model-Specific Prompt Architectures: A Comparative Analysis of Gemma and Phi-3
+The choice between Google's Gemma and Microsoft's Phi-3 models is a foundational decision that directly influences the specific implementation of the prompt. These models, while both categorized as SLMs, have distinct architectures, training methodologies, and, most importantly, different requirements for prompt formatting. Adhering to the model-specific prompt structure is not a best practice; it is a mandatory requirement for accessing the model's full instruction-following capabilities. Failure to use the correct format is akin to calling a software API with incorrect arguments—the system may not crash, but the output will be unpredictable and suboptimal.
+Google's Gemma: Structure and Prompting Conventions
+The Gemma family of models, including the recent Gemma 2 and Gemma 3 versions, are open-weight models developed by Google, with their design philosophy heavily inspired by the more powerful Gemini models.4 For the document boundary detection task, the instruction-tuned (IT) variants of these models are the most appropriate choice.
+Gemma's IT models are trained to expect a specific conversational format. This format uses special control tokens to delineate turns and roles within a dialogue. The key components are:
+    • Turn Delimiters: Each turn in the conversation must begin with the token <start_of_turn> and end with <end_of_turn>.
+    • Role Indicators: The role of the speaker is indicated by user for the input provided to the model, and model to prime the model for its response.
+A complete prompt for a single-turn task like boundary classification should be structured as follows 4:
+<start_of_turn>user
+
+<end_of_turn>
+<start_of_turn>model
+A critical architectural characteristic of Gemma's IT models is the absence of a dedicated system role.4 Unlike many other models that use a system prompt to set persistent, high-level instructions, with Gemma, all such instructions must be embedded within the first 
+user turn. The model's instruction-following capabilities are trained to interpret these initial instructions as the guiding principles for the task at hand.
+Microsoft's Phi-3-mini: Structure and Prompting Conventions
+The Phi-3 family of models from Microsoft represents a different approach to SLM design, focusing on achieving high performance in a small footprint by training on a curated dataset of extremely high-quality, "textbook-like" data. This training methodology endows the models with strong reasoning and instruction-following capabilities.2
+Like Gemma, Phi-3's instruction-tuned models require a specific prompt format, but it uses a different set of tokens and roles:
+    • Turn Delimiters: Turns are enclosed by <|im_start|> and <|im_end|>.
+    • Role Indicators: Phi-3 supports three distinct roles: system, user, and assistant.
+The most significant difference from Gemma is the explicit support for a system role.2 This allows for the separation of high-level, persistent instructions from the specific, task-related data provided in the user turn. This architectural feature can lead to more robust and consistent behavior, as the system prompt acts as a foundational "personality and instruction set" for the model.2
+A well-structured prompt for Phi-3 would be formatted as follows:
+<|im_start|>system
+
+<|im_end|>
+<|im_start|>user
+
+<|im_end|>
+<|im_start|>assistant
+This separation of concerns—placing the overarching rules in the system prompt and the immediate task data in the user prompt—is a key advantage of the Phi-3 architecture for building reliable applications.
+Comparative Analysis and Selection Criteria
+The decision between Gemma and Phi-3 involves a trade-off between performance on various benchmarks, architectural features like system prompt support, resource consumption (particularly memory), and licensing. The following table consolidates key data points to facilitate an informed selection for a local deployment scenario.
+Feature
+Gemma 3 4B-IT
+Phi-3.5-mini-instruct
+Analysis and Implication for Boundary Detection
+Parameter Size
+4.0B 20
+3.8B 20
+The models are very similar in size, suggesting comparable baseline resource requirements.
+Architecture
+Interleaved attention, RoPE 17
+Transformer decoder, trained on high-quality data 19
+Gemma's architecture is optimized for long contexts, while Phi-3's training data is designed for strong reasoning. For the short-context boundary task, Phi-3's reasoning strength may be more relevant.
+Vocabulary Size
+256K (Gemini tokenizer) 4
+32K (Llama 2 tokenizer) 21
+Gemma's larger vocabulary is more token-efficient, meaning the same text will be represented by fewer tokens. This can lead to slightly faster prompt processing (TTFT).
+Max Context Window
+131,072 tokens 20
+128,000 tokens 20
+Both models have very large context windows, far exceeding the needs of this specific task. However, Phi-3 has been noted to be memory-hungry with long contexts 21, which is less of a concern here.
+Prompt Format
+No system role; instructions in user turn 18
+Explicit system role support 19
+Phi-3's support for a system prompt is a significant architectural advantage. It provides a more robust mechanism for setting persistent instructions, potentially leading to more consistent classification behavior.
+Key Benchmarks
+Higher on: MATH (75.6%), HumanEval (71.3%), GSM8K (89.2%) 20
+Higher on: MMLU-Pro (47.4%), MBPP (69.6%) 20
+Gemma 3 shows stronger performance on math and coding reasoning benchmarks, while Phi-3.5-mini shows an edge on massive multitask language understanding. For a nuanced text classification task, these benchmarks may not be perfectly indicative, necessitating empirical testing.
+Licensing
+Custom Google License 17
+MIT License 20
+The MIT license for Phi-3 is generally more permissive for commercial use cases compared to custom licenses, which may require more careful legal review.
+This comparison reveals that while the models are closely matched in size and raw performance, they present a clear trade-off in prompt architecture and token efficiency. Phi-3's dedicated system prompt offers a more structured and potentially more reliable way to provide instructions, which could be a decisive factor. Conversely, Gemma's larger vocabulary may offer a slight advantage in inference speed due to more efficient tokenization of the input text. The ultimate choice should be validated through empirical testing on the specific hardware and document dataset for the application.
+Advanced Prompting Strategies for Maximizing Classification Accuracy
+Once the foundational principles and model-specific architectures are in place, the next step is to employ advanced prompting strategies to elevate classification accuracy. For a nuanced task like document boundary detection, moving beyond simple instructions is essential. These advanced techniques are designed to elicit more sophisticated analysis from the SLM, forcing it to move beyond superficial pattern matching and engage in a more structured reasoning process. This is particularly crucial for SLMs, which may have a tendency to default to simpler heuristics compared to their larger counterparts.
+Crafting High-Efficacy Few-Shot Examples
+The effectiveness of few-shot prompting is determined not by the quantity of examples, but by their quality, diversity, and relevance to the task's most challenging aspects. A set of well-curated examples serves as a powerful in-context training dataset, guiding the model's behavior with high precision.10
+Curating for Representativeness and Ambiguity
+The selection of examples should not be random. It must be a deliberate process aimed at creating a microcosm of the real-world data distribution. This involves two key principles:
+    • Representativeness: The examples should cover the most common and clear-cut transition types that will be encountered. This includes typical document endings (e.g., a concluding paragraph, a signature block, a reference list) followed by typical document beginnings (e.g., a title page, a header with a new document title, an introductory paragraph). These examples establish the baseline pattern for the model.
+    • Handling Edge Cases: The most significant gains in accuracy come from teaching the model how to handle ambiguity. The few-shot set must include examples of difficult edge cases that could otherwise lead to misclassification. These might include:
+        ◦ Internal Structural Breaks (SAME): An example showing the end of one chapter and the beginning of the next, explicitly labeled as "SAME," teaches the model to recognize internal document divisions that are not true boundaries.
+        ◦ Continuous Formatted Content (SAME): An example of a table, bulleted list, or code block that spans the page break, labeled "SAME," helps the model understand content continuity even when the text itself is not a standard prose paragraph.
+        ◦ Subtle Document Transitions (DIFFERENT): An example where one document ends with an appendix or a set of footnotes, and the next document begins without a prominent title page, labeled "DIFFERENT," teaches the model to look for more subtle semantic shifts.
+        ◦ Consecutive but Unrelated Short Texts (DIFFERENT): An example showing the end of a short memo followed by the beginning of a separate, short email on the next page, labeled "DIFFERENT."
+The Critical Role of Format Consistency
+Research has shown that the consistency of the format in few-shot examples is a powerful signal for the model.11 The structure used to present the examples within the prompt (e.g., the use of labels, delimiters, and newlines) must precisely mirror the structure used for the actual query. This consistency helps the model correctly parse the prompt and apply the learned pattern to the new input. Interestingly, studies have found that models can learn the desired output format even when the labels in the examples are randomized, highlighting that the structural pattern itself is a key part of what the model learns from the examples.22
+Eliciting Reasoning in SLMs: From Chain-of-Thought (CoT) to Chain-of-Draft (CoD)
+Chain-of-Thought (CoT) prompting is a technique that encourages a model to break down a problem and "think step-by-step" before providing a final answer.13 While highly effective for improving the reasoning abilities of very large models, its application to SLMs is more nuanced.
+The Challenge and Adaptation of CoT for SLMs
+The original research on CoT noted that the technique's benefits primarily emerge in models with tens or hundreds of billions of parameters. When applied to smaller models, standard CoT prompting can sometimes be counterproductive, leading the model to generate illogical or flawed reasoning steps that result in a decrease in accuracy compared to direct prompting.23
+However, this does not mean that reasoning is impossible for SLMs. Recent research focuses on methods to transfer or elicit reasoning capabilities in smaller models, often through more structured and guided prompting techniques or specialized instruction tuning.25 For the boundary detection task, instead of a generic "Let's think step-by-step" instruction, a more guided approach is needed. This involves providing a template for the reasoning process itself.
+Chain-of-Draft (CoD): An Efficient Reasoning Framework
+A recent and highly relevant innovation is Chain-of-Draft (CoD) prompting.26 This technique is designed to capture the accuracy benefits of CoT while dramatically reducing the verbosity of the reasoning chain. Less verbosity translates directly to fewer generated tokens and, consequently, lower latency and computational cost. CoD instructs the model to produce a concise, abstract "draft" of its reasoning process, focusing only on the essential analytical steps.
+For the document boundary detection task, the comparison is stark:
+    • Verbose CoT-style Reasoning:
+      Let's think step by step.
+      1. First, I will examine the text from the end of Page 1. The text is '...and we look forward to our continued partnership. Sincerely, Jane Smith, CEO.' This appears to be the closing of a formal business letter.
+      2. Next, I will examine the text from the start of Page 2. The text is 'Exhibit A: Project Agreement'. This is a title for a new section or document.
+      3. A formal letter closing followed by a title for an exhibit indicates a transition between two distinct documents.
+      4. Therefore, the classification should be 'DIFFERENT'.
+    • Efficient CoD-style Reasoning:
+      Page 1 Analysis: Concludes business letter (signature).
+      Page 2 Analysis: Begins new exhibit (title).
+      Logical Connection: Letter and exhibit are separate entities.
+      Decision: DIFFERENT.
+The CoD approach is far more efficient, conveying the same logical steps with a fraction of the tokens. To implement this, the prompt can be structured with XML tags to guide the model's output, a technique shown to be effective with models like Anthropic's Claude and adaptable to others.28 The prompt would instruct the model to place its reasoning inside a 
+<thinking> block and its final answer in an <answer> block.
+Persona and Contextual Framing for Expert Analysis
+Building on the foundational principles, advanced prompting involves refining the persona and context structure to a state of hyper-specificity.
+    • Hyper-Specific Role Assignment: The persona should not only define the model's role but also its constraints and objectives. For example: "You are an automated document processing agent. Your sole function is to detect logical boundaries between documents in a concatenated text stream. You must be precise and base your decision only on the semantic and structural evidence within the provided text snippets. Your output must be a single-word classification." This level of detail leaves no room for conversational filler or creative deviation.2
+    • Structured Context with Clear Labeling: The use of clear, consistent delimiters for the input text is non-negotiable. Structuring the context with unambiguous labels like <PAGE_1_END_TEXT> and <PAGE_2_START_TEXT> helps the model to correctly identify and process the distinct inputs, reducing the cognitive load of parsing the prompt and allowing it to focus on the analytical task.6
+The combination of these advanced techniques creates a powerful synergy. For instance, the true potential for this use case is realized by combining the efficient reasoning of Chain-of-Draft with the speed optimization of constrained output (discussed in the next section). The prompt is engineered to make the model perform a structured, low-token CoD process internally, but the generation process is then constrained to output only the single-word answer. This approach achieves the accuracy benefits of a "thoughtful" process while retaining the speed of a simple, direct classification, directly addressing the user's dual requirements for high accuracy and low latency.
+Optimizing for Speed: Latency Reduction and Inference Efficiency
+While accuracy is paramount, for an application designed to process large, multi-page documents, inference speed is an equally critical, non-functional requirement. Each page junction represents a call to the LLM, and high latency can render the entire system impractical. Optimizing for speed involves a multi-faceted approach that combines prompt engineering with an understanding of the model's inference mechanics. For this specific classification task, the most impactful optimization is to transform the generation process itself.
+Constrained Generation: The Cornerstone of High-Throughput Classification
+The fundamental bottleneck in standard LLM inference is the auto-regressive nature of text generation. The model generates output one token at a time, with the generation of each new token depending on all the tokens that came before it.31 For a binary classification task, allowing the model to freely generate a response like, "Based on my analysis, the evidence suggests that this is a new document," is computationally wasteful. The generation of this 14-word, multi-token response adds significant and unnecessary latency.
+Constrained generation, also known as guided sampling, offers a solution by fundamentally altering this process. It ensures the model's output conforms to a predefined structure or set of rules, in this case, a choice between two specific words.
+The Mechanism of Constrained Generation
+The technique operates at the lowest level of the model's output layer. At each generation step, an LLM produces a vector of raw, unnormalized log-probabilities called logits. This logit vector represents the model's confidence for every single token in its vocabulary. To select the next token, this vector is typically converted into a probability distribution using a softmax function.
+Constrained generation intervenes before this selection happens. It works by applying a "mask" to the logit vector, programmatically setting the logits of all disallowed tokens to an extremely low value (effectively negative infinity). This ensures that the probability of these tokens being selected becomes zero.14 For the boundary detection task, the constraint would be a vocabulary limited to just two words: "SAME" and "DIFFERENT". At the point of generation, the logits for all other tokens in the vocabulary are masked out, forcing the model to put all of its predictive probability onto one of the two valid options. This transforms the task from open-ended text generation into a highly efficient, forced-choice selection.32
+This approach not only provides a dramatic speedup but can also indirectly improve accuracy. By eliminating the possibility of the model generating an ambiguous, hedged, or conversational response (e.g., "It might be a new document"), it forces a definitive classification. This reduces the "error surface" of the output space and removes the need for a potentially fragile parsing layer to interpret the model's natural language response.
+Tools and Frameworks for Implementation
+Implementing logit masking from scratch can be complex and requires a deep understanding of the underlying model architecture and tokenizer. Fortunately, several open-source libraries have emerged to simplify the process of constrained generation:
+    • Outlines: A popular Python library specifically designed for guided generation. It provides a clean API for enforcing constraints using regular expressions, JSON schemas, or, most relevantly for this task, a simple choice from a list of strings.33
+    • LMQL (Language Model Query Language): This tool offers a unique SQL-like syntax for prompting LLMs, with powerful, high-level constraint capabilities built directly into the language. It can enforce constraints like type checks (e.g., INT), choices from a set, and regular expressions.32
+    • Guidance: Another framework that uses a Handlebars-like syntax and context-free grammars to control generation, offering fine-grained control over the model's output.34
+    • Hugging Face transformers: For developers who require maximum control, the generate method within the Hugging Face transformers library provides an interface for custom LogitsProcessor classes. This allows for direct implementation of custom logit manipulation logic.14
+Prompt-Level Latency Management
+Even with constrained generation effectively eliminating the time spent on decoding multiple tokens, the time required to process the initial prompt remains a key latency factor. This is known as the "prefill" phase, and its duration is often measured as Time-to-First-Token (TTFT).31
+The length of the prompt is the primary driver of TTFT. This creates a direct trade-off: longer prompts, rich with detailed instructions and numerous few-shot examples, generally lead to higher accuracy but also increase latency. Conversely, shorter prompts are faster to process but may not provide enough context for the model to perform accurately. The optimal solution lies in finding the "sweet spot" for a given latency budget. This requires empirical testing to determine the marginal accuracy gain of adding each additional few-shot example versus the associated latency cost.
+To manage this, prompt design must be token-efficient. This involves using concise and direct language, avoiding polite but unnecessary phrases like "please" or "thank you" which add tokens without improving performance 3, and structuring the prompt to be as information-dense as possible.
+Complementary Model-Level Optimizations
+While prompt engineering is the primary focus, its effectiveness is amplified when combined with model-level optimizations, which are essential for running SLMs efficiently on local hardware.
+    • Quantization: This is a near-mandatory optimization for local deployment. It is a compression technique that reduces the numerical precision of the model's parameters (weights and activations) from high-precision formats like 32-bit floating-point (FP32) to lower-precision formats like 8-bit or 4-bit integers (INT8, INT4).15 This significantly reduces the model's memory footprint and can accelerate computation on compatible hardware. However, there is a trade-off; aggressive quantization can sometimes lead to a degradation in model accuracy, as the nuanced differences between weights can be lost.21 The right level of quantization must be determined through testing.
+    • Other System-Level Techniques: A holistic performance strategy should also consider other optimizations. Techniques like FlashAttention optimize the memory access patterns of the attention mechanism, reducing memory usage and increasing speed.15
+      KV Caching stores intermediate attention calculations (key-value pairs) to avoid redundant computation, which is critical for longer generative tasks but still relevant for processing the initial prompt.36 Finally, 
+      dynamic batching can be used to process multiple page-junction classifications in parallel, dramatically increasing overall throughput if the application architecture allows for it.15
+Ultimately, the application's speed requirement defines a "latency budget" for each classification. This budget dictates the maximum complexity and token count of the prompt that can be used. This transforms prompt design from an open-ended creative exercise into a constrained optimization problem, where the goal is to pack the maximum amount of guiding information into the prompt without exceeding the acceptable latency threshold.
+A Unified Strategy and Implementation Blueprint
+Synthesizing the principles of accuracy-focused prompting and latency-aware optimization leads to a unified strategy for building a robust and efficient LLM-based document boundary detector. This section provides a concrete implementation blueprint, including an optimal prompt template, a system workflow, a rigorous evaluation protocol, and a strategic trade-off matrix to guide development decisions.
+The Optimal Prompt Template: A Synthesis
+The following templates represent a "best-of-breed" approach, integrating the key techniques discussed throughout this report. They are designed to be highly specific, guide the model's reasoning process efficiently, and be compatible with constrained generation frameworks. Separate versions are provided for Gemma and Phi-3 to account for their distinct architectural requirements.
+Optimal Prompt for Phi-3-mini-instruct
+This template leverages Phi-3's dedicated system role for persistent instructions and uses XML tags to structure the reasoning and final answer.
+<|im_start|>system
+You are a meticulous document analyst specializing in automated document segmentation. Your task is to determine if the text from two consecutive pages belongs to the same logical document.
+
+Analyze the provided text snippets and the few-shot examples to understand the patterns of document continuity and separation.
+
+Your reasoning process must be brief and follow the Chain-of-Draft style, placed inside <thinking> tags. Your final classification must be a single word, either 'SAME' or 'DIFFERENT', placed inside <answer> tags.
+<|im_end|>
+<|im_start|>user
+### EXAMPLES ###
+
+# Example 1: Clear Continuation
+<PAGE_1_END_TEXT>
+...and therefore, the system is expected to achieve a 95% efficiency rating under normal operating conditions.
+</PAGE_1_END_TEXT>
+<PAGE_2_START_TEXT>
+This level of efficiency is critical for meeting our energy consumption targets. The primary factor influencing this is...
+</PAGE_2_START_TEXT>
+<thinking>Page 1 ends a sentence. Page 2 begins a new sentence that directly refers to the topic of Page 1 ('This level of efficiency'). Clear semantic continuation. Decision: SAME.</thinking>
+<answer>SAME</answer>
+
+# Example 2: Ambiguous Chapter Break
+<PAGE_1_END_TEXT>
+...concluding the first phase of our investigation.
+CHAPTER 3
+</PAGE_1_END_TEXT>
+<PAGE_2_START_TEXT>
+THE NEXT STAGE
+The second phase of the investigation began with a new set of challenges. The team first needed to...
+</PAGE_2_START_TEXT>
+<thinking>Page 1 ends with a chapter marker. Page 2 begins with a new chapter title. This is an internal structural break, not a new document. Decision: SAME.</thinking>
+<answer>SAME</answer>
+
+# Example 3: Clear Document Break
+<PAGE_1_END_TEXT>
+...and we thank you for your business.
+Sincerely,
+ACME Corporation
+</PAGE_1_END_TEXT>
+<PAGE_2_START_TEXT>
+INVOICE
+Number: INV-2025-001
+Date: 2025-07-15
+</PAGE_2_START_TEXT>
+<thinking>Page 1 concludes a formal letter with a signature. Page 2 begins a new document type (invoice) with a clear header. These are distinct documents. Decision: DIFFERENT.</thinking>
+<answer>DIFFERENT</answer>
+
+### TASK ###
+<PAGE_1_END_TEXT>
+{{text_from_page_1}}
+</PAGE_1_END_TEXT>
+<PAGE_2_START_TEXT>
+{{text_from_page_2}}
+</PAGE_2_START_TEXT>
+<|im_end|>
+<|im_start|>assistant
+Optimal Prompt for Gemma-IT
+This template adapts the same principles for Gemma's architecture, embedding all instructions within the single user turn.
+<start_of_turn>user
+You are a meticulous document analyst specializing in automated document segmentation. Your task is to determine if the text from two consecutive pages belongs to the same logical document.
+
+Analyze the provided text snippets and the few-shot examples to understand the patterns of document continuity and separation.
+
+Your reasoning process must be brief and follow the Chain-of-Draft style, placed inside <thinking> tags. Your final classification must be a single word, either 'SAME' or 'DIFFERENT', placed inside <answer> tags.
+
+### EXAMPLES ###
+
+
+### TASK ###
+<PAGE_1_END_TEXT>
+{{text_from_page_1}}
+</PAGE_1_END_TEXT>
+<PAGE_2_START_TEXT>
+{{text_from_page_2}}
+</PAGE_2_START_TEXT>
+<end_of_turn>
+<start_of_turn>model
+System Workflow and Evaluation Protocol
+The implementation of the boundary detector should follow a clear, logical workflow integrated into the larger PDF splitting application.
+Conceptual Workflow
+    1. PDF Preprocessing: Extract raw text and metadata from the source PDF file.
+    2. Junction Identification: For each pair of consecutive pages, Pn​ and Pn+1​, create a "junction object."
+    3. Text Snippet Extraction: From each junction, extract the final N characters (e.g., N=500) from the text of page Pn​ and the initial M characters (e.g., M=500) from the text of page Pn+1​. The optimal values for N and M should be determined empirically.
+    4. Prompt Injection: Populate the chosen optimal prompt template with the extracted text snippets.
+    5. Constrained Inference: Send the completed prompt to the chosen SLM (Gemma or Phi-3). The inference call must be made through a framework like outlines or lmql that enforces the output constraint, ensuring the model can only generate the tokens for "SAME" or "DIFFERENT".
+    6. Decision and Splitting: Based on the single-token response, decide whether to insert a document break at that junction.
+    7. Document Assembly: After processing all junctions, assemble the final set of individual PDF documents.
+Robust Evaluation Protocol
+A rigorous evaluation protocol is essential to validate the performance of the system and to guide the iterative prompt engineering process.16
+    • Accuracy Metrics: The primary metric should be the F1-Score, which provides a balanced measure of precision and recall. This is crucial because document boundaries ("DIFFERENT") are typically much rarer than continuous pages ("SAME"), making the dataset inherently imbalanced. Tracking Precision (the fraction of "DIFFERENT" predictions that were correct) and Recall (the fraction of actual "DIFFERENT" boundaries that were identified) separately will provide insight into the types of errors the model is making (e.g., Is it missing boundaries, or is it creating false ones?).10
+    • Latency Metrics: The primary speed metric is the end-to-end inference time per junction. Given the use of constrained generation, this will be dominated by the Time-to-First-Token (TTFT), which reflects the time taken to process the input prompt.31
+    • Benchmarking Automation: A benchmarking script should be developed to automate the evaluation process. This script should run the entire curated test set against different configurations (e.g., different prompt templates, different numbers of few-shot examples, different models) and log the accuracy and latency metrics for each run. This enables efficient, data-driven comparison and optimization.
+Technique Trade-Off Matrix
+The final choice of which techniques to implement involves balancing performance gains against implementation complexity and latency costs. The following matrix provides a strategic overview of these trade-offs.
+Prompting Technique
+Expected Accuracy Impact
+Latency Impact (TTFT)
+Prompt Complexity / Maintenance
+Implementation Effort
+Zero-Shot Prompting
+Low
+Low
+Low
+Low
+Few-Shot (1-2 Examples)
+Medium
+Low-Medium
+Medium
+Low
+Few-Shot (3-5+ Examples)
+High
+Medium-High
+High
+Medium
+Chain-of-Thought (CoT)
+Medium (Risk of degradation in SLMs)
+High (due to verbose output)
+High
+Medium
+Chain-of-Draft (CoD)
+High
+Low (due to concise output)
+High
+Medium
+Constrained Output
+Medium-High (by eliminating errors)
+Very Low (eliminates decode phase)
+Low
+High (requires specific libraries)
+This matrix clarifies the strategic path. For this application, a combination of Few-Shot (3-5+ examples), Chain-of-Draft (CoD), and Constrained Output offers the optimal balance. This combination aims for the highest accuracy by providing rich context and guiding reasoning, while simultaneously achieving the lowest possible latency by engineering the inference process itself. While this approach requires a higher initial implementation and prompt maintenance effort, the resulting gains in both accuracy and speed are likely to be substantial, leading to a highly effective and performant document boundary detection system.
+

@@ -1,0 +1,12 @@
+Document boundary detection task. Think concisely then classify.
+
+Page 1 end: {page1_bottom}
+Page 2 start: {page2_top}
+
+Reasoning format:
+P1: [doc type]
+P2: [doc type]
+Link: [same/different topic]
+→ [S or D]
+
+Output your concise reasoning followed by S or D:

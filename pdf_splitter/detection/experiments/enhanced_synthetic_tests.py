@@ -14,7 +14,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
@@ -179,85 +179,75 @@ class EnhancedSyntheticTester(SyntheticBoundaryTester):
 
         return cases
 
-    def get_user_specified_prompts(self) -> Dict[str, Dict[str, any]]:
+    def get_user_specified_prompts(self) -> Dict[str, Dict[str, Any]]:
         """Get the specific prompt templates requested by the user."""
+        prompts_dir = Path(__file__).parent / "prompts"
+        
+        # Load template files
+        def load_template(filename: str) -> str:
+            path = prompts_dir / filename
+            if path.exists():
+                return path.read_text().strip()
+            return ""
+        
         return {
             # Group A: Output Control + Conservative Bias
             "A1_asymmetric": {
-                "template": """Assume pages are consecutive unless you see a clear document break.
-Output 'D' ONLY when certain a break exists, else 'S'.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Reply with S or D only.""",
+                "template": load_template("A1_asymmetric.txt"),
                 "config": {"max_tokens": 1, "stop": ["S", "D"], "temperature": 0.1},
             },
             "A2_high_confidence": {
-                "template": """Only classify as different documents if very confident. When uncertain, choose same document.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Answer S (same) or D (different):""",
+                "template": load_template("A2_high_confidence.txt"),
                 "config": {"max_tokens": 1, "temperature": 0.05},
             },
             # Group B: Confidence Scoring
             "B1_json_confidence": {
-                "template": """Classify this page transition and provide confidence.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Respond JSON: {"label":"S","conf":0.85} or {"label":"D","conf":0.92}""",
+                "template": load_template("B1_json_confidence.txt"),
                 "config": {"temperature": 0.0, "max_tokens": 50},
                 "post_process": "json_confidence",
             },
             "B2_confidence_threshold": {
-                "template": """Rate document boundary likelihood (0-1) then classify.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Confidence: 0.X
-Label: S or D""",
+                "template": load_template("B2_confidence_threshold.txt"),
                 "config": {"temperature": 0.0, "max_tokens": 30},
                 "post_process": "parse_confidence",
             },
             # Group C: Structured Decision Making
             "C1_silent_checklist": {
-                "template": """Think silently: ① Topic continuity? ② Page sequence? ③ Document markers?
-Then output 'S' or 'D'.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Classification:""",
+                "template": load_template("C1_silent_checklist.txt"),
                 "config": {"temperature": 0.0, "max_tokens": 1},
             },
             "C2_self_check": {
-                "template": """Classify this transition twice silently, then give final answer.
-If both classifications match, use that; if different, choose 'S'.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Final: S or D""",
+                "template": load_template("C2_self_check.txt"),
                 "config": {"temperature": 0.0, "max_tokens": 1},
             },
             # Group D: Few-Shot with Strategic Examples
             "D1_conservative_few_shot": {
-                "template": """Examples:
-Page 1: "...meeting adjourned at 3 PM." Page 2: "Minutes of Board Meeting..." → S
-Page 1: "...thank you. Sincerely, John" Page 2: "INVOICE #12345 Date:..." → D
-Page 1: "...continued on next page." Page 2: "The following items were..." → S
-
-Your turn:
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Answer: S or D""",
+                "template": load_template("D1_conservative_few_shot.txt"),
                 "config": {"temperature": 0.0, "max_tokens": 5},
+            },
+            # Group E: Chain-of-Draft (CoD) Prompts
+            "E1_cod_reasoning": {
+                "template": load_template("E1_cod_reasoning.txt"),
+                "config": {"temperature": 0.0, "max_tokens": 100},
+                "post_process": "cod_extract",
+            },
+            "E2_cod_minimal": {
+                "template": load_template("E2_cod_minimal.txt"),
+                "config": {"temperature": 0.0, "max_tokens": 50},
+                "post_process": "cod_minimal",
+            },
+            # Optimal Model-Specific Prompts
+            "phi4_optimal": {
+                "template": load_template("phi4_optimal.txt"),
+                "config": {"temperature": 0.0, "max_tokens": 200, "stop": ["<|im_end|>"]},
+                "post_process": "xml_extract",
+                "model_specific": "phi",
+            },
+            "gemma3_optimal": {
+                "template": load_template("gemma3_optimal.txt"),
+                "config": {"temperature": 0.0, "max_tokens": 200, "stop": ["<end_of_turn>"]},
+                "post_process": "xml_extract",
+                "model_specific": "gemma",
             },
         }
 
@@ -299,6 +289,55 @@ Answer: S or D""",
             except Exception:
                 pass
             return "Unknown", None
+        
+        elif post_process_type == "xml_extract":
+            try:
+                # Extract answer from XML tags
+                answer_match = re.search(r"<answer>\s*([^<]+)\s*</answer>", response, re.IGNORECASE)
+                if answer_match:
+                    answer = answer_match.group(1).strip().upper()
+                    if answer == "SAME":
+                        return "S", None
+                    elif answer == "DIFFERENT":
+                        return "D", None
+                
+                # Also check for thinking tags for diagnostics
+                thinking_match = re.search(r"<thinking>\s*([^<]+)\s*</thinking>", response, re.IGNORECASE)
+                if thinking_match:
+                    # Log the reasoning for debugging
+                    pass
+            except Exception:
+                pass
+            return "Unknown", None
+        
+        elif post_process_type == "cod_extract":
+            try:
+                # Extract decision from CoD format
+                decision_match = re.search(r"Decision:\s*([A-Z]+)", response)
+                if decision_match:
+                    decision = decision_match.group(1).strip()
+                    if decision == "SAME":
+                        return "S", None
+                    elif decision == "DIFFERENT":
+                        return "D", None
+            except Exception:
+                pass
+            return "Unknown", None
+        
+        elif post_process_type == "cod_minimal":
+            try:
+                # Extract from minimal CoD format (→ [S or D])
+                arrow_match = re.search(r"→\s*([SD])", response)
+                if arrow_match:
+                    return arrow_match.group(1).upper(), None
+                
+                # Fallback: look for S or D at the end
+                last_line = response.strip().split('\n')[-1]
+                if last_line.strip() in ["S", "D"]:
+                    return last_line.strip(), None
+            except Exception:
+                pass
+            return "Unknown", None
 
         # Default: parse simple S/D response
         response = response.strip().upper()
@@ -330,6 +369,19 @@ Answer: S or D""",
 
         # Test each prompt
         for prompt_name, prompt_info in prompts.items():
+            # Check if this prompt is model-specific
+            model_specific = prompt_info.get("model_specific")
+            if model_specific:
+                # Skip if not for this model type
+                if model_specific == "phi" and "phi" not in model.lower():
+                    continue
+                elif model_specific == "gemma" and "gemma" not in model.lower():
+                    continue
+            
+            # Skip empty templates
+            if not prompt_info.get("template"):
+                continue
+            
             print(f"\nTesting prompt: {prompt_name}")
             prompt_results = {
                 "name": prompt_name,

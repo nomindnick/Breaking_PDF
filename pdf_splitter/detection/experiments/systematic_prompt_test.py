@@ -184,7 +184,9 @@ class SystematicPromptTester:
 
         # Run experiment
         start_time = time.time()
-        result = self.experiment_runner.run_experiment(exp_config, pages, true_boundaries)
+        result = self.experiment_runner.run_experiment(
+            exp_config, pages, true_boundaries
+        )
         elapsed_time = time.time() - start_time
 
         # Calculate additional metrics

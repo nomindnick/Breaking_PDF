@@ -145,9 +145,13 @@ Results are saved as JSON in `results/` with:
 4. **Document Everything**: Keep notes on what works and what doesn't
 5. **Version Control**: Track prompt iterations and results
 
-## Historical Context
+## Documentation
 
-See `HISTORICAL_FINDINGS.md` for learnings from previous experiments that led to this framework.
+- `HISTORICAL_FINDINGS.md` - Learnings from initial experiments
+- `EXPERIMENTAL_PROGRESS.md` - Timeline and progress tracking
+- `PROMPT_TESTING_RESULTS.md` - Detailed results from prompt engineering tests
+- `PROMPT_ENGINEERING_GUIDE.md` - Guide for creating effective prompts
+- `FRAMEWORK_OVERVIEW.md` - Technical architecture details
 
 ## Troubleshooting
 
