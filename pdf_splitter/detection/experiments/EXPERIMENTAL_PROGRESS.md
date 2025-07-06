@@ -75,6 +75,19 @@
 - **Chain-of-Draft Success**: E1 and E2 outperformed all baselines
 - **Issues Found**: A1_asymmetric parsing failure, optimal prompts not tested
 
+### 6. Optimal Prompts Test (January 5, 2025)
+**Test Scope**:
+- Fixed naming issue (phi_optimal → phi4_optimal)
+- Tested optimal prompts on all 26 test cases
+- 2 models with their specific optimal prompts
+
+**Results**:
+- **NEW BEST F1 Score**: 0.700 (gemma3_optimal) 🎉
+- **gemma3_optimal**: F1=0.700, Accuracy=73.08%, Precision=63.6%, Recall=77.8%
+- **phi4_optimal**: F1=0.267, Accuracy=53.85%, Precision=33.3%, Recall=22.2%
+- **40% improvement** over previous best (E1_cod_reasoning)
+- Response time: ~33 seconds per prompt (slower but more accurate)
+
 ## Key Findings
 
 ### 1. Model Performance
@@ -121,12 +134,12 @@
 
 | Metric | Target | Current Best | Status |
 |--------|--------|--------------|---------|
-| Accuracy (F1) | >95% | 50% (full test) | 🔴 Needs improvement |
-| Speed | <5s/page | 5.2-7.1s/page (CoD) | 🟡 Close |
+| Accuracy (F1) | >95% | 70% (gemma3_optimal) | 🟡 Improving |
+| Speed | <5s/page | 33s/page (optimal) | 🔴 Too slow |
 | Consistency | 100% | 100% (XML format) | ✅ Achieved |
 | Edge Cases | >90% | 33% (difficulty 9-10) | 🔴 Needs improvement |
 
-**Update (Jan 4, 2025)**: Full test results show lower performance than quick tests. Best F1 score of 0.500 indicates significant optimization needed. Optimal prompts still need testing.
+**Update (Jan 5, 2025)**: Optimal prompts tested successfully! gemma3_optimal achieves F1=0.700, a 40% improvement. However, response time increased to 33s/page, requiring optimization for production use.
 
 ## File Structure
 

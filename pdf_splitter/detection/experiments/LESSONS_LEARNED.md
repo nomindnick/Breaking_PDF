@@ -90,4 +90,11 @@
 - Test smaller/larger models
 
 ### 10. Key Takeaway
-**The framework is solid, but prompt optimization is crucial.** The difference between 0% F1 (A1_asymmetric) and 50% F1 (E1_cod_reasoning) shows the massive impact of prompt engineering. The untested optimal prompts likely hold even more potential.
+**The framework is solid, and research-based prompts deliver.** The progression from 0% F1 (A1_asymmetric) to 50% F1 (E1_cod_reasoning) to 70% F1 (gemma3_optimal) shows the massive impact of prompt engineering. Model-specific optimization and structured reasoning are key to success.
+
+### 11. Optimal Prompts Insights (Jan 5, 2025)
+- ✨ **gemma3_optimal achieves F1=0.700** - New best score!
+- 🐌 **Speed trade-off**: 33s/response vs 5-7s for simpler prompts
+- 🎯 **Model differences matter**: Gemma3 (70% F1) vs Phi4 (26.7% F1)
+- 📝 **XML structure works**: Consistent parsing with thinking/answer tags
+- 🔧 **Naming details matter**: Simple bug prevented initial testing

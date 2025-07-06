@@ -76,9 +76,12 @@ class OptimalPromptTester:
 
             # Determine which optimal prompt to use
             model_family = self.formatter.detect_model_family(model)
-            optimal_prompt = (
-                f"{model_family}_optimal" if model_family in ["phi", "gemma"] else None
-            )
+            if model_family == "phi":
+                optimal_prompt = "phi4_optimal"
+            elif model_family == "gemma":
+                optimal_prompt = "gemma3_optimal"
+            else:
+                optimal_prompt = None
 
             # Test baseline prompts
             print("\nTesting baseline prompts...")

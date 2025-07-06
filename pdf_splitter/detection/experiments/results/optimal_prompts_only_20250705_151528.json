@@ -1,0 +1,500 @@
+{
+  "timestamp": "2025-07-05T15:07:00.189242",
+  "test_type": "optimal_prompts_only",
+  "models": {
+    "phi4-mini:3.8b": {
+      "optimal": {
+        "phi4_optimal": {
+          "prompt_name": "phi4_optimal",
+          "by_difficulty": {
+            "1": {
+              "correct": 2,
+              "total": 4,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "diff_1",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Unknown"
+                },
+                {
+                  "case_id": "same_1",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "diff_4",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "same_4",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "2": {
+              "correct": 2,
+              "total": 4,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "diff_2",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_2",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "diff_5",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "same_5",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "3": {
+              "correct": 2,
+              "total": 2,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "diff_3",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "4": {
+              "correct": 1,
+              "total": 1,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "med_4",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "5": {
+              "correct": 1,
+              "total": 3,
+              "accuracy": 0.3333333333333333,
+              "details": [
+                {
+                  "case_id": "med_1",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "med_3",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "med_5",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "6": {
+              "correct": 0,
+              "total": 2,
+              "accuracy": 0.0,
+              "details": [
+                {
+                  "case_id": "med_2",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "med_6",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "7": {
+              "correct": 2,
+              "total": 2,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "hard_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "hard_4",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "8": {
+              "correct": 1,
+              "total": 2,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "hard_1",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "hard_5",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "9": {
+              "correct": 1,
+              "total": 2,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "hard_2",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "hard_6",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "10": {
+              "correct": 2,
+              "total": 4,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "edge_1",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "edge_2",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "edge_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "edge_4",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                }
+              ]
+            }
+          },
+          "overall": {
+            "correct": 14,
+            "total": 26,
+            "precision": 0.3333333333333333,
+            "recall": 0.2222222222222222,
+            "f1_score": 0.26666666666666666,
+            "accuracy": 0.5384615384615384
+          },
+          "timing": {
+            "total_time": 274.3897235393524,
+            "avg_per_case": 10.553450905359709
+          }
+        }
+      }
+    },
+    "gemma3:latest": {
+      "optimal": {
+        "gemma3_optimal": {
+          "prompt_name": "gemma3_optimal",
+          "by_difficulty": {
+            "1": {
+              "correct": 3,
+              "total": 4,
+              "accuracy": 0.75,
+              "details": [
+                {
+                  "case_id": "diff_1",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Unknown"
+                },
+                {
+                  "case_id": "same_1",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "diff_4",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_4",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "2": {
+              "correct": 4,
+              "total": 4,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "diff_2",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_2",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "diff_5",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_5",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "3": {
+              "correct": 2,
+              "total": 2,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "diff_3",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "same_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "4": {
+              "correct": 0,
+              "total": 1,
+              "accuracy": 0.0,
+              "details": [
+                {
+                  "case_id": "med_4",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                }
+              ]
+            },
+            "5": {
+              "correct": 0,
+              "total": 3,
+              "accuracy": 0.0,
+              "details": [
+                {
+                  "case_id": "med_1",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "med_3",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "med_5",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                }
+              ]
+            },
+            "6": {
+              "correct": 1,
+              "total": 2,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "med_2",
+                  "correct": false,
+                  "expected": "Same",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "med_6",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                }
+              ]
+            },
+            "7": {
+              "correct": 2,
+              "total": 2,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "hard_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "hard_4",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "8": {
+              "correct": 1,
+              "total": 2,
+              "accuracy": 0.5,
+              "details": [
+                {
+                  "case_id": "hard_1",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "hard_5",
+                  "correct": false,
+                  "expected": "Different",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "9": {
+              "correct": 2,
+              "total": 2,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "hard_2",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                },
+                {
+                  "case_id": "hard_6",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                }
+              ]
+            },
+            "10": {
+              "correct": 4,
+              "total": 4,
+              "accuracy": 1.0,
+              "details": [
+                {
+                  "case_id": "edge_1",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "edge_2",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "edge_3",
+                  "correct": true,
+                  "expected": "Same",
+                  "predicted": "Same"
+                },
+                {
+                  "case_id": "edge_4",
+                  "correct": true,
+                  "expected": "Different",
+                  "predicted": "Different"
+                }
+              ]
+            }
+          },
+          "overall": {
+            "correct": 19,
+            "total": 26,
+            "precision": 0.6363636363636364,
+            "recall": 0.7777777777777778,
+            "f1_score": 0.7000000000000001,
+            "accuracy": 0.7307692307692307
+          },
+          "timing": {
+            "total_time": 234.07814693450928,
+            "avg_per_case": 9.00300565132728
+          }
+        }
+      }
+    }
+  }
+}
