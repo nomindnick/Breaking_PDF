@@ -1,182 +1,86 @@
 # LLM Detection Experiments
 
-This module provides a systematic framework for experimenting with LLM-based document boundary detection using progressive difficulty testing and comprehensive prompt engineering.
+This directory contains the experimental framework and results that led to the production LLMDetector implementation.
 
 ## Overview
 
-The experiments framework uses synthetic test cases of varying difficulty to systematically evaluate different models and prompting strategies before testing on real PDFs. This approach ensures robust, data-driven optimization of the LLM detection system.
+Through systematic experimentation, we achieved:
+- **F1 Score: 0.889** with balanced dataset
+- **100% Precision** (no false boundaries)
+- **Production-ready approach** using gemma3:latest model
 
-## Quick Start
-
-```bash
-# 1. Verify system setup
-python pdf_splitter/detection/experiments/verify_prompt_system.py
-
-# 2. Run a quick test with one model/prompt
-python pdf_splitter/detection/experiments/systematic_prompt_test.py \
-  --quick-test phi4-mini:3.8b A1_asymmetric
-
-# 3. Run full systematic testing
-python pdf_splitter/detection/experiments/systematic_prompt_test.py \
-  --models phi4-mini:3.8b gemma3:latest
-```
-
-## Framework Components
-
-### Core Modules
-
-1. **experiment_runner.py** - Base experiment framework with Ollama integration
-2. **synthetic_boundary_tests.py** - Original synthetic test cases (difficulty 1-10)
-3. **enhanced_synthetic_tests.py** - Extended test suite with progressive testing
-4. **systematic_prompt_test.py** - Main testing orchestrator
-5. **verify_prompt_system.py** - System verification tool
-
-### Prompt Templates
-
-Located in `prompts/` directory:
-
-- **A1_asymmetric** - Conservative single-token output
-- **A2_high_confidence** - High confidence requirement
-- **B1_json_confidence** - JSON output with confidence scores
-- **B2_confidence_threshold** - Explicit confidence rating
-- **C1_silent_checklist** - Structured checklist approach
-- **C2_self_check** - Double-check mechanism
-- **D1_conservative_few_shot** - Few-shot with conservative examples
-
-### Test Data
-
-Synthetic test cases span difficulty levels 1-10:
-- **Easy (1-3)**: Obvious boundaries (signatures, headers)
-- **Medium (4-6)**: Ambiguous cases requiring context
-- **Hard (7-10)**: Edge cases and challenging transitions
-
-## Adding New Experiments
-
-### 1. Create a New Prompt Template
-
-Add a `.txt` file to `prompts/`:
+## Directory Structure
 
 ```
-prompts/my_new_prompt.txt
+experiments/
+├── FINAL_RESULTS_SUMMARY.md    # Consolidated findings and recommendations
+├── experiment_runner.py        # Main experiment framework
+├── model_formatting.py         # Model-specific prompt formatting (used in production)
+├── prompts/                    # Tested prompt templates
+│   ├── gemma3_optimal.txt     # Best performing prompt (used in production)
+│   ├── phi4_optimal.txt       # Optimal for Phi models
+│   └── ...                    # Other tested prompts
+├── results/                    # Raw experiment results
+├── archive/                    # Historical experiments and scripts
+└── *.md                       # Various documentation and findings
 ```
 
-Use template variables:
-- `{page1_bottom}` - Bottom text of first page
-- `{page2_top}` - Top text of second page
+## Key Files for Production
 
-### 2. Add Prompt Configuration
+1. **model_formatting.py** - Required for LLMDetector, handles model-specific formatting
+2. **prompts/gemma3_optimal.txt** - Production prompt template
+3. **FINAL_RESULTS_SUMMARY.md** - Key findings and configuration
 
-In your test script, define the prompt configuration:
+## Running New Experiments
 
+To run new experiments with the framework:
 ```python
-prompts = {
-    "my_prompt": {
-        "template": "...",  # or load from file
-        "config": {
-            "temperature": 0.0,
-            "max_tokens": 10,
-            "stop": ["S", "D"]  # optional
-        },
-        "post_process": "custom"  # optional
-    }
-}
+python experiment_runner.py --model gemma3:latest --prompt prompts/new_prompt.txt
 ```
 
-### 3. Test Progressively
+## Historical Documentation
 
-Use the enhanced synthetic tester for progressive testing:
+The extensive documentation files chronicle the journey to the optimal solution:
 
+- **FINAL_RESULTS_SUMMARY.md** - Executive summary and production recommendations
+- **EXPERIMENT_SUMMARY_JAN5_2025.md** - Key milestone achieving target performance
+- **OPTIMAL_PROMPTS_RESULTS.md** - Analysis of winning prompt strategies
+- **BALANCED_DATASET_RESULTS.md** - Critical dataset balance findings
+- **PROMPT_ENGINEERING_GUIDE.md** - Lessons learned for prompt design
+- **LESSONS_LEARNED.md** - What worked and what didn't
+
+## Archive Contents
+
+The `archive/` directory contains 30+ experimental scripts that explored:
+- Different prompting strategies (asymmetric, chain-of-thought, few-shot)
+- Model comparisons (Llama3, Gemma3, Phi4, etc.)
+- Performance optimizations (preloading, batching)
+- Dataset balance analysis
+- Constrained generation attempts
+- Hybrid detection approaches
+
+These experiments informed the final production implementation in `../llm_detector.py`.
+
+## Key Learnings
+
+1. **Model-specific formatting is critical** - Generic prompts reduce accuracy by 60%
+2. **Dataset balance matters** - Imbalanced data masked true performance
+3. **Conservative bias preferred** - Users prefer missing boundaries over false splits
+4. **Simple prompts with examples work best** - Complex reasoning increased errors
+
+## Production Configuration
+
+Based on experiments, the optimal configuration is:
 ```python
-from enhanced_synthetic_tests import EnhancedSyntheticTester
-
-tester = EnhancedSyntheticTester()
-results = tester.test_easy_medium_hard_progression(
-    models=["phi4-mini:3.8b"],
-    confidence_threshold=0.4
-)
+model = "gemma3:latest"
+prompt = "gemma3_optimal"
+temperature = 0.1
+confidence_threshold = 0.8
+context_chars = 500
 ```
 
-## Running Experiments
-
-### Systematic Testing
-
-```bash
-# Test all prompts on synthetic data, then test winners on real PDFs
-python systematic_prompt_test.py --models phi4-mini:3.8b gemma3:latest
-
-# Skip real PDF testing
-python systematic_prompt_test.py --no-real-pdf
-
-# Adjust confidence threshold for B1/B2 prompts
-python systematic_prompt_test.py --confidence-threshold 0.6
-```
-
-### Direct Testing
-
-```bash
-# Test enhanced synthetic framework directly
-python enhanced_synthetic_tests.py
-
-# Run original synthetic tests
-python synthetic_boundary_tests.py
-```
-
-## Analyzing Results
-
-Results are saved as JSON in `results/` with:
-- Configuration used
-- Performance metrics (precision, recall, F1)
-- Timing information
-- Detailed predictions
-- Error logs
-
-### Interpreting Metrics
-
-- **Precision**: How many detected boundaries were correct
-- **Recall**: How many true boundaries were found
-- **F1 Score**: Harmonic mean of precision and recall
-- **Target**: High recall (>90%) with acceptable precision (>40%)
-
-## Best Practices
-
-1. **Start Simple**: Test basic prompts before complex ones
-2. **Progressive Testing**: Validate on easy cases before testing hard ones
-3. **Multiple Models**: Test across different model sizes and architectures
-4. **Document Everything**: Keep notes on what works and what doesn't
-5. **Version Control**: Track prompt iterations and results
-
-## Documentation
-
-- `HISTORICAL_FINDINGS.md` - Learnings from initial experiments
-- `EXPERIMENTAL_PROGRESS.md` - Timeline and progress tracking
-- `PROMPT_TESTING_RESULTS.md` - Detailed results from prompt engineering tests
-- `FULL_TEST_RESULTS.md` - Comprehensive performance test results (Jan 4, 2025)
-- `PROMPT_ENGINEERING_GUIDE.md` - Guide for creating effective prompts
-- `FRAMEWORK_OVERVIEW.md` - Technical architecture details
-- `KEY_ACHIEVEMENTS.md` - Major milestones and breakthroughs
-
-## Troubleshooting
-
-### Ollama Issues
-```bash
-# Ensure Ollama is running
-ollama serve
-
-# Pull required models
-ollama pull phi4-mini:3.8b
-ollama pull gemma3:latest
-```
-
-### Poor Results
-1. Verify models can follow simple instructions first
-2. Check response parsing matches model output format
-3. Try lower temperatures (0.0-0.1)
-4. Ensure sufficient context (200-300 chars recommended)
-
-## Next Steps
-
-1. Continue testing new prompt strategies
-2. Add more challenging synthetic test cases
-3. Test on diverse PDF types
-4. Optimize for production deployment
-5. Integrate with visual and heuristic detectors
+This configuration achieves:
+- F1 Score: 0.889
+- Precision: 100%
+- Recall: 80%
+- Processing: ~33s per boundary
