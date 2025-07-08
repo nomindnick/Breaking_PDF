@@ -2,11 +2,11 @@
 
 ## Test Overview
 
-**Date**: January 4, 2025  
-**Duration**: ~13 minutes  
-**Models Tested**: phi4-mini:3.8b, gemma3:latest  
-**Test Cases**: 26 synthetic cases across 10 difficulty levels  
-**Total Evaluations**: 312 (26 cases × 6 prompts × 2 models)  
+**Date**: January 4, 2025
+**Duration**: ~13 minutes
+**Models Tested**: phi4-mini:3.8b, gemma3:latest
+**Test Cases**: 26 synthetic cases across 10 difficulty levels
+**Total Evaluations**: 312 (26 cases × 6 prompts × 2 models)
 
 ## Executive Summary
 

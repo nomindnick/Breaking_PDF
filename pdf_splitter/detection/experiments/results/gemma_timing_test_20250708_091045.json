@@ -1,0 +1,339 @@
+{
+  "model": "gemma3:latest",
+  "prompt": "gemma3_optimal",
+  "timestamp": "2025-07-08T09:07:19.409055",
+  "timing": {
+    "per_case": [
+      {
+        "case_id": "diff_1",
+        "difficulty": 1,
+        "elapsed_seconds": 8.28782320022583,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "same_1",
+        "difficulty": 1,
+        "elapsed_seconds": 6.92264986038208,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "diff_4",
+        "difficulty": 1,
+        "elapsed_seconds": 8.664448499679565,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "same_4",
+        "difficulty": 1,
+        "elapsed_seconds": 6.698227882385254,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "diff_2",
+        "difficulty": 2,
+        "elapsed_seconds": 8.749755144119263,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "same_2",
+        "difficulty": 2,
+        "elapsed_seconds": 6.857256889343262,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "diff_5",
+        "difficulty": 2,
+        "elapsed_seconds": 8.926151275634766,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "same_5",
+        "difficulty": 2,
+        "elapsed_seconds": 10.98316502571106,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "diff_3",
+        "difficulty": 3,
+        "elapsed_seconds": 7.775638580322266,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "same_3",
+        "difficulty": 3,
+        "elapsed_seconds": 6.9673261642456055,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "med_4",
+        "difficulty": 4,
+        "elapsed_seconds": 8.668896198272705,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "med_1",
+        "difficulty": 5,
+        "elapsed_seconds": 9.25709342956543,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "med_3",
+        "difficulty": 5,
+        "elapsed_seconds": 8.376387119293213,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "med_5",
+        "difficulty": 5,
+        "elapsed_seconds": 7.013780355453491,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "med_2",
+        "difficulty": 6,
+        "elapsed_seconds": 8.13133978843689,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "med_6",
+        "difficulty": 6,
+        "elapsed_seconds": 8.962168216705322,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_3",
+        "difficulty": 7,
+        "elapsed_seconds": 7.151379585266113,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_4",
+        "difficulty": 7,
+        "elapsed_seconds": 7.783750534057617,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_1",
+        "difficulty": 8,
+        "elapsed_seconds": 7.85401725769043,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_5",
+        "difficulty": 8,
+        "elapsed_seconds": 8.495011329650879,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_2",
+        "difficulty": 9,
+        "elapsed_seconds": 8.30086088180542,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      },
+      {
+        "case_id": "hard_6",
+        "difficulty": 9,
+        "elapsed_seconds": 6.924716234207153,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "edge_1",
+        "difficulty": 10,
+        "elapsed_seconds": 7.767747402191162,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "edge_2",
+        "difficulty": 10,
+        "elapsed_seconds": 6.688788414001465,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "edge_3",
+        "difficulty": 10,
+        "elapsed_seconds": 6.169163227081299,
+        "correct": false,
+        "expected": "Same",
+        "predicted": null
+      },
+      {
+        "case_id": "edge_4",
+        "difficulty": 10,
+        "elapsed_seconds": 8.080980062484741,
+        "correct": false,
+        "expected": "Different",
+        "predicted": null
+      }
+    ],
+    "summary": {
+      "total_cases": 26,
+      "total_time": 206.45852255821228,
+      "avg_time": 7.940712406085088,
+      "min_time": 6.169163227081299,
+      "max_time": 10.98316502571106
+    }
+  },
+  "accuracy": {
+    "by_difficulty": {
+      "1": {
+        "correct": 0,
+        "total": 4,
+        "timings": [
+          8.28782320022583,
+          6.92264986038208,
+          8.664448499679565,
+          6.698227882385254
+        ],
+        "accuracy": 0.0,
+        "avg_time": 7.643287360668182
+      },
+      "2": {
+        "correct": 0,
+        "total": 4,
+        "timings": [
+          8.749755144119263,
+          6.857256889343262,
+          8.926151275634766,
+          10.98316502571106
+        ],
+        "accuracy": 0.0,
+        "avg_time": 8.879082083702087
+      },
+      "3": {
+        "correct": 0,
+        "total": 2,
+        "timings": [
+          7.775638580322266,
+          6.9673261642456055
+        ],
+        "accuracy": 0.0,
+        "avg_time": 7.3714823722839355
+      },
+      "4": {
+        "correct": 0,
+        "total": 1,
+        "timings": [
+          8.668896198272705
+        ],
+        "accuracy": 0.0,
+        "avg_time": 8.668896198272705
+      },
+      "5": {
+        "correct": 0,
+        "total": 3,
+        "timings": [
+          9.25709342956543,
+          8.376387119293213,
+          7.013780355453491
+        ],
+        "accuracy": 0.0,
+        "avg_time": 8.215753634770712
+      },
+      "6": {
+        "correct": 0,
+        "total": 2,
+        "timings": [
+          8.13133978843689,
+          8.962168216705322
+        ],
+        "accuracy": 0.0,
+        "avg_time": 8.546754002571106
+      },
+      "7": {
+        "correct": 0,
+        "total": 2,
+        "timings": [
+          7.151379585266113,
+          7.783750534057617
+        ],
+        "accuracy": 0.0,
+        "avg_time": 7.467565059661865
+      },
+      "8": {
+        "correct": 0,
+        "total": 2,
+        "timings": [
+          7.85401725769043,
+          8.495011329650879
+        ],
+        "accuracy": 0.0,
+        "avg_time": 8.174514293670654
+      },
+      "9": {
+        "correct": 0,
+        "total": 2,
+        "timings": [
+          8.30086088180542,
+          6.924716234207153
+        ],
+        "accuracy": 0.0,
+        "avg_time": 7.612788558006287
+      },
+      "10": {
+        "correct": 0,
+        "total": 4,
+        "timings": [
+          7.767747402191162,
+          6.688788414001465,
+          6.169163227081299,
+          8.080980062484741
+        ],
+        "accuracy": 0.0,
+        "avg_time": 7.176669776439667
+      }
+    },
+    "overall": {
+      "correct": 0,
+      "total": 26,
+      "accuracy": 0.0
+    }
+  }
+}

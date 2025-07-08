@@ -1,0 +1,193 @@
+{
+  "model": "gemma3:latest",
+  "prompt": "gemma3_optimal",
+  "timestamp": "2025-07-08T08:53:07.516206",
+  "timing": {
+    "per_case": [
+      {
+        "case_id": "diff_1",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "same_1",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "diff_4",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "same_4",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "diff_2",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "same_2",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "diff_5",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "same_5",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "diff_3",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "same_3",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_4",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_1",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_3",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_5",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_2",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "med_6",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_3",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_4",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_1",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_5",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_2",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "hard_6",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "edge_1",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "edge_2",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "edge_3",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      },
+      {
+        "case_id": "edge_4",
+        "error": "'TestCase' object has no attribute 'expected_decision'"
+      }
+    ],
+    "summary": {}
+  },
+  "accuracy": {
+    "by_difficulty": {
+      "1": {
+        "correct": 0,
+        "total": 4,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "2": {
+        "correct": 0,
+        "total": 4,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "3": {
+        "correct": 0,
+        "total": 2,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "4": {
+        "correct": 0,
+        "total": 1,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "5": {
+        "correct": 0,
+        "total": 3,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "6": {
+        "correct": 0,
+        "total": 2,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "7": {
+        "correct": 0,
+        "total": 2,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "8": {
+        "correct": 0,
+        "total": 2,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "9": {
+        "correct": 0,
+        "total": 2,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      },
+      "10": {
+        "correct": 0,
+        "total": 4,
+        "timings": [],
+        "accuracy": 0.0,
+        "avg_time": 0
+      }
+    },
+    "overall": {
+      "correct": 0,
+      "total": 26,
+      "accuracy": 0.0
+    }
+  }
+}

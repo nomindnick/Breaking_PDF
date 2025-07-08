@@ -1,0 +1,311 @@
+{
+  "timestamp": "2025-07-08T10:21:48.691382",
+  "hybrid": {
+    "correct": 17,
+    "total": 26,
+    "times": [
+      2.066864490509033,
+      1.0077741146087646,
+      1.3543744087219238,
+      1.0245282649993896,
+      1.2611618041992188,
+      1.0319082736968994,
+      1.144991397857666,
+      1.6361780166625977,
+      1.1204843521118164,
+      1.0890884399414062,
+      1.1025140285491943,
+      1.0402095317840576,
+      1.0330312252044678,
+      1.0665297508239746,
+      1.088719129562378,
+      1.2954895496368408,
+      1.0537419319152832,
+      1.0690274238586426,
+      9.64039134979248,
+      1.197084665298462,
+      1.0710523128509521,
+      0.94232177734375,
+      0.9683618545532227,
+      0.8917732238769531,
+      0.9437148571014404,
+      0.9768924713134766
+    ],
+    "by_difficulty": {
+      "1": {
+        "total": 4,
+        "correct": 2,
+        "accuracy": 0.5,
+        "escalation_rate": 0.0
+      },
+      "2": {
+        "total": 4,
+        "correct": 3,
+        "accuracy": 0.75,
+        "escalation_rate": 0.0
+      },
+      "3": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5,
+        "escalation_rate": 0.0
+      },
+      "4": {
+        "total": 1,
+        "correct": 1,
+        "accuracy": 1.0,
+        "escalation_rate": 0.0
+      },
+      "5": {
+        "total": 3,
+        "correct": 2,
+        "accuracy": 0.6666666666666666,
+        "escalation_rate": 0.0
+      },
+      "6": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5,
+        "escalation_rate": 0.0
+      },
+      "7": {
+        "total": 2,
+        "correct": 2,
+        "accuracy": 1.0,
+        "escalation_rate": 0.0
+      },
+      "8": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5,
+        "escalation_rate": 0.5
+      },
+      "9": {
+        "total": 2,
+        "correct": 1,
+        "accuracy": 0.5,
+        "escalation_rate": 0.0
+      },
+      "10": {
+        "total": 4,
+        "correct": 3,
+        "accuracy": 0.75,
+        "escalation_rate": 0.0
+      }
+    },
+    "accuracy": 0.6538461538461539,
+    "avg_time": 1.4660849479528575
+  },
+  "tier1_only": {
+    "correct": 6,
+    "total": 10,
+    "times": [
+      1.3223028182983398,
+      1.0282995700836182,
+      1.362675428390503,
+      1.0725407600402832,
+      1.3275673389434814,
+      1.0588252544403076,
+      1.2101211547851562,
+      1.6776659488677979,
+      1.149170160293579,
+      1.0634791851043701
+    ],
+    "accuracy": 0.6,
+    "avg_time": 1.2272647619247437
+  },
+  "tier2_only": {
+    "correct": 0,
+    "total": 0,
+    "times": []
+  },
+  "detector_stats": {
+    "total_detections": 26,
+    "escalations": 1,
+    "tier1_times": [
+      2.066864490509033,
+      1.0077741146087646,
+      1.3543744087219238,
+      1.0245282649993896,
+      1.2611618041992188,
+      1.0319082736968994,
+      1.144991397857666,
+      1.6361780166625977,
+      1.1204843521118164,
+      1.0890884399414062,
+      1.1025140285491943,
+      1.0402095317840576,
+      1.0330312252044678,
+      1.0665297508239746,
+      1.088719129562378,
+      1.2954895496368408,
+      1.0537419319152832,
+      1.0690274238586426,
+      1.0980908870697021,
+      1.197084665298462,
+      1.0710523128509521,
+      0.94232177734375,
+      0.9683618545532227,
+      0.8917732238769531,
+      0.9437148571014404,
+      0.9768924713134766
+    ],
+    "tier2_times": [
+      8.542300462722778
+    ],
+    "confidence_distribution": [
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.9,
+        "decision": "Different"
+      },
+      {
+        "model": "tier1",
+        "confidence": 1.0,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 1.0,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.99,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.99,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.9,
+        "decision": "Same"
+      },
+      {
+        "model": "tier2",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 1.0,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 1.0,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.95,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 0.99,
+        "decision": "Same"
+      },
+      {
+        "model": "tier1",
+        "confidence": 1.0,
+        "decision": "Same"
+      }
+    ],
+    "escalation_reasons": [
+      {
+        "reason": "low_confidence",
+        "tier1_confidence": 0.9,
+        "tier1_decision": "Same",
+        "difficulty_hint": 8
+      }
+    ],
+    "tier1_decisions": {
+      "Same": 25,
+      "Different": 1
+    },
+    "tier2_corrections": [],
+    "avg_tier1_time": 1.1375349301558275,
+    "avg_tier2_time": 8.542300462722778,
+    "escalation_rate": 0.038461538461538464,
+    "correction_rate": 0
+  }
+}
