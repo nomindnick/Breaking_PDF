@@ -13,10 +13,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from pdf_splitter.detection.experiments.enhanced_synthetic_tests import (
-    EnhancedSyntheticTester,
-)
-from pdf_splitter.detection.experiments.experiment_runner import LLMExperimentRunner
+from pdf_splitter.detection.experiments.enhanced_synthetic_tests import \
+    EnhancedSyntheticTester
+from pdf_splitter.detection.experiments.experiment_runner import \
+    LLMExperimentRunner
 
 
 def verify_synthetic_tests():
@@ -112,7 +112,8 @@ def test_simple_prompt():
     print("-" * 40)
 
     try:
-        from pdf_splitter.detection.experiments.experiment_runner import OllamaClient
+        from pdf_splitter.detection.experiments.experiment_runner import \
+            OllamaClient
 
         client = OllamaClient()
 

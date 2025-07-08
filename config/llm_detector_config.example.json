@@ -1,0 +1,40 @@
+{
+  "model_name": "gemma3:latest",
+  "ollama_url": "http://localhost:11434",
+
+  "comment_performance": "Performance settings for production use",
+  "timeout": 60,
+  "max_retries": 3,
+  "batch_size": 5,
+
+  "comment_extraction": "Text extraction window sizes (optimized via testing)",
+  "bottom_lines": 10,
+  "top_lines": 10,
+
+  "comment_cache": "Persistent caching configuration",
+  "cache_enabled": true,
+  "cache_max_age_days": 30,
+  "cache_max_size_mb": 500,
+
+  "comment_llm": "LLM generation parameters",
+  "temperature": 0.1,
+  "top_k": 10,
+  "top_p": 0.9,
+
+  "comment_confidence": "Confidence thresholds for different scenarios",
+  "boundary_confidence_high": 0.95,
+  "boundary_confidence_medium": 0.85,
+  "continuation_confidence_high": 0.85,
+  "continuation_confidence_medium": 0.75,
+  "continuation_confidence_low": 0.65,
+
+  "comment_advanced": "Advanced settings",
+  "enable_similarity_search": false,
+  "similarity_threshold": 0.9,
+  "max_context_length": 2000,
+
+  "comment_debug": "Debug and logging settings",
+  "debug_mode": false,
+  "log_responses": false,
+  "save_failed_responses": true
+}

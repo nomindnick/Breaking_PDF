@@ -13,12 +13,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from pdf_splitter.detection.experiments.experiment_runner import (
-    ExperimentConfig,
-    ExperimentResult,
-    LLMExperimentRunner,
-    OllamaClient,
-    ProcessedPage,
-)
+    ExperimentConfig, ExperimentResult, LLMExperimentRunner, OllamaClient,
+    ProcessedPage)
 
 
 @dataclass
@@ -332,9 +328,8 @@ class EnhancedLLMExperimentRunner(LLMExperimentRunner):
 
 # Example usage
 if __name__ == "__main__":
-    from pdf_splitter.detection.experiments.synthetic_boundary_tests import (
-        SyntheticBoundaryTester,
-    )
+    from pdf_splitter.detection.experiments.synthetic_boundary_tests import \
+        SyntheticBoundaryTester
 
     # Create synthetic test data
     tester = SyntheticBoundaryTester()

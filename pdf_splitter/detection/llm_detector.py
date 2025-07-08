@@ -21,14 +21,12 @@ import requests
 from requests.exceptions import ConnectionError, Timeout
 
 from pdf_splitter.core.config import PDFConfig
-from pdf_splitter.detection.base_detector import (
-    BaseDetector,
-    BoundaryResult,
-    BoundaryType,
-    DetectionContext,
-    DetectorType,
-    ProcessedPage,
-)
+from pdf_splitter.detection.base_detector import (BaseDetector, BoundaryResult,
+                                                  BoundaryType,
+                                                  DetectionContext,
+                                                  DetectorType, ProcessedPage)
+from pdf_splitter.detection.llm_cache import LLMResponseCache
+from pdf_splitter.detection.llm_config import LLMDetectorConfig, get_config
 
 logger = logging.getLogger(__name__)
 
@@ -45,38 +43,61 @@ class LLMDetector(BaseDetector):
     def __init__(
         self,
         config: Optional[PDFConfig] = None,
-        model_name: str = "gemma3:latest",
-        ollama_url: str = "http://localhost:11434",
-        cache_responses: bool = True,
+        llm_config: Optional[LLMDetectorConfig] = None,
+        **kwargs,
     ):
         """
         Initialize the LLM detector.
 
         Args:
             config: PDF processing configuration
-            model_name: Name of the Ollama model to use
-            ollama_url: URL of the Ollama API endpoint
-            cache_responses: Whether to cache LLM responses
+            llm_config: LLM detector specific configuration
+            **kwargs: Override configuration parameters
         """
         super().__init__(config)
-        self.model_name = model_name
-        self.ollama_url = ollama_url
-        self.cache_responses = cache_responses
-        self._response_cache: Dict[str, str] = {}
+
+        # Get LLM configuration
+        self.llm_config = llm_config or get_config(**kwargs)
+
+        # Set instance attributes from config
+        self.model_name = self.llm_config.model_name
+        self.ollama_url = self.llm_config.ollama_url
+        self.cache_responses = self.llm_config.cache_enabled
+        self.timeout = self.llm_config.timeout
+        self.max_retries = self.llm_config.max_retries
+        self.bottom_lines = self.llm_config.bottom_lines
+        self.top_lines = self.llm_config.top_lines
+        self._prompt_version = self.llm_config.prompt_version
+
+        # Initialize persistent cache
+        if self.llm_config.cache_enabled:
+            self._cache = LLMResponseCache(
+                cache_path=self.llm_config.cache_path,
+                max_age_days=self.llm_config.cache_max_age_days,
+                max_size_mb=self.llm_config.cache_max_size_mb,
+            )
+        else:
+            self._cache = None
 
         # Load the optimal prompt template
         self.prompt_template = self._load_prompt_template()
 
-        # Model-specific settings
-        self.timeout = 45  # seconds
-        self.max_retries = 2
-
-        # Text extraction settings
-        self.bottom_lines = 15  # Lines from bottom of page 1
-        self.top_lines = 15  # Lines from top of page 2
-
     def _load_prompt_template(self) -> str:
         """Load the optimal prompt template for Gemma3."""
+        # Check if custom template path is specified
+        if (
+            self.llm_config.prompt_template_path
+            and self.llm_config.prompt_template_path.exists()
+        ):
+            try:
+                with open(
+                    self.llm_config.prompt_template_path, "r", encoding="utf-8"
+                ) as f:
+                    return f.read()
+            except Exception as e:
+                logger.error(f"Error loading custom prompt template: {e}")
+
+        # Default path
         prompt_path = (
             Path(__file__).parent / "experiments" / "prompts" / "gemma3_optimal.txt"
         )
@@ -210,6 +231,10 @@ Date: 2025-07-15
 
                 # Create boundary result if detected
                 if is_boundary:
+                    # Extract text previews for evidence
+                    page1_text = self._extract_bottom_text(page1.text)
+                    page2_text = self._extract_top_text(page2.text)
+
                     boundary = BoundaryResult(
                         page_number=i + 1,  # Boundary after this page
                         boundary_type=BoundaryType.DOCUMENT_END,
@@ -219,6 +244,12 @@ Date: 2025-07-15
                             "llm_response": reasoning,
                             "processing_time": elapsed_time,
                             "model": self.model_name,
+                            "page1_preview": page1_text[:100] + "..."
+                            if len(page1_text) > 100
+                            else page1_text,
+                            "page2_preview": page2_text[:100] + "..."
+                            if len(page2_text) > 100
+                            else page2_text,
                         },
                         reasoning=reasoning,
                         is_between_pages=True,
@@ -228,7 +259,24 @@ Date: 2025-07-15
                     self._detection_history.append(boundary)
 
             except Exception as e:
-                logger.error(f"Error analyzing pages {i+1}-{i+2}: {e}")
+                logger.error(
+                    f"Error analyzing pages {i+1}-{i+2}: {type(e).__name__}: {e}"
+                )
+                # Create error boundary result for tracking
+                error_boundary = BoundaryResult(
+                    page_number=i + 1,
+                    boundary_type=BoundaryType.UNCERTAIN,
+                    confidence=0.0,
+                    detector_type=self.get_detector_type(),
+                    evidence={
+                        "error": str(e),
+                        "error_type": type(e).__name__,
+                    },
+                    reasoning=f"Error during detection: {e}",
+                    is_between_pages=True,
+                    next_page_number=i + 2,
+                )
+                self._detection_history.append(error_boundary)
                 continue
 
         # Update context if provided
@@ -245,6 +293,7 @@ Date: 2025-07-15
             # Check if Ollama is running
             response = requests.get(f"{self.ollama_url}/api/tags", timeout=5)
             if response.status_code != 200:
+                logger.error(f"Ollama API returned status {response.status_code}")
                 return False
 
             # Check if our model is available
@@ -255,15 +304,23 @@ Date: 2025-07-15
                 logger.warning(
                     f"Model {self.model_name} not found. Available: {model_names}"
                 )
+                # Suggest similar models if available
+                similar = [m for m in model_names if "gemma" in m.lower()]
+                if similar:
+                    logger.info(f"Similar models available: {similar}")
                 return False
 
             return True
 
         except (ConnectionError, Timeout) as e:
             logger.error(f"Cannot connect to Ollama at {self.ollama_url}: {e}")
+            logger.info("Ensure Ollama is running with: ollama serve")
+            return False
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid response from Ollama API: {e}")
             return False
         except Exception as e:
-            logger.error(f"Error checking Ollama availability: {e}")
+            logger.error(f"Unexpected error checking Ollama: {type(e).__name__}: {e}")
             return False
 
     def _analyze_page_pair(
@@ -283,11 +340,13 @@ Date: 2025-07-15
         page1_text = self._extract_bottom_text(page1.text)
         page2_text = self._extract_top_text(page2.text)
 
-        # Check cache
-        cache_key = self._get_cache_key(page1_text, page2_text)
-        if self.cache_responses and cache_key in self._response_cache:
-            cached = self._response_cache[cache_key]
-            return self._parse_llm_response(cached)
+        # Check persistent cache first
+        if self._cache:
+            cached_result = self._cache.get(
+                page1_text, page2_text, self.model_name, self._prompt_version
+            )
+            if cached_result:
+                return cached_result
 
         # Prepare prompt
         prompt = self.prompt_template.format(
@@ -297,12 +356,23 @@ Date: 2025-07-15
         # Call LLM
         response = self._call_ollama(prompt)
 
-        # Cache response
-        if self.cache_responses and response:
-            self._response_cache[cache_key] = response
-
         # Parse response
-        return self._parse_llm_response(response)
+        result = self._parse_llm_response(response)
+
+        # Cache response in persistent storage
+        if self._cache and response:
+            self._cache.put(
+                page1_text,
+                page2_text,
+                self.model_name,
+                response,
+                result[0],
+                result[1],
+                result[2],
+                self._prompt_version,
+            )
+
+        return result
 
     def _extract_bottom_text(self, text: str) -> str:
         """Extract the bottom portion of a page's text."""
@@ -318,11 +388,17 @@ Date: 2025-07-15
             return text.strip()
         return "\n".join(lines[: self.top_lines])
 
-    def _get_cache_key(self, text1: str, text2: str) -> str:
-        """Generate a cache key for a text pair."""
-        # Simple hash-based key
-        combined = f"{text1}|||{text2}"
-        return str(hash(combined))
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        if self._cache:
+            return self._cache.get_stats()
+        return {"cache_enabled": False}
+
+    def clear_cache(self):
+        """Clear the cache - useful for testing."""
+        if self._cache:
+            self._cache.clear()
+            logger.info("LLM detector cache cleared")
 
     def _call_ollama(self, prompt: str) -> str:
         """
@@ -343,31 +419,57 @@ Date: 2025-07-15
                         "prompt": prompt,
                         "stream": False,
                         "options": {
-                            "temperature": 0.1,  # Low temperature for consistency
-                            "top_k": 10,
-                            "top_p": 0.9,
+                            "temperature": self.llm_config.temperature,
+                            "top_k": self.llm_config.top_k,
+                            "top_p": self.llm_config.top_p,
                         },
                     },
                     timeout=self.timeout,
                 )
 
                 if response.status_code == 200:
-                    return response.json().get("response", "")
+                    try:
+                        data = response.json()
+                        if "error" in data:
+                            logger.error(f"Ollama returned error: {data['error']}")
+                            return ""
+                        return data.get("response", "")
+                    except json.JSONDecodeError:
+                        logger.error("Failed to parse Ollama response as JSON")
+                        return ""
+                elif response.status_code == 404:
+                    logger.error(
+                        f"Model {self.model_name} not found. Pull it with: ollama pull {self.model_name}"
+                    )
+                    return ""
                 else:
                     logger.error(
-                        f"Ollama API error: {response.status_code} - {response.text}"
+                        f"Ollama API error: {response.status_code} - {response.text[:200]}"
                     )
 
             except Timeout:
                 logger.warning(
-                    f"Ollama request timeout (attempt {attempt + 1}/{self.max_retries})"
+                    f"Ollama request timeout after {self.timeout}s (attempt {attempt + 1}/{self.max_retries})"
                 )
+                if attempt == 0:
+                    logger.info(
+                        "Consider increasing timeout for slow models or reducing prompt size"
+                    )
+            except ConnectionError as e:
+                logger.error(f"Cannot connect to Ollama: {e}")
+                logger.info("Ensure Ollama is running with: ollama serve")
+                return ""  # No point retrying connection errors
             except Exception as e:
-                logger.error(f"Error calling Ollama: {e}")
+                logger.error(
+                    f"Unexpected error calling Ollama: {type(e).__name__}: {e}"
+                )
 
             if attempt < self.max_retries - 1:
-                time.sleep(2**attempt)  # Exponential backoff
+                wait_time = 2**attempt
+                logger.info(f"Waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
 
+        logger.error(f"Failed to get response after {self.max_retries} attempts")
         return ""
 
     def _parse_llm_response(self, response: str) -> Tuple[bool, float, str]:
@@ -381,33 +483,69 @@ Date: 2025-07-15
             Tuple of (is_boundary, confidence, reasoning)
         """
         if not response:
+            logger.warning("Empty response from LLM, defaulting to no boundary")
             return False, 0.0, "No response from LLM"
 
         # Extract reasoning from <thinking> tags
         reasoning = ""
-        thinking_match = re.search(r"<thinking>(.*?)</thinking>", response, re.DOTALL)
+        thinking_match = re.search(
+            r"<thinking>(.*?)</thinking>", response, re.DOTALL | re.IGNORECASE
+        )
         if thinking_match:
             reasoning = thinking_match.group(1).strip()
+        else:
+            logger.debug("No thinking tags found in response")
 
         # Extract answer from <answer> tags
-        answer_match = re.search(r"<answer>(.*?)</answer>", response, re.DOTALL)
+        answer_match = re.search(
+            r"<answer>(.*?)</answer>", response, re.DOTALL | re.IGNORECASE
+        )
         if not answer_match:
-            logger.warning(f"No answer tags found in response: {response[:200]}...")
+            # Fallback: look for SAME/DIFFERENT anywhere in response
+            if "DIFFERENT" in response.upper():
+                logger.warning("No answer tags but found DIFFERENT in response")
+                return True, 0.7, reasoning or "Inferred from response"
+            elif "SAME" in response.upper():
+                logger.warning("No answer tags but found SAME in response")
+                return False, 0.7, reasoning or "Inferred from response"
+
+            logger.warning(f"No valid answer found in response: {response[:200]}...")
             return False, 0.0, "Invalid response format"
 
         answer = answer_match.group(1).strip().upper()
 
+        # Validate answer
+        if answer not in ["SAME", "DIFFERENT"]:
+            logger.warning(f"Unexpected answer: '{answer}', treating as SAME")
+            return False, 0.5, reasoning or "Uncertain response"
+
         # Determine if it's a boundary
         is_boundary = answer == "DIFFERENT"
 
-        # Assign confidence based on the model's consistency
-        # Since we achieve 100% precision, we use high confidence for positive predictions
-        if is_boundary:
-            confidence = 0.95  # High confidence for boundaries
+        # Assign confidence based on reasoning quality and configuration
+        if reasoning and len(reasoning) > 20:
+            # Good reasoning provided
+            confidence = (
+                self.llm_config.boundary_confidence_high
+                if is_boundary
+                else self.llm_config.continuation_confidence_high
+            )
+        elif reasoning:
+            # Brief reasoning
+            confidence = (
+                self.llm_config.boundary_confidence_medium
+                if is_boundary
+                else self.llm_config.continuation_confidence_medium
+            )
         else:
-            confidence = 0.85  # Slightly lower for continuations
+            # No reasoning
+            confidence = (
+                self.llm_config.boundary_confidence_medium
+                if is_boundary
+                else self.llm_config.continuation_confidence_low
+            )
 
-        return is_boundary, confidence, reasoning
+        return is_boundary, confidence, reasoning or "No reasoning provided"
 
     def validate_configuration(self) -> Dict[str, Any]:
         """
@@ -421,6 +559,8 @@ Date: 2025-07-15
             "model_available": False,
             "prompt_loaded": bool(self.prompt_template),
             "cache_enabled": self.cache_responses,
+            "cache_stats": self.get_cache_stats() if self._cache else None,
+            "config": self.llm_config.to_dict(),
         }
 
         # Check Ollama

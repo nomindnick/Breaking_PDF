@@ -582,3 +582,73 @@ detection/
 ---
 
 *Detection module reorganized and ready for continued development. LLM detector production-ready, foundation laid for visual and heuristic detectors.*
+
+---
+
+## Entry #13: LLM Detector Optimization & Caching
+**Date**: 2025-07-08 | **Status**: ✅ Complete
+
+### Summary
+Optimized LLM detector with persistent caching system and simplified architecture based on code review feedback.
+
+**Key Changes Made:**
+1. **Persistent SQLite Caching**
+   - 33,000x performance improvement for cached responses
+   - Stores page text pairs → LLM responses
+   - 30-day expiration, 500MB size limit
+   - Automatic cleanup and size management
+
+2. **Simplified Architecture**
+   - Removed duplicate BatchedLLMDetector module
+   - Removed configuration presets (fast, balanced, accurate)
+   - Restored 15-line default for consistency
+   - Fixed all failing tests
+
+3. **Enhanced Configuration**
+   - Environment variable support (LLM_CACHE_ENABLED, etc.)
+   - Configuration file loading (JSON/YAML)
+   - Runtime parameter validation
+
+**Cache Implementation Details:**
+```python
+# Cache key: SHA256(page1_text)[:16] + SHA256(page2_text)[:16] + model + version
+# Storage: SQLite with metadata (confidence, reasoning, timestamps)
+# Lookup: O(1) with index on key
+```
+
+**Production Use Case Analysis:**
+- **Primary benefit**: Retry scenarios (failed splits, errors)
+- **Secondary benefit**: Reprocessing same PDFs
+- **Limited benefit**: One-time PDF splitting (core use case)
+- **Recommendation**: Keep enabled for robustness, minimal overhead
+
+**Testing Considerations:**
+- Cache interferes with testing - returns cached results
+- Solutions implemented:
+  - `cache_enabled=False` parameter
+  - `detector.clear_cache()` method
+  - `LLM_CACHE_ENABLED=false` environment variable
+  - Test fixtures with temporary/disabled caches
+
+**Performance Metrics:**
+- First run: ~3-4s per page pair (Ollama API call)
+- Cached run: <0.001s per page pair
+- Cache overhead: ~50-100ms total per document
+- Storage: ~1KB per cached response
+
+**Future Optimization Ideas:**
+1. **Prompt Caching**: Currently not feasible with Ollama
+   - Each request processes full prompt (inefficient)
+   - Would need custom LLM server or different architecture
+   - Potential solutions: vLLM, TGI, or custom inference server
+
+2. **Context Caching**: For future investigation
+   - Cache prompt embeddings/attention states
+   - Requires deeper LLM integration
+   - Could reduce processing by 30-50%
+
+**Key Takeaways:**
+- Caching provides safety net for production failures
+- Testing requires cache awareness and management
+- Simplified architecture reduces technical debt
+- Performance targets met even without batching

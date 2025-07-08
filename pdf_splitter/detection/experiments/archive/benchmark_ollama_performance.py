@@ -20,7 +20,8 @@ from typing import Dict, List, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from pdf_splitter.detection.experiments.timing_analysis import TimingAwareOllamaClient
+from pdf_splitter.detection.experiments.timing_analysis import \
+    TimingAwareOllamaClient
 
 
 @dataclass

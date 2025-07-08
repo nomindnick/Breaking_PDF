@@ -8,7 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from pdf_splitter.detection.experiments.test_optimal_prompts import OptimalPromptTester
+from pdf_splitter.detection.experiments.test_optimal_prompts import \
+    OptimalPromptTester
 
 # Initialize tester
 tester = OptimalPromptTester()

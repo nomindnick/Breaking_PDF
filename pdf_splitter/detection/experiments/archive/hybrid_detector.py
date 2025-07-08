@@ -12,9 +12,8 @@ from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from pdf_splitter.detection.experiments.enhanced_synthetic_tests import (
-    EnhancedSyntheticTester,
-)
+from pdf_splitter.detection.experiments.enhanced_synthetic_tests import \
+    EnhancedSyntheticTester
 from pdf_splitter.detection.experiments.experiment_runner import OllamaClient
 
 

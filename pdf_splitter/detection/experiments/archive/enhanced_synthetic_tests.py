@@ -19,9 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from pdf_splitter.detection.experiments.synthetic_boundary_tests import (
-    SyntheticBoundaryTester,
-    TestCase,
-)
+    SyntheticBoundaryTester, TestCase)
 
 
 class EnhancedSyntheticTester(SyntheticBoundaryTester):

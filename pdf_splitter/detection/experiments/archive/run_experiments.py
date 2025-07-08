@@ -13,9 +13,7 @@ from typing import List
 from pdf_splitter.core.config import PDFConfig
 from pdf_splitter.detection.base_detector import ProcessedPage
 from pdf_splitter.detection.experiments.experiment_runner import (
-    ExperimentConfig,
-    LLMExperimentRunner,
-)
+    ExperimentConfig, LLMExperimentRunner)
 from pdf_splitter.preprocessing.pdf_handler import PDFHandler
 from pdf_splitter.preprocessing.text_extractor import TextExtractor
 

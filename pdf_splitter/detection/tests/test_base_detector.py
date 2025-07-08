@@ -6,14 +6,10 @@ from typing import List, Optional
 import pytest
 
 from pdf_splitter.core.config import PDFConfig
-from pdf_splitter.detection.base_detector import (
-    BaseDetector,
-    BoundaryResult,
-    BoundaryType,
-    DetectionContext,
-    DetectorType,
-    ProcessedPage,
-)
+from pdf_splitter.detection.base_detector import (BaseDetector, BoundaryResult,
+                                                  BoundaryType,
+                                                  DetectionContext,
+                                                  DetectorType, ProcessedPage)
 
 
 class MockDetector(BaseDetector):

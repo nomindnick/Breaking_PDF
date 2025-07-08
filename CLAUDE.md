@@ -102,16 +102,17 @@ pdf_splitter/
    - Text extraction with layout analysis
    - Advanced caching system
 
-2. **Detection Module** 🚧 IN PROGRESS - EXPERIMENTAL PHASE
-   - **Current Focus**: LLM Detection experimentation
-     - Testing multiple prompting strategies
-     - Evaluating different model sizes and types
-     - Building comprehensive experiment framework
-   - **Planned Components** (after LLM validation):
+2. **Detection Module** 🚧 IN PROGRESS
+   - **LLM Detection** ✅ Production-ready
+     - Gemma3:latest model with optimized prompts (F1: 0.889)
+     - Persistent SQLite caching for 33,000x performance improvement
+     - Comprehensive error handling and retry logic
+     - Note: Cache is most useful for retry scenarios in production
+   - **Planned Components**:
      - Visual Detection: Layout changes via OCR bounding boxes
      - Heuristic Detection: Date patterns, document keywords
      - Signal Combiner: Weighted scoring and consensus
-   - **Approach**: Make LLM detection "rock solid" first, then add other signals
+   - **Approach**: Make each detector "rock solid" before combining signals
 
 3. **Splitting Module**
    - PDF manipulation and output
@@ -147,6 +148,8 @@ Key settings in `.env`:
 - `LLM_PROVIDER`: LLM backend (transformers/ollama)
 - `DEBUG`: Development mode flag
 - `LOG_LEVEL`: Logging verbosity
+- `LLM_CACHE_ENABLED`: Enable/disable LLM response caching (default: true)
+- `LLM_CACHE_PATH`: Custom cache location (default: ~/.cache/pdf_splitter/llm_cache.db)
 
 ## Testing Infrastructure
 
@@ -184,6 +187,10 @@ def test_pdf_creation(temp_dir):
 - **PDFConfig in Tests**: When creating PDFConfig instances in test fixtures, only pass valid configuration parameters. The model uses Pydantic validation and will reject unknown fields.
 - **Resource Cleanup**: The caching system now properly closes PIL Images when evicting entries to prevent resource leaks.
 - **OCR Cleanup**: OCR engines have cleanup methods that are called on deletion to free resources.
+- **LLM Cache in Tests**: The LLM detector uses persistent SQLite caching that can interfere with testing:
+  - Tests may return cached results instead of calling Ollama
+  - Use `cache_enabled=False` or `detector.clear_cache()` for fresh results
+  - Set `LLM_CACHE_ENABLED=false` to disable caching globally
 
 ## Common Commands
 ```bash
@@ -207,6 +214,12 @@ pytest -m "not slow"
 
 # Run ALL tests including OCR and integration tests
 RUN_OCR_TESTS=true RUN_INTEGRATION_TESTS=true pytest
+
+# Run tests with LLM cache disabled (for fresh results)
+LLM_CACHE_ENABLED=false pytest
+
+# Clear LLM cache before testing
+rm ~/.cache/pdf_splitter/llm_cache.db
 
 # Run pre-commit checks
 pre-commit run --all-files
