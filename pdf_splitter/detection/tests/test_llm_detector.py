@@ -9,15 +9,17 @@ This module tests the LLMDetector class functionality including:
 - Ollama integration
 """
 
-import json
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 import requests
 
 from pdf_splitter.core.config import PDFConfig
-from pdf_splitter.detection.base_detector import (BoundaryType, DetectorType,
-                                                  ProcessedPage)
+from pdf_splitter.detection.base_detector import (
+    BoundaryType,
+    DetectorType,
+    ProcessedPage,
+)
 from pdf_splitter.detection.llm_detector import LLMDetector
 
 
@@ -143,7 +145,7 @@ class TestLLMDetector:
     def test_parse_llm_response_success(self, detector):
         """Test successful parsing of LLM response."""
         response = """<thinking>Page 1 ends with a signature. Page 2 starts with an invoice header. These are different documents.</thinking>
-<answer>DIFFERENT</answer>"""
+<answer>DIFFERENT</answer>"""  # noqa: E501
 
         is_boundary, confidence, reasoning = detector._parse_llm_response(response)
 
@@ -279,7 +281,7 @@ class TestLLMDetector:
         mock_post.return_value = Mock(
             status_code=200,
             json=lambda: {
-                "response": "<thinking>Different documents</thinking>\n<answer>DIFFERENT</answer>"
+                "response": "<thinking>Different documents</thinking>\n<answer>DIFFERENT</answer>"  # noqa: E501
             },
         )
 
@@ -315,13 +317,13 @@ class TestLLMDetector:
             Mock(
                 status_code=200,
                 json=lambda: {
-                    "response": "<thinking>Letter ending and invoice start</thinking>\n<answer>DIFFERENT</answer>"
+                    "response": "<thinking>Letter ending and invoice start</thinking>\n<answer>DIFFERENT</answer>"  # noqa: E501
                 },
             ),
             Mock(
                 status_code=200,
                 json=lambda: {
-                    "response": "<thinking>Invoice continues</thinking>\n<answer>SAME</answer>"
+                    "response": "<thinking>Invoice continues</thinking>\n<answer>SAME</answer>"  # noqa: E501
                 },
             ),
         ]
@@ -378,7 +380,9 @@ class TestLLMDetector:
 
         stats = detector.get_detection_stats()
         assert stats["detections"] == 2
-        assert stats["avg_confidence"] == 0.9
+        assert (
+            abs(stats["avg_confidence"] - 0.9) < 0.0001
+        )  # Handle floating point precision
         assert stats["min_confidence"] == 0.85
         assert stats["max_confidence"] == 0.95
 

@@ -1,6 +1,0 @@
-Only classify as different documents if very confident. When uncertain, choose same document.
-
-Page 1: {page1_bottom}
-Page 2: {page2_top}
-
-Answer S (same) or D (different):

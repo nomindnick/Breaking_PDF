@@ -77,7 +77,9 @@ class TestPDFHandler:
 
         assert not result.is_valid
         assert result.page_count == 0
-        assert "File does not exist" in result.errors[0]
+        assert (
+            "Invalid path" in result.errors[0]
+        )  # Error message includes full path details
 
     def test_validate_pdf_not_a_file(self, pdf_handler, tmp_path):
         """Test validation when path is a directory."""
