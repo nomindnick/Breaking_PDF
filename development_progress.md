@@ -787,4 +787,65 @@ VisualDetector(
 
 ---
 
-*Current Status: Preprocessing module complete and production-ready. Detection module has LLM and Visual detectors complete. Ready for Heuristic detector and Signal Combiner implementation.*
+## Entry #16: Heuristic Boundary Detector - Production Implementation
+**Date**: 2025-07-09 | **Status**: ✅ Complete
+
+### Summary
+Completed production-ready heuristic boundary detection with optimized configurations based on extensive experimentation on OCR'd PDFs.
+
+**Implementation Approach:**
+Following the project's core principle, I took an experimentation-first approach:
+1. Created comprehensive pattern detection system with 7 configurable patterns
+2. Built experimentation framework testing 20+ configurations
+3. Analyzed results to create optimized production configurations
+4. Cleaned up experimental code, keeping only production components
+
+**Experimental Results on OCR'd PDFs:**
+
+| Pattern | Accuracy | Notes |
+|---------|----------|-------|
+| Email Headers | 100% | Perfect accuracy when detected |
+| Page Numbering | 100% | Perfect accuracy when detected |
+| Terminal Phrases | 50% | Moderate reliability |
+| Header/Footer Changes | 46.3% | Disabled in optimized config (too many false positives) |
+| Date Patterns | 25% | Lower accuracy than expected |
+| Document Keywords | 24.5% | Useful but needs context |
+
+**Production Configurations Created:**
+
+1. **Optimized** (`get_optimized_config()`)
+   - Balanced: F1=0.381, Precision=0.500, Recall=0.308
+   - Disabled header/footer changes to reduce false positives
+   - Best for standalone use
+
+2. **Fast Screen** (`get_fast_screen_config()`)
+   - High recall: F1=0.522, Precision=0.364, Recall=0.923
+   - Catches 92.3% of boundaries at 0.03ms/page
+   - Perfect as first pass in cascade architecture
+
+3. **High Precision** (`get_high_precision_config()`)
+   - Zero false positives: F1=0.471, Precision=1.000, Recall=0.308
+   - Only uses email headers and page numbering
+   - Use when false positives are very costly
+
+**Key Technical Achievements:**
+- **Speed**: ~0.03ms per page (essentially instantaneous)
+- **Architecture**: Fully configurable pattern system with weights
+- **Testing**: 13 comprehensive tests, all passing
+- **Documentation**: Production usage guide with integration examples
+
+**Integration Value:**
+The heuristic detector perfectly fits the Hybrid Cascaded-Ensemble Architecture:
+- **Fast Path**: Email/page numbering patterns provide 100% accurate instant decisions
+- **First Pass Filter**: Fast screen config catches 92% of boundaries instantly
+- **Minimal Cost**: Adds negligible latency to the detection pipeline
+
+**Production Files:**
+- `heuristic_detector.py` - Core implementation
+- `optimized_config.py` - Three production configurations
+- `PRODUCTION_USAGE.md` - Detailed integration guide
+- `example_usage.py` - Usage demonstrations
+
+---
+
+*All three detectors (LLM, Visual, Heuristic) now production-ready. Heuristic detector provides instant first-pass filtering at essentially zero computational cost.*

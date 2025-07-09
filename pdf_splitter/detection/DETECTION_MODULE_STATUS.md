@@ -6,7 +6,7 @@ The Detection Module is responsible for identifying document boundaries within m
 
 ## Current Status: 🚧 In Development
 
-**2 of 4 detectors complete (LLM + Visual). Ready for Heuristic detector and Signal Combiner implementation.**
+**3 of 4 detectors complete (LLM + Visual + Heuristic). Ready for Signal Combiner implementation.**
 
 ### Completed Components ✅
 
@@ -48,20 +48,27 @@ The Detection Module is responsible for identifying document boundaries within m
   - Comprehensive test coverage
 - **Recommendation**: Use as supplementary signal only due to precision limitations
 
-### In Progress 🔄
+#### 4. Heuristic Detector (Production-Ready)
+- **Implementation**: `heuristic_detector/heuristic_detector.py`
+- **Approach**: Pattern-based detection with configurable weights
+- **Performance**:
+  - F1 Score: 0.522 (fast screen), 0.381 (optimized), 0.471 (high precision)
+  - Processing Time: ~0.03ms per page (essentially instantaneous)
+  - Best Patterns: Email headers (100%), Page numbering (100%)
+- **Features**:
+  - 7 configurable pattern types
+  - Three production configurations (optimized, fast screen, high precision)
+  - Pattern weight optimization based on experimental data
+  - Comprehensive test coverage (13 tests)
+- **Recommendation**: Perfect for fast first-pass screening in cascade architecture
 
-#### Heuristic Detector (Not Started)
-- Will use rule-based pattern matching
-- Target: < 0.5 seconds per page
-- Planned features:
-  - Date pattern detection
-  - Document type keywords
-  - Page numbering analysis
+### In Progress 🔄
 
 #### Signal Combiner (Not Started)
 - Will merge results from multiple detectors
 - Weighted scoring based on detector confidence
 - Consensus-based final decision
+- Priority implementation for hybrid architecture
 
 ## Integration with Preprocessing Module
 
@@ -75,25 +82,31 @@ The Detection Module receives `ProcessedPage` objects from the Preprocessing Mod
 ## Usage Example
 
 ```python
-from pdf_splitter.detection.llm_detector import LLMDetector
-from pdf_splitter.detection.base_detector import DetectionContext
+from pdf_splitter.detection import (
+    LLMDetector,
+    HeuristicDetector,
+    get_fast_screen_config,
+    DetectionContext
+)
 from pdf_splitter.core.config import PDFConfig
 
-# Initialize detector
+# Initialize detectors
 config = PDFConfig()
-detector = LLMDetector(config=config)
 
-# Create context
-context = DetectionContext(
-    config=config,
-    total_pages=len(processed_pages)
-)
+# Use heuristic for fast screening
+heuristic = HeuristicDetector(get_fast_screen_config())
+heuristic_results = heuristic.detect_boundaries(processed_pages)
 
-# Detect boundaries
-boundaries = detector.detect_boundaries(processed_pages, context)
-
-# Filter by confidence
-high_confidence = detector.filter_by_confidence(boundaries, threshold=0.9)
+# Use LLM for low-confidence boundaries
+llm = LLMDetector(config=config)
+for i, result in enumerate(heuristic_results):
+    if result.confidence < 0.7:
+        # Verify with LLM
+        llm_result = llm.detect_boundary(
+            processed_pages[i],
+            processed_pages[i+1]
+        )
+        # Update result based on LLM
 ```
 
 ## Testing Status
@@ -168,8 +181,18 @@ detection/
 ├── __init__.py
 ├── base_detector.py         # Abstract base class and data models
 ├── llm_detector.py         # LLM-based detection (COMPLETE)
-├── visual_detector.py      # Visual-based detection (PLANNED)
-├── heuristic_detector.py   # Rule-based detection (PLANNED)
+├── llm_cache.py           # Persistent caching for LLM
+├── llm_config.py          # LLM configuration management
+├── visual_detector/       # Visual-based detection (COMPLETE)
+│   ├── __init__.py
+│   ├── visual_detector.py
+│   └── tests/
+├── heuristic_detector/    # Rule-based detection (COMPLETE)
+│   ├── __init__.py
+│   ├── heuristic_detector.py
+│   ├── optimized_config.py
+│   ├── PRODUCTION_USAGE.md
+│   └── tests/
 ├── signal_combiner.py      # Multi-signal fusion (PLANNED)
 ├── DETECTION_MODULE_STATUS.md
 ├── experiments/            # Experimentation framework
