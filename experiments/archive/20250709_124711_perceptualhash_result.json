@@ -1,0 +1,712 @@
+{
+  "technique_name": "PerceptualHash",
+  "parameters": {
+    "threshold": 2,
+    "name": "PerceptualHash",
+    "hash_size": 8
+  },
+  "metrics": {
+    "true_positives": 17,
+    "false_positives": 19,
+    "true_negatives": 0,
+    "false_negatives": 2,
+    "total_processing_time": 1.2047221660614014,
+    "pages_processed": 38
+  },
+  "comparisons": [
+    {
+      "page1_num": 1,
+      "page2_num": 2,
+      "similarity_score": 0.59375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.032436370849609375,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 26,
+        "ahash_distance": 28,
+        "dhash_distance": 22,
+        "hash1": "bf2fd0b4686895c1",
+        "hash2": "bf3f3f9590c0c062",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 2,
+      "page2_num": 3,
+      "similarity_score": 0.65625,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03128528594970703,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 22,
+        "ahash_distance": 27,
+        "dhash_distance": 24,
+        "hash1": "bf3f3f9590c0c062",
+        "hash2": "bf3fd094786095c1",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 3,
+      "page2_num": 4,
+      "similarity_score": 0.90625,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.0316622257232666,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 6,
+        "ahash_distance": 1,
+        "dhash_distance": 9,
+        "hash1": "bf3fd094786095c1",
+        "hash2": "bf3fc0c0787895c1",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 4,
+      "page2_num": 5,
+      "similarity_score": 0.6875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.031155109405517578,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 20,
+        "ahash_distance": 12,
+        "dhash_distance": 18,
+        "hash1": "bf3fc0c0787895c1",
+        "hash2": "bf3fc16068c3c06e",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 5,
+      "page2_num": 6,
+      "similarity_score": 0.71875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03406071662902832,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 18,
+        "ahash_distance": 20,
+        "dhash_distance": 18,
+        "hash1": "bf3fc16068c3c06e",
+        "hash2": "bf3f9cc0c0c0636b",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 6,
+      "page2_num": 7,
+      "similarity_score": 0.71875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030971288681030273,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 18,
+        "ahash_distance": 21,
+        "dhash_distance": 19,
+        "hash1": "bf3f9cc0c0c0636b",
+        "hash2": "bf3fc16068c3c06e",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 7,
+      "page2_num": 8,
+      "similarity_score": 0.71875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.033326148986816406,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 18,
+        "ahash_distance": 21,
+        "dhash_distance": 19,
+        "hash1": "bf3fc16068c3c06e",
+        "hash2": "bf3f9cc0c0c0636b",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 8,
+      "page2_num": 9,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03137969970703125,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 20,
+        "dhash_distance": 23,
+        "hash1": "bf3f9cc0c0c0636b",
+        "hash2": "ee6ad0c14b3d35c4",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 9,
+      "page2_num": 10,
+      "similarity_score": 1.0,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03061819076538086,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 0,
+        "ahash_distance": 0,
+        "dhash_distance": 0,
+        "hash1": "ee6ad0c14b3d35c4",
+        "hash2": "ee6ad0c14b3d35c4",
+        "is_boundary": false,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 10,
+      "page2_num": 11,
+      "similarity_score": 1.0,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030549287796020508,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 0,
+        "ahash_distance": 0,
+        "dhash_distance": 0,
+        "hash1": "ee6ad0c14b3d35c4",
+        "hash2": "ee6ad0c14b3d35c4",
+        "is_boundary": false,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 11,
+      "page2_num": 12,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03352832794189453,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 25,
+        "dhash_distance": 24,
+        "hash1": "ee6ad0c14b3d35c4",
+        "hash2": "bf3de063c19cc03a",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 12,
+      "page2_num": 13,
+      "similarity_score": 0.6875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030941486358642578,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 20,
+        "ahash_distance": 20,
+        "dhash_distance": 22,
+        "hash1": "bf3de063c19cc03a",
+        "hash2": "bf3fc0c03fc0c06b",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 13,
+      "page2_num": 14,
+      "similarity_score": 0.65625,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03001093864440918,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 22,
+        "ahash_distance": 17,
+        "dhash_distance": 17,
+        "hash1": "bf3fc0c03fc0c06b",
+        "hash2": "bf3f6ec0c0d0b0f0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 14,
+      "page2_num": 15,
+      "similarity_score": 0.6875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.029451608657836914,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 20,
+        "ahash_distance": 17,
+        "dhash_distance": 28,
+        "hash1": "bf3f6ec0c0d0b0f0",
+        "hash2": "bf3de063c19cc03a",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 15,
+      "page2_num": 16,
+      "similarity_score": 0.59375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.035735368728637695,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 26,
+        "ahash_distance": 25,
+        "dhash_distance": 34,
+        "hash1": "bf3de063c19cc03a",
+        "hash2": "9f1f1fabc0e0e0e0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 16,
+      "page2_num": 17,
+      "similarity_score": 0.59375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.031219959259033203,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 26,
+        "ahash_distance": 28,
+        "dhash_distance": 36,
+        "hash1": "9f1f1fabc0e0e0e0",
+        "hash2": "bf3fe063c19cc01a",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 17,
+      "page2_num": 18,
+      "similarity_score": 0.71875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03378486633300781,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 18,
+        "ahash_distance": 22,
+        "dhash_distance": 22,
+        "hash1": "bf3fe063c19cc01a",
+        "hash2": "bf3fc0c03bc0c07b",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 18,
+      "page2_num": 19,
+      "similarity_score": 0.6875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030611038208007812,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 20,
+        "ahash_distance": 18,
+        "dhash_distance": 17,
+        "hash1": "bf3fc0c03bc0c07b",
+        "hash2": "bf3f6ec0c0c0b1f0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 19,
+      "page2_num": 20,
+      "similarity_score": 0.53125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03383159637451172,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 28,
+        "hash1": "bf3f6ec0c0c0b1f0",
+        "hash2": "bf30e03f8fc4c0c3",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 20,
+      "page2_num": 21,
+      "similarity_score": 0.78125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03105449676513672,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 14,
+        "ahash_distance": 14,
+        "dhash_distance": 14,
+        "hash1": "bf30e03f8fc4c0c3",
+        "hash2": "bd30c26f7ecec0c0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 21,
+      "page2_num": 22,
+      "similarity_score": 0.4375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030354022979736328,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 36,
+        "ahash_distance": 26,
+        "dhash_distance": 29,
+        "hash1": "bd30c26f7ecec0c0",
+        "hash2": "bf3bc0c0c03b3b3a",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 22,
+      "page2_num": 23,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03268599510192871,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 18,
+        "dhash_distance": 13,
+        "hash1": "bf3bc0c0c03b3b3a",
+        "hash2": "9f1f1fb8e0e0e0e0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 23,
+      "page2_num": 24,
+      "similarity_score": 0.625,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03398442268371582,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 24,
+        "ahash_distance": 9,
+        "dhash_distance": 6,
+        "hash1": "9f1f1fb8e0e0e0e0",
+        "hash2": "bf3f7ac0c0909595",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 24,
+      "page2_num": 25,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03461933135986328,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 17,
+        "dhash_distance": 17,
+        "hash1": "bf3f7ac0c0909595",
+        "hash2": "e565989a9a336565",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 25,
+      "page2_num": 26,
+      "similarity_score": 0.53125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03117823600769043,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 30,
+        "ahash_distance": 7,
+        "dhash_distance": 18,
+        "hash1": "e565989a9a336565",
+        "hash2": "bc29c3c386867979",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 26,
+      "page2_num": 27,
+      "similarity_score": 0.9375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.031106233596801758,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 4,
+        "ahash_distance": 0,
+        "dhash_distance": 1,
+        "hash1": "bc29c3c386867979",
+        "hash2": "bc38c3c386967969",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 27,
+      "page2_num": 28,
+      "similarity_score": 0.46875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030142545700073242,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 34,
+        "ahash_distance": 15,
+        "dhash_distance": 18,
+        "hash1": "bc38c3c386967969",
+        "hash2": "fc287829d983c787",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 28,
+      "page2_num": 29,
+      "similarity_score": 0.40625,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.029581546783447266,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 38,
+        "ahash_distance": 11,
+        "dhash_distance": 14,
+        "hash1": "fc287829d983c787",
+        "hash2": "bf3fcfc5c0e03030",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 29,
+      "page2_num": 30,
+      "similarity_score": 0.59375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.029261112213134766,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 26,
+        "ahash_distance": 5,
+        "dhash_distance": 12,
+        "hash1": "bf3fcfc5c0e03030",
+        "hash2": "f838979797616868",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 30,
+      "page2_num": 31,
+      "similarity_score": 0.4375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03260326385498047,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 36,
+        "ahash_distance": 14,
+        "dhash_distance": 14,
+        "hash1": "f838979797616868",
+        "hash2": "ae2e3c09dd87c683",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 31,
+      "page2_num": 32,
+      "similarity_score": 0.46875,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030833721160888672,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 34,
+        "ahash_distance": 11,
+        "dhash_distance": 10,
+        "hash1": "ae2e3c09dd87c683",
+        "hash2": "bf3fcfc5c0e03030",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 32,
+      "page2_num": 33,
+      "similarity_score": 0.59375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03067922592163086,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 26,
+        "ahash_distance": 5,
+        "dhash_distance": 12,
+        "hash1": "bf3fcfc5c0e03030",
+        "hash2": "f838979797616868",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 33,
+      "page2_num": 34,
+      "similarity_score": 0.4375,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03003716468811035,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 36,
+        "ahash_distance": 31,
+        "dhash_distance": 38,
+        "hash1": "f838979797616868",
+        "hash2": "bff2c0c4c03dd01f",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 34,
+      "page2_num": 35,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.034013986587524414,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 36,
+        "dhash_distance": 38,
+        "hash1": "bff2c0c4c03dd01f",
+        "hash2": "d6a956a956a954a9",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 35,
+      "page2_num": 36,
+      "similarity_score": 0.53125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030745267868041992,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 8,
+        "hash1": "d6a956a956a954a9",
+        "hash2": "bc3e2e8bcbc3c0b0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 36,
+      "page2_num": 37,
+      "similarity_score": 0.5,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.030633926391601562,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 32,
+        "ahash_distance": 26,
+        "dhash_distance": 37,
+        "hash1": "bc3e2e8bcbc3c0b0",
+        "hash2": "bf70c0e5c09dd01f",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 37,
+      "page2_num": 38,
+      "similarity_score": 0.53125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03029465675354004,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 30,
+        "ahash_distance": 32,
+        "dhash_distance": 39,
+        "hash1": "bf70c0e5c09dd01f",
+        "hash2": "d6a956a956a954a9",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    },
+    {
+      "page1_num": 38,
+      "page2_num": 39,
+      "similarity_score": 0.53125,
+      "technique_name": "PerceptualHash",
+      "processing_time": 0.03435349464416504,
+      "metadata": {
+        "hash_algorithm": "phash",
+        "hash_size": 8,
+        "hamming_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 8,
+        "hash1": "d6a956a956a954a9",
+        "hash2": "bc3e2e8bcbc3c0b0",
+        "is_boundary": true,
+        "threshold": 2
+      }
+    }
+  ],
+  "timestamp": "2025-07-09T12:47:11.500850",
+  "pdf_path": "test_files/visual_test_pdf.pdf",
+  "ground_truth_path": "test_files/visual_test_pdf_ground_truth.json",
+  "summary": {
+    "f1_score": 0.6181818181818182,
+    "precision": 0.4722222222222222,
+    "recall": 0.8947368421052632,
+    "accuracy": 0.4473684210526316,
+    "avg_time_per_page": 0.031703214896352666
+  }
+}

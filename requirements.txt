@@ -39,6 +39,7 @@ fastapi==0.104.1
 filelock==3.18.0
 fire==0.7.0
 flake8==6.1.0
+Flake8-pyproject==1.2.3
 fonttools==4.58.4
 frozenlist==1.7.0
 fsspec==2025.5.1
@@ -51,6 +52,7 @@ httptools==0.6.4
 httpx==0.25.2
 identify==2.6.12
 idna==3.10
+ImageHash==4.3.2
 imageio==2.37.0
 imagesize==1.4.1
 imgaug==0.4.0
@@ -62,6 +64,7 @@ iso3166==2.1.1
 isort==5.13.2
 jedi==0.19.2
 Jinja2==3.1.2
+joblib==1.5.1
 jsonpath-ng==1.7.0
 jsonschema==4.24.0
 jsonschema-specifications==2025.4.1
@@ -156,13 +159,16 @@ python-dotenv==1.0.0
 python-Levenshtein==0.27.1
 python-multipart==0.0.6
 pytz==2025.2
+PyWavelets==1.8.0
 PyYAML==6.0.2
 RapidFuzz==3.13.0
 referencing==0.36.2
+reportlab==4.4.2
 requests==2.32.4
 rich==13.7.0
 rpds-py==0.26.0
 scikit-image==0.25.2
+scikit-learn==1.7.0
 scipy==1.15.3
 seaborn==0.13.2
 setuptools==80.9.0
@@ -186,6 +192,7 @@ stack-data==0.6.3
 starlette==0.27.0
 structlog==23.2.0
 sympy==1.14.0
+threadpoolctl==3.6.0
 tifffile==2025.6.11
 tomlkit==0.13.3
 torch==2.7.1
@@ -194,6 +201,7 @@ tqdm==4.66.1
 traitlets==5.14.3
 triton==3.3.1
 types-Pillow==10.2.0.20240822
+types-PyYAML==6.0.12.20250516
 types-requests==2.32.4.20250611
 typing_extensions==4.14.0
 tzdata==2025.2

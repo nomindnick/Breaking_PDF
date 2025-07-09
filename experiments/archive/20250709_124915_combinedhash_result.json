@@ -1,0 +1,1023 @@
+{
+  "technique_name": "CombinedHash",
+  "parameters": {
+    "threshold": 0.6,
+    "name": "CombinedHash",
+    "phash_weight": 0.5,
+    "ahash_weight": 0.25,
+    "dhash_weight": 0.25,
+    "hash_size": 8,
+    "voting_mode": false,
+    "phash_threshold": 10,
+    "ahash_threshold": 12,
+    "dhash_threshold": 12
+  },
+  "metrics": {
+    "true_positives": 3,
+    "false_positives": 7,
+    "true_negatives": 12,
+    "false_negatives": 16,
+    "total_processing_time": 1.2049143314361572,
+    "pages_processed": 38
+  },
+  "comparisons": [
+    {
+      "page1_num": 1,
+      "page2_num": 2,
+      "similarity_score": 0.6015625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03237724304199219,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 26,
+        "ahash_distance": 28,
+        "dhash_distance": 22,
+        "phash_similarity": 0.59375,
+        "ahash_similarity": 0.5625,
+        "dhash_similarity": 0.65625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 2,
+      "page2_num": 3,
+      "similarity_score": 0.62890625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.029728412628173828,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 22,
+        "ahash_distance": 27,
+        "dhash_distance": 24,
+        "phash_similarity": 0.65625,
+        "ahash_similarity": 0.578125,
+        "dhash_similarity": 0.625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 3,
+      "page2_num": 4,
+      "similarity_score": 0.9140625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03493142127990723,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 6,
+        "ahash_distance": 1,
+        "dhash_distance": 9,
+        "phash_similarity": 0.90625,
+        "ahash_similarity": 0.984375,
+        "dhash_similarity": 0.859375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 4,
+      "page2_num": 5,
+      "similarity_score": 0.7265625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03089737892150879,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 20,
+        "ahash_distance": 12,
+        "dhash_distance": 18,
+        "phash_similarity": 0.6875,
+        "ahash_similarity": 0.8125,
+        "dhash_similarity": 0.71875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 5,
+      "page2_num": 6,
+      "similarity_score": 0.7109375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03084087371826172,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 18,
+        "ahash_distance": 20,
+        "dhash_distance": 18,
+        "phash_similarity": 0.71875,
+        "ahash_similarity": 0.6875,
+        "dhash_similarity": 0.71875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 6,
+      "page2_num": 7,
+      "similarity_score": 0.703125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03348207473754883,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 18,
+        "ahash_distance": 21,
+        "dhash_distance": 19,
+        "phash_similarity": 0.71875,
+        "ahash_similarity": 0.671875,
+        "dhash_similarity": 0.703125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 7,
+      "page2_num": 8,
+      "similarity_score": 0.703125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030893564224243164,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 18,
+        "ahash_distance": 21,
+        "dhash_distance": 19,
+        "phash_similarity": 0.71875,
+        "ahash_similarity": 0.671875,
+        "dhash_similarity": 0.703125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 8,
+      "page2_num": 9,
+      "similarity_score": 0.58203125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.034004926681518555,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 20,
+        "dhash_distance": 23,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.6875,
+        "dhash_similarity": 0.640625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 9,
+      "page2_num": 10,
+      "similarity_score": 1.0,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030804157257080078,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 0,
+        "ahash_distance": 0,
+        "dhash_distance": 0,
+        "phash_similarity": 1.0,
+        "ahash_similarity": 1.0,
+        "dhash_similarity": 1.0,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 10,
+      "page2_num": 11,
+      "similarity_score": 1.0,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.034149885177612305,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 0,
+        "ahash_distance": 0,
+        "dhash_distance": 0,
+        "phash_similarity": 1.0,
+        "ahash_similarity": 1.0,
+        "dhash_similarity": 1.0,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 11,
+      "page2_num": 12,
+      "similarity_score": 0.55859375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03123927116394043,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 25,
+        "dhash_distance": 24,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.609375,
+        "dhash_similarity": 0.625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 12,
+      "page2_num": 13,
+      "similarity_score": 0.6796875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030478954315185547,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 20,
+        "ahash_distance": 20,
+        "dhash_distance": 22,
+        "phash_similarity": 0.6875,
+        "ahash_similarity": 0.6875,
+        "dhash_similarity": 0.65625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 13,
+      "page2_num": 14,
+      "similarity_score": 0.6953125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030150651931762695,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 22,
+        "ahash_distance": 17,
+        "dhash_distance": 17,
+        "phash_similarity": 0.65625,
+        "ahash_similarity": 0.734375,
+        "dhash_similarity": 0.734375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 14,
+      "page2_num": 15,
+      "similarity_score": 0.66796875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.0331728458404541,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 20,
+        "ahash_distance": 17,
+        "dhash_distance": 28,
+        "phash_similarity": 0.6875,
+        "ahash_similarity": 0.734375,
+        "dhash_similarity": 0.5625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 15,
+      "page2_num": 16,
+      "similarity_score": 0.56640625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.031054973602294922,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 26,
+        "ahash_distance": 25,
+        "dhash_distance": 34,
+        "phash_similarity": 0.59375,
+        "ahash_similarity": 0.609375,
+        "dhash_similarity": 0.46875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 16,
+      "page2_num": 17,
+      "similarity_score": 0.546875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.029746294021606445,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 26,
+        "ahash_distance": 28,
+        "dhash_distance": 36,
+        "phash_similarity": 0.59375,
+        "ahash_similarity": 0.5625,
+        "dhash_similarity": 0.4375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 17,
+      "page2_num": 18,
+      "similarity_score": 0.6875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.029468774795532227,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 18,
+        "ahash_distance": 22,
+        "dhash_distance": 22,
+        "phash_similarity": 0.71875,
+        "ahash_similarity": 0.65625,
+        "dhash_similarity": 0.65625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 18,
+      "page2_num": 19,
+      "similarity_score": 0.70703125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03357744216918945,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 20,
+        "ahash_distance": 18,
+        "dhash_distance": 17,
+        "phash_similarity": 0.6875,
+        "ahash_similarity": 0.71875,
+        "dhash_similarity": 0.734375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 19,
+      "page2_num": 20,
+      "similarity_score": 0.5859375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.031024456024169922,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 28,
+        "phash_similarity": 0.53125,
+        "ahash_similarity": 0.71875,
+        "dhash_similarity": 0.5625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 20,
+      "page2_num": 21,
+      "similarity_score": 0.78125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030670642852783203,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 14,
+        "ahash_distance": 14,
+        "dhash_distance": 14,
+        "phash_similarity": 0.78125,
+        "ahash_similarity": 0.78125,
+        "dhash_similarity": 0.78125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 21,
+      "page2_num": 22,
+      "similarity_score": 0.50390625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030071735382080078,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 36,
+        "ahash_distance": 26,
+        "dhash_distance": 29,
+        "phash_similarity": 0.4375,
+        "ahash_similarity": 0.59375,
+        "dhash_similarity": 0.546875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 22,
+      "page2_num": 23,
+      "similarity_score": 0.62890625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.02950119972229004,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 18,
+        "dhash_distance": 13,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.71875,
+        "dhash_similarity": 0.796875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 23,
+      "page2_num": 24,
+      "similarity_score": 0.75390625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.02949070930480957,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 24,
+        "ahash_distance": 9,
+        "dhash_distance": 6,
+        "phash_similarity": 0.625,
+        "ahash_similarity": 0.859375,
+        "dhash_similarity": 0.90625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 24,
+      "page2_num": 25,
+      "similarity_score": 0.6171875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.029282808303833008,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 17,
+        "dhash_distance": 17,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.734375,
+        "dhash_similarity": 0.734375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 25,
+      "page2_num": 26,
+      "similarity_score": 0.66796875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03321719169616699,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 30,
+        "ahash_distance": 7,
+        "dhash_distance": 18,
+        "phash_similarity": 0.53125,
+        "ahash_similarity": 0.890625,
+        "dhash_similarity": 0.71875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 26,
+      "page2_num": 27,
+      "similarity_score": 0.96484375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03143429756164551,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 4,
+        "ahash_distance": 0,
+        "dhash_distance": 1,
+        "phash_similarity": 0.9375,
+        "ahash_similarity": 1.0,
+        "dhash_similarity": 0.984375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 27,
+      "page2_num": 28,
+      "similarity_score": 0.60546875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03369712829589844,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 34,
+        "ahash_distance": 15,
+        "dhash_distance": 18,
+        "phash_similarity": 0.46875,
+        "ahash_similarity": 0.765625,
+        "dhash_similarity": 0.71875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 28,
+      "page2_num": 29,
+      "similarity_score": 0.60546875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030909061431884766,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 38,
+        "ahash_distance": 11,
+        "dhash_distance": 14,
+        "phash_similarity": 0.40625,
+        "ahash_similarity": 0.828125,
+        "dhash_similarity": 0.78125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 29,
+      "page2_num": 30,
+      "similarity_score": 0.73046875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03404426574707031,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 26,
+        "ahash_distance": 5,
+        "dhash_distance": 12,
+        "phash_similarity": 0.59375,
+        "ahash_similarity": 0.921875,
+        "dhash_similarity": 0.8125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 30,
+      "page2_num": 31,
+      "similarity_score": 0.609375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03189349174499512,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 36,
+        "ahash_distance": 14,
+        "dhash_distance": 14,
+        "phash_similarity": 0.4375,
+        "ahash_similarity": 0.78125,
+        "dhash_similarity": 0.78125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 31,
+      "page2_num": 32,
+      "similarity_score": 0.65234375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.033457279205322266,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 34,
+        "ahash_distance": 11,
+        "dhash_distance": 10,
+        "phash_similarity": 0.46875,
+        "ahash_similarity": 0.828125,
+        "dhash_similarity": 0.84375,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 32,
+      "page2_num": 33,
+      "similarity_score": 0.73046875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030974864959716797,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 26,
+        "ahash_distance": 5,
+        "dhash_distance": 12,
+        "phash_similarity": 0.59375,
+        "ahash_similarity": 0.921875,
+        "dhash_similarity": 0.8125,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 33,
+      "page2_num": 34,
+      "similarity_score": 0.44921875,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03454995155334473,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 36,
+        "ahash_distance": 31,
+        "dhash_distance": 38,
+        "phash_similarity": 0.4375,
+        "ahash_similarity": 0.515625,
+        "dhash_similarity": 0.40625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 34,
+      "page2_num": 35,
+      "similarity_score": 0.4609375,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03142499923706055,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 36,
+        "dhash_distance": 38,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.4375,
+        "dhash_similarity": 0.40625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 35,
+      "page2_num": 36,
+      "similarity_score": 0.6640625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.031980276107788086,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 8,
+        "phash_similarity": 0.53125,
+        "ahash_similarity": 0.71875,
+        "dhash_similarity": 0.875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 36,
+      "page2_num": 37,
+      "similarity_score": 0.50390625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.030197620391845703,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 32,
+        "ahash_distance": 26,
+        "dhash_distance": 37,
+        "phash_similarity": 0.5,
+        "ahash_similarity": 0.59375,
+        "dhash_similarity": 0.421875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 37,
+      "page2_num": 38,
+      "similarity_score": 0.48828125,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.03495025634765625,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 30,
+        "ahash_distance": 32,
+        "dhash_distance": 39,
+        "phash_similarity": 0.53125,
+        "ahash_similarity": 0.5,
+        "dhash_similarity": 0.390625,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": true,
+        "threshold": 0.6
+      }
+    },
+    {
+      "page1_num": 38,
+      "page2_num": 39,
+      "similarity_score": 0.6640625,
+      "technique_name": "CombinedHash",
+      "processing_time": 0.0311429500579834,
+      "metadata": {
+        "hash_algorithm": "combined",
+        "hash_size": 8,
+        "phash_distance": 30,
+        "ahash_distance": 18,
+        "dhash_distance": 8,
+        "phash_similarity": 0.53125,
+        "ahash_similarity": 0.71875,
+        "dhash_similarity": 0.875,
+        "voting_mode": false,
+        "votes": null,
+        "weights": {
+          "phash": 0.5,
+          "ahash": 0.25,
+          "dhash": 0.25
+        },
+        "is_boundary": false,
+        "threshold": 0.6
+      }
+    }
+  ],
+  "timestamp": "2025-07-09T12:49:15.087640",
+  "pdf_path": "test_files/visual_test_pdf.pdf",
+  "ground_truth_path": "test_files/visual_test_pdf_ground_truth.json",
+  "summary": {
+    "f1_score": 0.20689655172413793,
+    "precision": 0.3,
+    "recall": 0.15789473684210525,
+    "accuracy": 0.39473684210526316,
+    "avg_time_per_page": 0.03170827187989887
+  }
+}

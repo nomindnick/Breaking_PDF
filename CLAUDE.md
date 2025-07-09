@@ -82,12 +82,13 @@ pdf_splitter/
   - Comprehensive Testing: 90%+ code coverage, OCR accuracy validated
 
 ### In Progress 🚧
-- [ ] **Detection Module** (experimental phase - see development_progress.md for detailed approach)
+- [ ] **Detection Module** (production components ready - see development_progress.md for detailed approach)
   - ✅ Base architecture complete (BaseDetector abstract class)
   - ✅ Data models defined (ProcessedPage, BoundaryResult, DetectionContext)
-  - ✅ LLM experimentation framework with Ollama integration
-  - 🔬 Currently: Testing different models and strategies
-  - 📊 Goal: Achieve >95% accuracy before implementing other detectors
+  - ✅ **LLM Detection** - Production ready with persistent caching
+  - ✅ **Visual Detection** - Production ready as supplementary signal
+  - 🔬 Next: Heuristic detection and signal combination
+  - 📊 Results: LLM (F1=0.889), Visual (F1=0.514 real-world, 0.667 synthetic)
 
 ### Upcoming 📋
 - [ ] Splitting Module
@@ -108,8 +109,12 @@ pdf_splitter/
      - Persistent SQLite caching for 33,000x performance improvement
      - Comprehensive error handling and retry logic
      - Note: Cache is most useful for retry scenarios in production
+   - **Visual Detection** ✅ Production-ready
+     - Combined hash voting approach (pHash, aHash, dHash)
+     - F1: 0.667 on synthetic data, 0.514 on real-world documents
+     - Best used as supplementary signal, not primary detector
+     - Fast performance: ~30ms per page comparison
    - **Planned Components**:
-     - Visual Detection: Layout changes via OCR bounding boxes
      - Heuristic Detection: Date patterns, document keywords
      - Signal Combiner: Weighted scoring and consensus
    - **Approach**: Make each detector "rock solid" before combining signals

@@ -98,105 +98,53 @@ Comprehensive optimization improving OCR from 73.5% to **89.9% average accuracy*
    - Automatic detection: email, form, table, technical, mixed
    - Structure-based, not content-specific (generalizable)
 
-2. **Optimized Settings by Type**
-   | Type     | DPI | Color     | Preprocessing      | Accuracy |
-   |----------|-----|-----------|-------------------|----------|
-   | Email    | 300 | RGB       | Denoise           | 94.8%    |
-   | Table    | 200 | Grayscale | Contrast+Sharpen  | 80.7%    |
-   | Form     | 200 | RGB       | Adaptive Thresh   | 82.8%    |
+2. **Optimized OCR Settings**
+   ```python
+   {
+       "emails": {"det_db_thresh": 0.2, "rec_score_thresh": 0.7},
+       "forms": {"dpi": 200, "det_db_box_thresh": 0.5},
+       "tables": {"use_table_mode": True},
+       "technical": {"dpi": 400, "det_db_unclip_ratio": 2.0}
+   }
+   ```
 
-3. **Problem Page Improvements**
-   - Page 7: 60.8% → 93.7%
-   - Page 8: 40.1% → 82.8%
+3. **Results**
+   - Average: 89.9% word accuracy
+   - Best: 91.5% (emails)
+   - Worst: 86.7% (technical)
+   - Speed: 0.693s per page (within target)
 
-**Key Discoveries:**
-- Lower DPI (200) better for forms/tables
-- Grayscale improves table accuracy
-- Less preprocessing often better for computer-generated PDFs
-
-**Cleanup:**
-- Removed 22 diagnostic scripts
-- Kept 4 core utilities
-- Created production config: `optimized_ocr_config.json`
-
----
-
-## Module Status
-
-### ✅ Preprocessing Module: 100% Complete
-- **pdf_handler.py**: High-performance PDF loading and rendering
-- **text_extractor.py**: Advanced text extraction with layout analysis
-- **advanced_cache.py**: Multi-tier caching with performance tracking
-- **ocr_processor.py**: Multi-engine OCR with 90% accuracy
-
-**Performance Achievements:**
-- PDF rendering: 0.02-0.05s per page (100x better than target)
-- Text extraction: 0.08s per page
-- OCR processing: < 2s per page with 90% accuracy
-- Cache hit rates: 80-90% in typical workflows
+**Key Technical Decisions:**
+- Use character-level tokenization for accuracy measurement
+- Apply document-specific preprocessing
+- Cache classification results
+- Default DPI increased to 300
 
 ---
 
-## Entry #7: Code Quality and Test Coverage Improvements
-**Date**: 2025-06-25 | **Status**: ✅ Complete
+## Next Steps for Detection Module
 
-### Summary
-Made the preprocessing module "rock solid" with comprehensive testing, type hints, and code quality improvements.
+### Implementation Order:
 
-**Test Suite Improvements:**
-- Fixed 10 out of 11 failing tests in core modules
-- Added 6 new test methods to text_extractor.py
-- Achieved 72% coverage for text_extractor.py (meets industry standard)
-- 109 tests now passing in core and preprocessing modules
+1. **BaseDetector** (`detection/base_detector.py`) ✅ Complete
+   - Abstract interface
+   - Common data structures
+   - Shared utilities
 
-**Code Quality Enhancements:**
-1. **Type Hints Added:**
-   - `pdf_handler.py`: Fixed List parameter type in `_estimate_text_confidence`
-   - `advanced_cache.py`: Added complete type hints for all methods
-   - Added missing imports (Callable, List) for proper typing
+2. **LLMDetector** (`detection/llm_detector.py`) ✅ Complete
+   - Ollama integration
+   - Prompt engineering
+   - Context management
+   - Target: > 95% accuracy
 
-2. **Magic Numbers Extracted to Constants:**
-   - `ocr_processor.py`: 13 constants for image processing and quality metrics
-   - `text_extractor.py`: 5 constants for text extraction parameters
-   - Improves maintainability and makes tuning easier
-
-3. **Documentation:**
-   - Added comprehensive docstring to AdvancedLRUCache.__init__
-   - Improved method docstrings in advanced_cache.py
-
-**Key Metrics:**
-- Overall test coverage: 72% (up from ~60%)
-- Core module fixes: Environment variable support for PDFConfig
-- Performance benchmarks still meeting targets (2.59s/page)
-
-**Technical Decisions:**
-- Changed PDFConfig from BaseModel to BaseSettings for env var support
-- Standardized constants naming convention (UPPER_CASE_WITH_UNDERSCORES)
-- Maintained backward compatibility for all changes
-
----
-
-## Next Steps: Detection Module
-
-### Recommended Development Order:
-
-1. **Base Detector Interface** (`detection/base_detector.py`)
-   - Abstract base class for all detectors
-   - Standardized contracts
-
-2. **LLM Detector** (`detection/llm_detector.py`) - **START HERE**
-   - 30% context overlap strategy
-   - Local Transformers models (Flan-T5/BART)
-   - Target: 1-2s per boundary check
-
-3. **Visual Detector** (`detection/visual_detector.py`)
-   - Layout changes via OCR bounding boxes
-   - Whitespace/formatting analysis
+3. **VisualDetector** (`detection/visual_detector.py`) ✅ Complete
+   - Layout change detection
+   - Visual marker identification
    - Target: < 0.5s per page
 
-4. **Heuristic Detector** (`detection/heuristic_detector.py`)
-   - Date patterns, email headers
-   - Document type keywords
+4. **HeuristicDetector** (`detection/heuristic_detector.py`)
+   - Pattern matching (dates, signatures)
+   - Document-specific rules
    - Target: < 0.5s per page
 
 5. **Signal Combiner** (`detection/signal_combiner.py`)
@@ -720,3 +668,123 @@ Set up comprehensive experimental framework for visual boundary detection, follo
 ---
 
 *Visual detector experimental framework complete. Ready for test data creation and experimentation.*
+
+---
+
+## Entry #15: Visual Boundary Detection - Complete Implementation
+**Date**: 2025-07-09 | **Status**: ✅ Complete
+
+### Summary
+Completed visual boundary detection module after comprehensive experimentation and optimization, finding significant performance differences between synthetic and real-world documents.
+
+**Experimental Results:**
+
+1. **Baseline Techniques**
+   - **Histogram Comparison**: Complete failure (F1=0.000) - pages too similar globally
+   - **SSIM**: Complete failure (F1=0.000) - all similarities >0.99
+   - **Perceptual Hash**: Promising (F1=0.604) with good recall (84%)
+
+2. **Optimization Phase**
+   - Threshold optimization: Improved pHash from F1=0.604 to F1=0.667
+   - Larger hash sizes (16x16): No improvement over 8x8
+   - **Combined Hash Voting**: Best approach combining pHash, aHash, dHash
+
+3. **Final Results**
+   - **Synthetic Test Data**: F1=0.667 (50% precision, 100% recall)
+   - **Real-World Documents**: F1=0.514 (34.6% precision, 100% recall)
+   - Performance: ~31ms per page comparison (exceeds target)
+
+**Key Implementation Details:**
+
+1. **Production VisualDetector Class**
+   - Combined hash voting approach (best experimental result)
+   - Configurable voting threshold (default: 1 vote for sensitivity)
+   - Page image caching for performance
+   - Follows BaseDetector interface
+
+2. **Technical Architecture**
+   ```python
+   # Core algorithm
+   phash_distance > 10 → vote for boundary
+   ahash_distance > 12 → vote for boundary
+   dhash_distance > 12 → vote for boundary
+   votes >= threshold → declare boundary
+   ```
+
+3. **Integration Features**
+   - Works with PDFHandler for page rendering
+   - Compatible with ProcessedPage data model
+   - Returns BoundaryResult with confidence scores
+   - Comprehensive error handling and logging
+
+**Critical Findings:**
+
+1. **Performance Gap**:
+   - Synthetic documents show good performance (F1=0.667)
+   - Real-world documents show poor precision (F1=0.514)
+   - Visual detection cannot distinguish between:
+     - True document boundaries
+     - Layout changes within same document
+     - Style variations (e.g., letterhead differences)
+
+2. **Recommendation**:
+   - Use visual detection as **supplementary signal only**
+   - Primary detection should be semantic (LLM-based)
+   - Visual signals can enhance confidence scoring
+   - Not suitable as standalone detector
+
+**Testing & Documentation:**
+- Full test coverage (11 tests, all passing)
+- Example usage script demonstrating integration
+- Updated EXPERIMENT_RESULTS.md with all findings
+- Clear documentation of limitations
+
+**Production Configuration:**
+```python
+VisualDetector(
+    voting_threshold=1,      # Sensitive for supplementary role
+    phash_threshold=10,      # Hamming distance thresholds
+    ahash_threshold=12,
+    dhash_threshold=12,
+    hash_size=8             # 64-bit hashes
+)
+```
+
+**Next Steps:**
+1. Implement HeuristicDetector for pattern-based detection
+2. Create SignalCombiner to integrate all detectors
+3. Design confidence aggregation strategy
+4. Build integration layer with preprocessing
+
+---
+
+*Visual detection complete. Performance limitations on real-world documents confirm it should be used as supplementary signal only. Ready for heuristic detector and signal combination.*
+
+---
+
+## Important Technical Decisions Summary
+
+### Preprocessing Module
+1. **PyMuPDF**: AGPL license - needs commercial license for production
+2. **OMP_THREAD_LIMIT=1**: Critical for containerized performance
+3. **paddle_enable_mkldnn=False**: Required for OCR accuracy (91x improvement)
+4. **Document Classification**: Based on structure patterns, not content
+5. **DPI Strategy**: 300 default, 200 for forms/tables, 400 for technical
+6. **Caching**: Multi-tier system critical for performance (10-100x improvement)
+
+### Detection Module
+1. **LLM Detection**: Primary detector with F1=0.889, 100% precision
+2. **Visual Detection**: Supplementary only (F1=0.514 real-world)
+3. **Persistent Caching**: SQLite-based, 33,000x performance for retries
+4. **Experimental Approach**: Test thoroughly before production implementation
+5. **Architecture**: Independent, pluggable detectors with common interface
+
+### Testing & Quality
+1. **Test Coverage**: Target >80%, achieved for core modules
+2. **Shared Infrastructure**: Global fixtures and test utilities
+3. **Performance Testing**: Benchmarks integrated into test suite
+4. **Resource Management**: Automatic cleanup, cache awareness in tests
+
+---
+
+*Current Status: Preprocessing module complete and production-ready. Detection module has LLM and Visual detectors complete. Ready for Heuristic detector and Signal Combiner implementation.*

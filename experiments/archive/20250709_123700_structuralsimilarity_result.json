@@ -1,0 +1,27 @@
+{
+  "technique_name": "StructuralSimilarity",
+  "parameters": {
+    "threshold": 0.7,
+    "name": "StructuralSimilarity",
+    "window_size": 11
+  },
+  "metrics": {
+    "true_positives": 0,
+    "false_positives": 0,
+    "true_negatives": 0,
+    "false_negatives": 0,
+    "total_processing_time": 0.0,
+    "pages_processed": 0
+  },
+  "comparisons": [],
+  "timestamp": "2025-07-09T12:37:00.482189",
+  "pdf_path": "test_files/visual_test_pdf.pdf",
+  "ground_truth_path": "test_files/visual_test_pdf_ground_truth.json",
+  "summary": {
+    "f1_score": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "accuracy": 0.0,
+    "avg_time_per_page": 0.0
+  }
+}

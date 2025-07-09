@@ -6,6 +6,8 @@ The Detection Module is responsible for identifying document boundaries within m
 
 ## Current Status: 🚧 In Development
 
+**2 of 4 detectors complete (LLM + Visual). Ready for Heuristic detector and Signal Combiner implementation.**
+
 ### Completed Components ✅
 
 #### 1. Base Architecture
@@ -31,15 +33,22 @@ The Detection Module is responsible for identifying document boundaries within m
   - Robust error handling and retries
   - Comprehensive test coverage
 
-### In Progress 🔄
+#### 3. Visual Detector (Production-Ready)
+- **Implementation**: `visual_detector/visual_detector.py`
+- **Approach**: Combined perceptual hash voting (pHash, aHash, dHash)
+- **Performance**:
+  - F1 Score: 0.514 (real-world), 0.667 (synthetic)
+  - Precision: 34.6% (real-world), 50% (synthetic)
+  - Recall: 100%
+  - Processing Time: ~31ms per page comparison
+- **Features**:
+  - Configurable voting thresholds
+  - Page image caching
+  - Multiple hash algorithms for robustness
+  - Comprehensive test coverage
+- **Recommendation**: Use as supplementary signal only due to precision limitations
 
-#### Visual Detector (Not Started)
-- Will analyze layout changes via OCR bounding boxes
-- Target: < 0.5 seconds per page
-- Planned features:
-  - Font size/style analysis
-  - Whitespace pattern detection
-  - Header/footer identification
+### In Progress 🔄
 
 #### Heuristic Detector (Not Started)
 - Will use rule-based pattern matching

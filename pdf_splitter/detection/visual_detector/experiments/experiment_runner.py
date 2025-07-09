@@ -135,7 +135,7 @@ class VisualExperimentRunner:
 
         # Initialize PDF handler for rendering pages
         self.pdf_handler = PDFHandler()
-        self.text_extractor = TextExtractor()
+        self.text_extractor = TextExtractor(self.pdf_handler)
 
     def load_ground_truth(self, ground_truth_path: Path) -> List[int]:
         """
@@ -187,17 +187,15 @@ class VisualExperimentRunner:
         """
         images = []
 
-        # Load the PDF
-        self.pdf_handler.load_pdf(pdf_path)
+        # Load the PDF using context manager
+        with self.pdf_handler.load_pdf(pdf_path):
+            # Render each page
+            for page_num in range(self.pdf_handler.page_count):
+                # render_page expects 0-based indexing
+                image = self.pdf_handler.render_page(page_num, dpi=dpi)
 
-        # Render each page
-        for page_num in range(self.pdf_handler.page_count):
-            # Use 1-based indexing for consistency
-            image = self.pdf_handler.render_page(page_num + 1, dpi=dpi)
-
-            # Convert PIL Image to numpy array
-            img_array = np.array(image)
-            images.append(img_array)
+                # Image is already a numpy array from render_page
+                images.append(image)
 
         return images
 

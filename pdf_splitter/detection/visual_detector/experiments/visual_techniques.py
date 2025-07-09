@@ -329,11 +329,16 @@ def create_technique(name: str, **kwargs) -> BaseVisualTechnique:
     Returns:
         Instance of the requested technique
     """
+    # Import here to avoid circular import
+    from .combined_hash import CombinedHash
+
     techniques = {
         "histogram": HistogramComparison,
         "ssim": StructuralSimilarity,
         "phash": PerceptualHash,
         "perceptual_hash": PerceptualHash,
+        "combined": CombinedHash,
+        "combined_hash": CombinedHash,
     }
 
     if name.lower() not in techniques:

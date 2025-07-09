@@ -6,6 +6,7 @@ performance metrics.
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -233,7 +234,7 @@ def generate_summary_report(results: List[Dict[str, Any]], output_path: Path) ->
     report = {
         "summary": {
             "total_experiments": len(results),
-            "timestamp": str(Path.ctime(Path.cwd())),
+            "timestamp": datetime.now().isoformat(),
         },
         "experiments": [],
     }

@@ -51,7 +51,7 @@ def parse_arguments():
     # Technique selection
     parser.add_argument(
         "--technique",
-        choices=["histogram", "ssim", "phash", "all"],
+        choices=["histogram", "ssim", "phash", "combined", "all"],
         default="all",
         help="Visual technique to test (default: all)",
     )
@@ -87,6 +87,11 @@ def parse_arguments():
         "--analyze-failures",
         action="store_true",
         help="Analyze false positives and negatives",
+    )
+    parser.add_argument(
+        "--voting-mode",
+        action="store_true",
+        help="Use voting mode for combined hash technique",
     )
 
     # Output options
@@ -138,6 +143,21 @@ def get_technique_configs(args) -> List[Tuple[str, dict]]:
         else:
             params["threshold"] = 10  # Default for phash (Hamming distance)
         configs.append(("phash", params))
+
+    if args.technique == "all" or args.technique == "combined":
+        params = {"hash_size": args.hash_size}
+        if args.voting_mode:
+            params["voting_mode"] = True
+            if args.threshold is not None:
+                params["threshold"] = args.threshold
+            else:
+                params["threshold"] = 1  # Default for voting mode (1/3 votes)
+        else:
+            if args.threshold is not None:
+                params["threshold"] = args.threshold
+            else:
+                params["threshold"] = 0.6  # Default for combined
+        configs.append(("combined", params))
 
     return configs
 
