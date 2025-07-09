@@ -228,6 +228,72 @@ pre-commit run --all-files
 pip install <package> && pip freeze > requirements.txt
 ```
 
+## Pre-commit Hooks Configuration
+
+The project uses pre-commit hooks to maintain code quality. Configuration has been optimized for developer productivity while maintaining standards.
+
+### Configuration Files
+- **`pyproject.toml`**: Unified configuration for Black, isort, flake8, mypy, and pytest
+- **`.pre-commit-config.yaml`**: Pre-commit hook definitions
+
+### Key Settings
+- **Line Length**: 100 characters (increased from 88 for better readability)
+- **Type Checking**: Mypy is optional (manual stage) to avoid blocking quick commits
+- **Python Version**: 3.12
+- **Fail Fast**: Disabled - all hooks run even if one fails
+
+### Usage During Development
+
+#### Quick Development (Skip Hooks)
+```bash
+# Skip all hooks when needed
+git commit --no-verify -m "WIP: Quick fix"
+
+# Skip only mypy (it's in manual stage by default)
+git commit -m "feat: Add new feature"
+```
+
+#### Run Specific Hooks
+```bash
+# Run all hooks including mypy
+pre-commit run --all-files --hook-stage manual
+
+# Run specific hook
+pre-commit run black --all-files
+pre-commit run flake8 --all-files
+pre-commit run mypy --all-files
+```
+
+#### Fix Common Issues
+```bash
+# Auto-fix formatting issues
+black .
+isort .
+
+# Check specific files
+flake8 path/to/file.py
+mypy path/to/file.py
+
+# Update pre-commit hooks to latest versions
+pre-commit autoupdate
+
+# Reinstall hooks after configuration changes
+pre-commit install
+```
+
+### Hook Details
+1. **General Checks**: trailing whitespace, EOF fixes, YAML/JSON validation
+2. **Black**: Code formatting (automatic fixes)
+3. **isort**: Import sorting (automatic fixes)
+4. **flake8**: Linting with reasonable line length (100 chars)
+5. **mypy**: Type checking (optional/manual stage)
+
+### Tips for CI/CD
+In CI pipelines, run all hooks including manual stages:
+```bash
+pre-commit run --all-files --show-diff-on-failure --hook-stage manual
+```
+
 ### Running All Tests
 Some tests are skipped by default to speed up development:
 - **OCR Tests**: Require `RUN_OCR_TESTS=true` environment variable
