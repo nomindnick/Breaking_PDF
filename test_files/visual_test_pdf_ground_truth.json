@@ -1,0 +1,447 @@
+{
+  "pdf_info": {
+    "filename": "visual_test_pdf.pdf",
+    "total_pages": 34,
+    "total_documents": 20,
+    "creation_date": "2025-07-09T11:37:57.748928"
+  },
+  "documents": [
+    {
+      "pages": "1-2",
+      "type": "Business Letter",
+      "description": "Letter from Acme Corporation",
+      "visual_markers": {
+        "has_letterhead": true,
+        "letterhead_color": "#003366",
+        "consistent_margins": true,
+        "has_signature_block": true
+      }
+    },
+    {
+      "pages": "3-3",
+      "type": "Business Letter",
+      "description": "Letter from Global Tech Solutions",
+      "visual_markers": {
+        "has_letterhead": true,
+        "letterhead_color": "#003366",
+        "consistent_margins": true,
+        "has_signature_block": true
+      }
+    },
+    {
+      "pages": "4-4",
+      "type": "Business Letter",
+      "description": "Letter from Premier Services Inc.",
+      "visual_markers": {
+        "has_letterhead": true,
+        "letterhead_color": "#003366",
+        "consistent_margins": true,
+        "has_signature_block": true
+      }
+    },
+    {
+      "pages": "5-6",
+      "type": "Technical Document",
+      "description": "API Technical Specification #1",
+      "visual_markers": {
+        "has_code_blocks": true,
+        "has_tables": true,
+        "monospace_font": true,
+        "technical_formatting": true
+      }
+    },
+    {
+      "pages": "7-8",
+      "type": "Technical Document",
+      "description": "API Technical Specification #2",
+      "visual_markers": {
+        "has_code_blocks": true,
+        "has_tables": true,
+        "monospace_font": true,
+        "technical_formatting": true
+      }
+    },
+    {
+      "pages": "9-9",
+      "type": "Invoice",
+      "description": "Invoice INV-1000",
+      "visual_markers": {
+        "has_tables": true,
+        "structured_data": true,
+        "numeric_content": true,
+        "grid_layout": true
+      }
+    },
+    {
+      "pages": "10-10",
+      "type": "Invoice",
+      "description": "Invoice INV-1001",
+      "visual_markers": {
+        "has_tables": true,
+        "structured_data": true,
+        "numeric_content": true,
+        "grid_layout": true
+      }
+    },
+    {
+      "pages": "11-11",
+      "type": "Invoice",
+      "description": "Invoice INV-1002",
+      "visual_markers": {
+        "has_tables": true,
+        "structured_data": true,
+        "numeric_content": true,
+        "grid_layout": true
+      }
+    },
+    {
+      "pages": "12-13",
+      "type": "Email Thread",
+      "description": "Email thread: Project Update - Q4 Deliverables",
+      "visual_markers": {
+        "has_quoted_text": true,
+        "indented_replies": true,
+        "timestamp_headers": true,
+        "gray_quoted_sections": true
+      }
+    },
+    {
+      "pages": "14-14",
+      "type": "Email Thread",
+      "description": "Email thread: Meeting Schedule for Next Week",
+      "visual_markers": {
+        "has_quoted_text": true,
+        "indented_replies": true,
+        "timestamp_headers": true,
+        "gray_quoted_sections": true
+      }
+    },
+    {
+      "pages": "15-16",
+      "type": "Email Thread",
+      "description": "Email thread: Budget Approval Request",
+      "visual_markers": {
+        "has_quoted_text": true,
+        "indented_replies": true,
+        "timestamp_headers": true,
+        "gray_quoted_sections": true
+      }
+    },
+    {
+      "pages": "17-17",
+      "type": "Form",
+      "description": "Employment Application",
+      "visual_markers": {
+        "has_form_fields": true,
+        "has_checkboxes": true,
+        "has_lines": true,
+        "structured_layout": true
+      }
+    },
+    {
+      "pages": "18-18",
+      "type": "Form",
+      "description": "Customer Feedback Survey",
+      "visual_markers": {
+        "has_form_fields": true,
+        "has_checkboxes": true,
+        "has_lines": true,
+        "structured_layout": true
+      }
+    },
+    {
+      "pages": "19-22",
+      "type": "Report",
+      "description": "Quarterly Business Review - Q4 2024",
+      "visual_markers": {
+        "has_cover_page": true,
+        "has_toc": true,
+        "has_page_numbers": true,
+        "has_charts": true,
+        "multi_section": true
+      }
+    },
+    {
+      "pages": "23-23",
+      "type": "Mixed Content",
+      "description": "Product Catalog - Spring Collection",
+      "visual_markers": {
+        "has_images": true,
+        "has_shapes": true,
+        "two_column_layout": true,
+        "colorful_design": true
+      }
+    },
+    {
+      "pages": "24-24",
+      "type": "Mixed Content",
+      "description": "Marketing Presentation",
+      "visual_markers": {
+        "has_images": true,
+        "has_shapes": true,
+        "two_column_layout": true,
+        "colorful_design": true
+      }
+    },
+    {
+      "pages": "25-27",
+      "type": "Presentation",
+      "description": "Strategic Planning 2025",
+      "visual_markers": {
+        "slide_layout": true,
+        "large_fonts": true,
+        "centered_content": true,
+        "minimal_text": true,
+        "has_diagrams": true
+      }
+    },
+    {
+      "pages": "28-30",
+      "type": "Presentation",
+      "description": "Product Launch Overview",
+      "visual_markers": {
+        "slide_layout": true,
+        "large_fonts": true,
+        "centered_content": true,
+        "minimal_text": true,
+        "has_diagrams": true
+      }
+    },
+    {
+      "pages": "31-32",
+      "type": "Legal Document",
+      "description": "SERVICE AGREEMENT",
+      "visual_markers": {
+        "justified_text": true,
+        "numbered_sections": true,
+        "formal_language": true,
+        "signature_blocks": true
+      }
+    },
+    {
+      "pages": "33-34",
+      "type": "Legal Document",
+      "description": "NON-DISCLOSURE AGREEMENT",
+      "visual_markers": {
+        "justified_text": true,
+        "numbered_sections": true,
+        "formal_language": true,
+        "signature_blocks": true
+      }
+    }
+  ],
+  "visual_boundaries": [
+    {
+      "after_page": 2,
+      "confidence": 1.0,
+      "signals": [
+        "has_letterhead",
+        "letterhead_color",
+        "consistent_margins",
+        "has_signature_block"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 3,
+      "confidence": 1.0,
+      "signals": [
+        "has_letterhead",
+        "letterhead_color",
+        "consistent_margins",
+        "has_signature_block"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 4,
+      "confidence": 1.0,
+      "signals": [
+        "has_letterhead",
+        "letterhead_color",
+        "consistent_margins",
+        "has_signature_block"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 6,
+      "confidence": 1.0,
+      "signals": [
+        "has_code_blocks",
+        "has_tables",
+        "monospace_font",
+        "technical_formatting"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 8,
+      "confidence": 1.0,
+      "signals": [
+        "has_code_blocks",
+        "has_tables",
+        "monospace_font",
+        "technical_formatting"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 9,
+      "confidence": 1.0,
+      "signals": [
+        "has_tables",
+        "structured_data",
+        "numeric_content",
+        "grid_layout"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 10,
+      "confidence": 1.0,
+      "signals": [
+        "has_tables",
+        "structured_data",
+        "numeric_content",
+        "grid_layout"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 11,
+      "confidence": 1.0,
+      "signals": [
+        "has_tables",
+        "structured_data",
+        "numeric_content",
+        "grid_layout"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 13,
+      "confidence": 1.0,
+      "signals": [
+        "has_quoted_text",
+        "indented_replies",
+        "timestamp_headers",
+        "gray_quoted_sections"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 14,
+      "confidence": 1.0,
+      "signals": [
+        "has_quoted_text",
+        "indented_replies",
+        "timestamp_headers",
+        "gray_quoted_sections"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 16,
+      "confidence": 1.0,
+      "signals": [
+        "has_quoted_text",
+        "indented_replies",
+        "timestamp_headers",
+        "gray_quoted_sections"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 17,
+      "confidence": 1.0,
+      "signals": [
+        "has_form_fields",
+        "has_checkboxes",
+        "has_lines",
+        "structured_layout"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 18,
+      "confidence": 1.0,
+      "signals": [
+        "has_form_fields",
+        "has_checkboxes",
+        "has_lines",
+        "structured_layout"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 22,
+      "confidence": 1.0,
+      "signals": [
+        "has_cover_page",
+        "has_toc",
+        "has_page_numbers",
+        "has_charts",
+        "multi_section"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 23,
+      "confidence": 1.0,
+      "signals": [
+        "has_images",
+        "has_shapes",
+        "two_column_layout",
+        "colorful_design"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 24,
+      "confidence": 1.0,
+      "signals": [
+        "has_images",
+        "has_shapes",
+        "two_column_layout",
+        "colorful_design"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 27,
+      "confidence": 1.0,
+      "signals": [
+        "slide_layout",
+        "large_fonts",
+        "centered_content",
+        "minimal_text",
+        "has_diagrams"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 30,
+      "confidence": 1.0,
+      "signals": [
+        "slide_layout",
+        "large_fonts",
+        "centered_content",
+        "minimal_text",
+        "has_diagrams"
+      ],
+      "boundary_type": "document_end"
+    },
+    {
+      "after_page": 32,
+      "confidence": 1.0,
+      "signals": [
+        "justified_text",
+        "numbered_sections",
+        "formal_language",
+        "signature_blocks"
+      ],
+      "boundary_type": "document_end"
+    }
+  ]
+}

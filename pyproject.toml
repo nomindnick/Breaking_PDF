@@ -36,28 +36,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.flake8]
-max-line-length = 100  # More reasonable for modern screens
-extend-ignore = [
-    "E203",  # Whitespace before ':'
-    "W503",  # Line break before binary operator
-    "E501",  # Line too long (handled by Black)
-]
-exclude = [
-    ".git",
-    "__pycache__",
-    "venv",
-    ".venv",
-    "htmlcov",
-    ".pytest_cache",
-    "build",
-    "dist",
-    "*.egg-info"
-]
-per-file-ignores = [
-    "__init__.py:F401",  # Unused imports in __init__ files are OK
-    "tests/*:D100,D101,D102,D103",  # Missing docstrings in tests
-]
 
 [tool.pytest.ini_options]
 testpaths = ["pdf_splitter"]

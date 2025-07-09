@@ -421,7 +421,7 @@ Following the project's core principle of ensuring each component is thoroughly 
 ---
 
 ## Entry #8: LLM Detection Module Completion
-**Date**: 2025-01-08 | **Status**: ✅ Complete
+**Date**: 2025-07-08 | **Status**: ✅ Complete
 
 ### Summary
 Successfully completed LLM-based document boundary detection after extensive experimentation and optimization.
@@ -496,7 +496,7 @@ Successfully completed LLM-based document boundary detection after extensive exp
 ---
 
 ## Entry #9: Detection Module Organization and Production Readiness
-**Date**: 2025-01-08 | **Status**: ✅ Complete
+**Date**: 2025-07-08 | **Status**: ✅ Complete
 
 ### Summary
 Completed major cleanup and reorganization of the Detection Module, transitioning from experimental phase to production-ready implementation.
@@ -652,3 +652,71 @@ Optimized LLM detector with persistent caching system and simplified architectur
 - Testing requires cache awareness and management
 - Simplified architecture reduces technical debt
 - Performance targets met even without batching
+
+---
+
+*LLM detection optimized with persistent caching. Ready for visual and heuristic detector implementation.*
+
+---
+
+## Entry #14: Visual Boundary Detector - Experimental Framework
+**Date**: 2025-07-09 | **Status**: 🚧 In Progress
+
+### Summary
+Set up comprehensive experimental framework for visual boundary detection, following the same successful approach used for LLM detection.
+
+**Framework Components Implemented:**
+1. **Base Architecture**
+   - `BaseVisualTechnique` abstract class for all techniques
+   - `VisualComparison` data model for results
+   - Modular, pluggable design for easy extension
+
+2. **Initial Techniques**
+   - **Histogram Comparison**: Fast baseline using intensity distributions
+   - **SSIM**: Structural similarity for layout changes
+   - **Perceptual Hashing**: Robust fingerprinting approach
+
+3. **Experimentation Infrastructure**
+   - `VisualExperimentRunner`: Handles PDF rendering and evaluation
+   - `run_visual_experiments.py`: CLI tool for testing
+   - Comprehensive metrics tracking (precision, recall, F1, speed)
+   - Threshold optimization and comparison tools
+
+4. **Documentation**
+   - Detailed experimentation plan with 3-week timeline
+   - Results tracking template
+   - Visual detector status document
+   - Comprehensive README with usage examples
+
+**Key Design Decisions:**
+1. **Pairwise Similarity Paradigm**: Compare adjacent pages (research-backed)
+2. **CPU-Only Focus**: All techniques optimized for CPU performance
+3. **Unsupervised Approach**: No training data required
+4. **Progressive Complexity**: Start simple, add advanced techniques as needed
+
+**Initial Implementation Details:**
+- Histogram: Uses OpenCV's calcHist with correlation metric
+- SSIM: scikit-image implementation with configurable window
+- Perceptual Hash: imagehash library with Hamming distance
+
+**Testing Infrastructure:**
+- Unit tests for all techniques
+- Mock image generation for testing
+- Parameterized tests for different configurations
+
+**Next Steps:**
+1. Create comprehensive test PDF (50-60 pages, diverse documents)
+2. Create ground truth JSON with visual boundaries
+3. Run baseline experiments and optimize thresholds
+4. Implement advanced techniques (ORB, deep learning)
+5. Select best approach and implement production `VisualDetector`
+
+**Technical Notes:**
+- PDF rendering at 150 DPI using PyMuPDF
+- All libraries permissively licensed (OpenCV, Pillow, scikit-image, imagehash)
+- Results saved to `experiments/results/` for analysis
+- Matplotlib integration for threshold analysis plots
+
+---
+
+*Visual detector experimental framework complete. Ready for test data creation and experimentation.*
