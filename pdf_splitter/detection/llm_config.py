@@ -21,11 +21,11 @@ class LLMDetectorConfig:
     """
 
     # Model Configuration
-    model_name: str = "gemma3:latest"
+    model_name: str = "gemma3:latest"  # Using gemma3 for highest accuracy
     ollama_url: str = "http://localhost:11434"
 
     # Performance Settings
-    timeout: int = 45  # seconds
+    timeout: int = 120  # seconds - increased for reliability
     max_retries: int = 2
     batch_size: int = 5  # for batched detector
 

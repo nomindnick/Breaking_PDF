@@ -59,7 +59,7 @@ class VisualDetector(BaseDetector):
             dhash_threshold: Hamming distance threshold for dHash
         """
         super().__init__(config)
-        self.pdf_handler = pdf_handler or PDFHandler(config)
+        self.pdf_handler = pdf_handler  # Can be None if using pre-rendered images
 
         # Hash configuration
         self.hash_size = hash_size
@@ -120,9 +120,12 @@ class VisualDetector(BaseDetector):
             page2 = pages[i + 1]
 
             try:
-                # Calculate visual similarity
+                # Calculate visual similarity using pre-rendered images if available
                 similarity, votes, evidence = self._calculate_similarity(
-                    page1.page_number, page2.page_number
+                    page1.page_number, 
+                    page2.page_number,
+                    page1.rendered_image,
+                    page2.rendered_image
                 )
 
                 # Determine if boundary exists based on voting
@@ -165,7 +168,11 @@ class VisualDetector(BaseDetector):
         return boundaries
 
     def _calculate_similarity(
-        self, page_num1: int, page_num2: int
+        self, 
+        page_num1: int, 
+        page_num2: int,
+        rendered_image1: Optional[bytes] = None,
+        rendered_image2: Optional[bytes] = None
     ) -> Tuple[float, int, Dict[str, Any]]:
         """
         Calculate visual similarity between two pages using combined hashing.
@@ -173,13 +180,15 @@ class VisualDetector(BaseDetector):
         Args:
             page_num1: First page number
             page_num2: Second page number
+            rendered_image1: Optional pre-rendered image bytes for page 1
+            rendered_image2: Optional pre-rendered image bytes for page 2
 
         Returns:
             Tuple of (combined similarity score, number of votes, evidence dict)
         """
-        # Render pages if not cached
-        img1 = self._get_page_image(page_num1)
-        img2 = self._get_page_image(page_num2)
+        # Get page images
+        img1 = self._get_page_image(page_num1, rendered_image1)
+        img2 = self._get_page_image(page_num2, rendered_image2)
 
         # Calculate hashes
         phash1 = imagehash.phash(img1, hash_size=self.hash_size)
@@ -249,22 +258,39 @@ class VisualDetector(BaseDetector):
 
         return confidence
 
-    def _get_page_image(self, page_num: int) -> Image.Image:
+    def _get_page_image(self, page_num: int, rendered_image: Optional[bytes] = None) -> Image.Image:
         """
-        Get rendered image for a page, using cache if available.
+        Get rendered image for a page, using pre-rendered bytes if available.
 
         Args:
             page_num: Page number to render
+            rendered_image: Optional pre-rendered image bytes
 
         Returns:
             PIL Image object
         """
         if page_num not in self._page_cache:
-            # Render page at moderate DPI for efficiency
-            numpy_image = self.pdf_handler.render_page(page_num - 1, dpi=150)
-
-            # Convert numpy array to PIL Image
-            pil_image = Image.fromarray(numpy_image)
+            if rendered_image:
+                # Use pre-rendered image if available
+                import io
+                pil_image = Image.open(io.BytesIO(rendered_image))
+                logger.debug(f"Using pre-rendered image for page {page_num}")
+            elif self.pdf_handler and hasattr(self.pdf_handler, 'render_page'):
+                # Fall back to PDF rendering
+                try:
+                    numpy_image = self.pdf_handler.render_page(page_num - 1, dpi=150)
+                    # Convert numpy array to PIL Image
+                    pil_image = Image.fromarray(numpy_image)
+                    logger.debug(f"Rendered page {page_num} from PDF")
+                except Exception as e:
+                    raise RuntimeError(
+                        f"Failed to render page {page_num}. Ensure PDF is loaded or provide pre-rendered images. Error: {e}"
+                    )
+            else:
+                raise RuntimeError(
+                    f"Cannot get image for page {page_num}. No PDF loaded and no pre-rendered image provided."
+                )
+            
             self._page_cache[page_num] = pil_image
 
             # Limit cache size to prevent memory issues

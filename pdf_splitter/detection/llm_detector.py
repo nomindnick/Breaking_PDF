@@ -206,10 +206,24 @@ Date: 2025-07-15
             logger.error("Ollama is not available. Cannot perform LLM detection.")
             return boundaries
 
+        # Check if we should only process specific target pages
+        target_pages = None
+        if context and context.document_metadata:
+            target_pages = context.document_metadata.get("target_pages", None)
+            if target_pages:
+                logger.info(f"Processing only target pages: {target_pages}")
+
         # Process consecutive page pairs
         for i in range(len(pages) - 1):
             page1 = pages[i]
             page2 = pages[i + 1]
+
+            # Skip if not in target pages (when specified)
+            if target_pages is not None:
+                # Check if either page in the pair is a target
+                if i not in target_pages and (i + 1) not in target_pages:
+                    logger.debug(f"Skipping pages {i+1}-{i+2}: not in target pages")
+                    continue
 
             # Skip if either page is empty
             if page1.is_empty or page2.is_empty:
@@ -284,6 +298,12 @@ Date: 2025-07-15
             context.update_progress(len(pages))
 
         self._last_detection_time = time.time()
+
+        # Log summary of processing
+        if target_pages is not None:
+            logger.info(f"LLM detector processed {len(boundaries)} boundaries from target pages")
+        else:
+            logger.info(f"LLM detector found {len(boundaries)} boundaries from all {len(pages)} pages")
 
         return boundaries
 

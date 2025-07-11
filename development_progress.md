@@ -849,3 +849,70 @@ The heuristic detector perfectly fits the Hybrid Cascaded-Ensemble Architecture:
 ---
 
 *All three detectors (LLM, Visual, Heuristic) now production-ready. Heuristic detector provides instant first-pass filtering at essentially zero computational cost.*
+
+---
+
+## Entry #17: Signal Combiner Implementation & Production Issues
+**Date**: 2025-07-10 | **Status**: 🔧 Needs Fixes
+
+### Summary
+Implemented the Signal Combiner module to integrate all three detectors, but discovered critical issues during production testing that prevent the cascade strategy from working correctly.
+
+**Implementation Completed:**
+1. **SignalCombinerConfig** - Comprehensive configuration dataclass
+2. **SignalCombiner** - Three combination strategies:
+   - **Cascade-Ensemble**: Fast detectors first, expensive only when needed
+   - **Weighted Voting**: Combines all detector outputs
+   - **Consensus**: Requires agreement between detectors
+3. **Production Configurations**:
+   - `get_production_cascade_config()` - High accuracy focus
+   - `get_balanced_config()` - Speed/accuracy trade-off
+   - `get_high_accuracy_config()` - Maximum accuracy
+
+**Critical Issues Discovered:**
+
+1. **Visual Detector Architecture Problem**
+   - Requires PDF document object but only receives ProcessedPage
+   - Results in "No PDF loaded" errors
+   - Prevents visual verification in cascade
+
+2. **LLM Detector Ignores Target Pages**
+   - Cascade identifies specific pages needing verification
+   - LLM processes ALL pages anyway
+   - Defeats purpose of cascade strategy
+
+3. **Confidence Score Inflation**
+   - Results show 0.95-1.0 confidence
+   - Bypasses cascade thresholds entirely
+   - Caused by result merging and implicit boundaries
+
+4. **Missing Cascade Phase Tracking**
+   - Results don't track which phase was used
+   - Makes debugging and optimization difficult
+
+**Test Results:**
+- **Speed**: 3-4 seconds/page (excellent but misleading - no LLM calls)
+- **Accuracy**: F1=0.513 (poor)
+- **LLM Usage**: 0% (should be ~70% based on thresholds)
+
+**Root Causes:**
+1. Insufficient integration testing between components
+2. Mocked unit tests didn't catch real-world issues
+3. No performance tests for cascade behavior
+4. Confidence distribution not tested
+
+**Immediate Action Taken:**
+1. Created comprehensive issue analysis document
+2. Disabled header_footer_change pattern (too many false positives)
+3. Removed implicit boundary addition
+4. Created production workaround using weighted voting
+
+**Estimated Fix Time:** 4 days to production-ready
+- Phase 1: Fix LLM targeting and confidence (1 day)
+- Phase 2: Fix visual detector interface (1 day)
+- Phase 3: Performance optimization (1 day)
+- Phase 4: Comprehensive testing (1 day)
+
+---
+
+*Signal Combiner implemented but requires critical fixes before production use. Cascade strategy currently non-functional due to integration issues.*

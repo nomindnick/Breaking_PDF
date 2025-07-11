@@ -188,17 +188,23 @@ class HeuristicDetector(BaseDetector):
         text = page.text[: self.config.max_text_length] if page.text else ""
         lines = text.split("\n")
 
-        # Extract segments
+        # Extract segments - use more lines for better pattern detection
         header_config = self.config.patterns.get("header_footer_change")
         top_lines = header_config.params.get("top_lines", 3) if header_config else 3
         bottom_lines = (
             header_config.params.get("bottom_lines", 3) if header_config else 3
         )
+        
+        # For email detection, we need more context
+        email_top_lines = 8  # Look at more lines for email headers
+        terminal_bottom_lines = 10  # More lines for terminal phrases
 
         return {
             "full": text,
             "top": "\n".join(lines[:top_lines]) if lines else "",
             "bottom": "\n".join(lines[-bottom_lines:]) if lines else "",
+            "email_top": "\n".join(lines[:email_top_lines]) if lines else "",
+            "terminal_bottom": "\n".join(lines[-terminal_bottom_lines:]) if lines else "",
             "lines": lines,
         }
 
@@ -280,9 +286,22 @@ class HeuristicDetector(BaseDetector):
         if "email_header" not in self._pattern_cache:
             return 0.0
 
+        # Use extended top segment for better email detection
+        text_to_check = text_segments.get("email_top", text_segments["top"])
+        
         for pattern in self._pattern_cache["email_header"]:
-            if pattern.search(text_segments["top"]):
+            if pattern.search(text_to_check):
                 return 0.95  # Very high confidence for email headers
+                
+        # Additional check: count email indicators in first few lines
+        lines = text_to_check.split('\n')[:5]
+        email_indicators = ["From:", "To:", "Subject:", "Date:", "Sent:", "CC:", "BCC:"]
+        email_count = sum(1 for line in lines for indicator in email_indicators 
+                         if line.strip().startswith(indicator))
+        
+        if email_count >= 2:
+            return 0.85  # High confidence if multiple email fields present
+            
         return 0.0
 
     def _detect_terminal_phrases(self, text_segments: Dict[str, str]) -> float:
@@ -292,7 +311,8 @@ class HeuristicDetector(BaseDetector):
             return 0.0
         phrases = config.params.get("phrases", [])
 
-        bottom_text = text_segments["bottom"].lower()
+        # Use extended bottom segment for better detection
+        bottom_text = text_segments.get("terminal_bottom", text_segments["bottom"]).lower()
 
         for phrase in phrases:
             if phrase.lower() in bottom_text:
@@ -381,8 +401,13 @@ class HeuristicDetector(BaseDetector):
         weighted_sum = 0.0
 
         for signal_name, confidence in signals.items():
-            if signal_name in self.config.patterns:
-                pattern_config = self.config.patterns[signal_name]
+            # Handle special cases where signal names differ from pattern names
+            pattern_name = signal_name
+            if signal_name in ["whitespace_end", "whitespace_start"]:
+                pattern_name = "whitespace_ratio"
+            
+            if pattern_name in self.config.patterns:
+                pattern_config = self.config.patterns[pattern_name]
                 if pattern_config.enabled and confidence > 0:
                     weight = pattern_config.weight
                     total_weight += weight
@@ -566,7 +591,15 @@ class HeuristicDetector(BaseDetector):
         Returns:
             List of detected boundaries with confidence scores
         """
-        return self.detect_all_boundaries(pages, context)
+        all_results = self.detect_all_boundaries(pages, context)
+        
+        # Filter to only return actual boundaries, not page continuations
+        boundaries = [
+            result for result in all_results 
+            if result.boundary_type != BoundaryType.PAGE_CONTINUATION
+        ]
+        
+        return boundaries
 
     def get_detector_type(self) -> DetectorType:
         """Return the type of this detector."""

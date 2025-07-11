@@ -1,0 +1,1 @@
+"""Tests for the signal combiner module."""

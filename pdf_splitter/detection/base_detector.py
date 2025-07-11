@@ -31,6 +31,7 @@ class DetectorType(Enum):
     LLM = "llm"
     VISUAL = "visual"
     HEURISTIC = "heuristic"
+    EMBEDDINGS = "embeddings"
     COMBINED = "combined"
 
 
@@ -57,6 +58,9 @@ class ProcessedPage:
     has_footer: bool = False
     has_page_number: bool = False
     dominant_font_size: Optional[float] = None
+    
+    # Rendered image for visual detection (optional)
+    rendered_image: Optional[bytes] = None  # PNG/JPEG bytes of the rendered page
 
     @property
     def is_empty(self) -> bool:
@@ -86,13 +90,20 @@ class BoundaryResult:
     next_page_number: Optional[int] = None
 
     timestamp: datetime = field(default_factory=datetime.now)
+    
+    # Track original confidence before any merging/boosting
+    original_confidence: Optional[float] = None
 
     def __post_init__(self):
-        """Validate confidence is in valid range."""
+        """Validate confidence is in valid range and set original confidence."""
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(
                 f"Confidence must be between 0.0 and 1.0, got {self.confidence}"
             )
+        
+        # Set original confidence if not already set
+        if self.original_confidence is None:
+            self.original_confidence = self.confidence
 
 
 @dataclass
