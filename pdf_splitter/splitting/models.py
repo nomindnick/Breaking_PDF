@@ -195,6 +195,9 @@ class SplitSession:
     updated_at: datetime = field(default_factory=datetime.now)
     expires_at: Optional[datetime] = None
     output_directory: Optional[Path] = None
+    metadata: Dict[str, Any] = field(
+        default_factory=dict
+    )  # For storing extra info like upload_id
 
     def add_modification(self, modification: UserModification):
         """Add a user modification to the session."""

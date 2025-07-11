@@ -80,7 +80,8 @@ class SplitSessionManager:
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
                     expires_at TEXT NOT NULL,
-                    output_directory TEXT
+                    output_directory TEXT,
+                    metadata_json TEXT
                 )
             """
             )
@@ -99,6 +100,12 @@ class SplitSessionManager:
                 ON sessions(expires_at)
             """
             )
+
+            # Check if metadata_json column exists and add it if not (for migration)
+            cursor = conn.execute("PRAGMA table_info(sessions)")
+            columns = [row[1] for row in cursor.fetchall()]
+            if "metadata_json" not in columns:
+                conn.execute("ALTER TABLE sessions ADD COLUMN metadata_json TEXT")
 
             conn.commit()
 
@@ -169,7 +176,7 @@ class SplitSessionManager:
 
     def update_session(
         self,
-        session_id: str,
+        session_or_id,
         modifications: Optional[List[UserModification]] = None,
         status: Optional[str] = None,
         output_directory: Optional[Path] = None,
@@ -177,7 +184,7 @@ class SplitSessionManager:
         """Update an existing session.
 
         Args:
-            session_id: Session identifier
+            session_or_id: Session object or session identifier
             modifications: New modifications to add
             status: New status
             output_directory: Output directory for confirmed sessions
@@ -190,7 +197,10 @@ class SplitSessionManager:
             InvalidSessionStateError: If update is invalid for current state
         """
         # Get existing session
-        session = self.get_session(session_id)
+        if isinstance(session_or_id, SplitSession):
+            session = session_or_id
+        else:
+            session = self.get_session(session_or_id)
 
         # Validate state transitions
         if status:
@@ -212,7 +222,7 @@ class SplitSessionManager:
         # Persist changes
         self._save_session(session)
 
-        logger.info(f"Updated session {session_id}")
+        logger.info(f"Updated session {session.session_id}")
 
         return session
 
@@ -294,8 +304,8 @@ class SplitSessionManager:
                 """
                 INSERT OR REPLACE INTO sessions
                 (session_id, proposal_json, modifications_json, status,
-                 created_at, updated_at, expires_at, output_directory)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                 created_at, updated_at, expires_at, output_directory, metadata_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 (
                     session.session_id,
@@ -306,6 +316,7 @@ class SplitSessionManager:
                     session.updated_at.isoformat(),
                     session.expires_at.isoformat() if session.expires_at else None,
                     str(session.output_directory) if session.output_directory else None,
+                    json.dumps(session.metadata),
                 ),
             )
             conn.commit()
@@ -332,6 +343,7 @@ class SplitSessionManager:
             output_directory=Path(row["output_directory"])
             if row["output_directory"]
             else None,
+            metadata=json.loads(row.get("metadata_json", "{}")),
         )
 
         return session

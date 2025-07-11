@@ -12,6 +12,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from pdf_splitter.api.middleware import (
+    ErrorHandlingMiddleware,
+    RateLimitMiddleware,
+    RequestLoggingMiddleware,
+)
 from pdf_splitter.core.config import settings
 from pdf_splitter.core.logging import get_logger, setup_logging
 
@@ -28,6 +33,11 @@ def create_app() -> FastAPI:
         description="Intelligent PDF document splitter with multi-signal detection",
     )
 
+    # Add custom middleware (order matters - first added is outermost)
+    app.add_middleware(RateLimitMiddleware, requests_per_minute=120)
+    app.add_middleware(ErrorHandlingMiddleware)
+    app.add_middleware(RequestLoggingMiddleware)
+
     # Configure CORS
     app.add_middleware(
         CORSMiddleware,
@@ -43,9 +53,9 @@ def create_app() -> FastAPI:
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
     # Import and include routers
-    # TODO: Import routers once api.routes is implemented
-    # from pdf_splitter.api import routes
-    # app.include_router(routes.router)
+    from pdf_splitter.api.router import api_router
+
+    app.include_router(api_router)
 
     @app.on_event("startup")
     async def startup_event():
@@ -59,13 +69,26 @@ def create_app() -> FastAPI:
         # Create necessary directories
         settings.create_directories()
 
+        # Start progress service
+        from pdf_splitter.api.services.progress_service import get_progress_service
+
+        progress_service = get_progress_service()
+        await progress_service.start()
+
         # TODO: Initialize OCR engines, LLM models, etc.
 
     @app.on_event("shutdown")
     async def shutdown_event():
         """Cleanup on application shutdown."""
         logger.info("Shutting down PDF Splitter application")
-        # TODO: Cleanup resources
+
+        # Stop progress service
+        from pdf_splitter.api.services.progress_service import get_progress_service
+
+        progress_service = get_progress_service()
+        await progress_service.stop()
+
+        # TODO: Cleanup other resources
 
     @app.get("/")
     async def root():
