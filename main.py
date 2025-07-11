@@ -8,9 +8,10 @@ from pathlib import Path
 
 import click
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from pdf_splitter.api.middleware import (
     ErrorHandlingMiddleware,
@@ -52,6 +53,13 @@ def create_app() -> FastAPI:
     if static_dir.exists():
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
+    # Configure templates
+    templates_dir = Path(__file__).parent / "pdf_splitter" / "frontend" / "templates"
+    templates = Jinja2Templates(directory=str(templates_dir))
+
+    # Store templates in app state for use in routes
+    app.state.templates = templates
+
     # Import and include routers
     from pdf_splitter.api.router import api_router
 
@@ -91,13 +99,16 @@ def create_app() -> FastAPI:
         # TODO: Cleanup other resources
 
     @app.get("/")
-    async def root():
-        """Root endpoint."""
-        return {
-            "name": settings.app_name,
-            "version": settings.app_version,
-            "status": "operational",
-        }
+    async def root(request: Request):
+        """Root endpoint - renders the home page."""
+        return templates.TemplateResponse(
+            "index.html",
+            {
+                "request": request,
+                "app_name": settings.app_name,
+                "app_version": settings.app_version,
+            },
+        )
 
     @app.get("/health")
     async def health_check():
