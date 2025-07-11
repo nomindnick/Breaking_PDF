@@ -134,6 +134,15 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
                                     </button>
+                                    <button
+                                        @click.stop="editDocument(doc)"
+                                        class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200"
+                                        title="Edit Document Boundaries"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
 
@@ -176,6 +185,7 @@
                 <div class="space-y-3 mb-6">
                     <button
                         @click="addDocumentBoundary()"
+                        data-action="add-document"
                         class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 flex items-center justify-center space-x-2"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -187,6 +197,7 @@
                     <button
                         @click="mergeSelectedDocuments()"
                         :disabled="selectedDocuments.length < 2"
+                        data-action="merge-selected"
                         class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -198,6 +209,7 @@
                     <button
                         @click="deleteSelectedDocuments()"
                         :disabled="selectedDocuments.length === 0"
+                        data-action="delete-selected"
                         class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
                     >
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -231,6 +243,7 @@
                     <button
                         @click="executeSplit()"
                         :disabled="documents.length === 0"
+                        data-action="execute-split"
                         class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors duration-200 flex items-center justify-center space-x-2"
                     >
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -248,6 +261,9 @@
     </div>
 </div>
 
+<!-- Boundary Editor Modal -->
+{% include 'components/boundary_editor.html' %}
+
 <!-- Notification Area -->
 <div id="notifications" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
 
@@ -259,6 +275,19 @@ function documentReview() {
         sessionId: '{{ session_id }}',
         loading: true,
         error: null,
+
+        // Boundary Editor State
+        showBoundaryEditor: false,
+        editingDoc: null,
+        originalEditingDoc: null,
+        availableStartPages: [],
+        availableEndPages: [],
+        validationErrors: [],
+        canSave: false,
+        savingChanges: false,
+        previewUrl: null,
+        previewLoading: false,
+        totalPages: 0,
 
         async init() {
             await this.loadDocuments();
@@ -282,6 +311,9 @@ function documentReview() {
                     ...segment,
                     showPreview: false
                 }));
+
+                // Set total pages from the proposal
+                this.totalPages = data.total_pages || 0;
 
             } catch (error) {
                 console.error('Error loading documents:', error);
@@ -341,28 +373,286 @@ function documentReview() {
         },
 
         addDocumentBoundary() {
-            // Placeholder for Sprint 5
-            this.showNotification('Add boundary functionality will be implemented in Sprint 5', 'info');
+            this.openBoundaryEditor(this.createNewDocument());
         },
 
-        mergeSelectedDocuments() {
+        createNewDocument() {
+            const lastDoc = this.documents[this.documents.length - 1];
+            const startPage = lastDoc ? lastDoc.end_page + 1 : 0;
+            const endPage = Math.min(startPage, this.totalPages - 1);
+
+            return {
+                id: 'new',
+                start_page: startPage,
+                end_page: endPage,
+                document_type: 'other',
+                title: '',
+                suggested_filename: '',
+                summary: '',
+                confidence: 1.0,
+                is_user_defined: true
+            };
+        },
+
+        async mergeSelectedDocuments() {
             if (this.selectedDocuments.length < 2) {
                 this.showNotification('Please select at least 2 documents to merge', 'warning');
                 return;
             }
 
-            // Placeholder for Sprint 5
-            this.showNotification('Merge functionality will be implemented in Sprint 5', 'info');
+            if (!confirm(`Merge ${this.selectedDocuments.length} documents into one?`)) {
+                return;
+            }
+
+            try {
+                // Sort by start page
+                const sortedDocs = [...this.selectedDocuments].sort((a, b) => a.start_page - b.start_page);
+                const primaryDoc = sortedDocs[0];
+                const mergedDoc = {
+                    ...primaryDoc,
+                    end_page: sortedDocs[sortedDocs.length - 1].end_page,
+                    title: primaryDoc.title || `Merged Document (${sortedDocs.length} parts)`,
+                    summary: `Merged from pages ${primaryDoc.start_page + 1}-${sortedDocs[sortedDocs.length - 1].end_page + 1}`
+                };
+
+                // Update the primary document
+                await this.updateDocument(primaryDoc.id, mergedDoc);
+
+                // Delete other documents
+                for (let i = 1; i < sortedDocs.length; i++) {
+                    await this.deleteDocument(sortedDocs[i].id, false);
+                }
+
+                // Refresh the document list
+                await this.loadDocuments();
+                this.selectedDocuments = [];
+                this.showNotification(`Successfully merged ${sortedDocs.length} documents`, 'success');
+
+            } catch (error) {
+                console.error('Merge failed:', error);
+                this.showNotification(`Merge failed: ${error.message}`, 'error');
+            }
         },
 
-        deleteSelectedDocuments() {
+        async deleteSelectedDocuments() {
             if (this.selectedDocuments.length === 0) {
                 this.showNotification('Please select documents to delete', 'warning');
                 return;
             }
 
-            // Placeholder for Sprint 5
-            this.showNotification('Delete functionality will be implemented in Sprint 5', 'info');
+            const count = this.selectedDocuments.length;
+            if (!confirm(`Delete ${count} selected document${count > 1 ? 's' : ''}?`)) {
+                return;
+            }
+
+            try {
+                for (const doc of this.selectedDocuments) {
+                    await this.deleteDocument(doc.id, false);
+                }
+
+                await this.loadDocuments();
+                this.selectedDocuments = [];
+                this.showNotification(`Successfully deleted ${count} document${count > 1 ? 's' : ''}`, 'success');
+
+            } catch (error) {
+                console.error('Delete failed:', error);
+                this.showNotification(`Delete failed: ${error.message}`, 'error');
+            }
+        },
+
+        async deleteDocument(docId, showConfirmation = true) {
+            if (showConfirmation && !confirm('Delete this document?')) {
+                return;
+            }
+
+            const response = await fetch(`/api/splits/${this.sessionId}/segments/${docId}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Delete failed');
+            }
+        },
+
+        editDocument(doc) {
+            this.openBoundaryEditor({ ...doc });
+        },
+
+        openBoundaryEditor(doc) {
+            this.editingDoc = doc;
+            this.originalEditingDoc = { ...doc };
+            this.generateAvailablePages();
+            this.validatePageRange();
+            this.updatePreview();
+            this.showBoundaryEditor = true;
+        },
+
+        closeBoundaryEditor() {
+            this.showBoundaryEditor = false;
+            this.editingDoc = null;
+            this.originalEditingDoc = null;
+            this.validationErrors = [];
+            this.previewUrl = null;
+        },
+
+        generateAvailablePages() {
+            if (!this.totalPages) {
+                this.totalPages = Math.max(...this.documents.map(d => d.end_page)) + 1;
+            }
+
+            this.availableStartPages = Array.from({ length: this.totalPages }, (_, i) => i);
+            this.availableEndPages = Array.from({ length: this.totalPages }, (_, i) => i);
+        },
+
+        validatePageRange() {
+            this.validationErrors = [];
+            this.canSave = false;
+
+            if (this.editingDoc.start_page === undefined || this.editingDoc.end_page === undefined) {
+                this.validationErrors.push('Please select both start and end pages');
+                return;
+            }
+
+            if (this.editingDoc.start_page > this.editingDoc.end_page) {
+                this.validationErrors.push('Start page must be less than or equal to end page');
+                return;
+            }
+
+            // Check for overlaps with other documents
+            const conflicts = this.documents.filter(doc => {
+                if (doc.id === this.editingDoc.id) return false;
+                return this.pagesOverlap(
+                    this.editingDoc.start_page, this.editingDoc.end_page,
+                    doc.start_page, doc.end_page
+                );
+            });
+
+            if (conflicts.length > 0) {
+                this.validationErrors.push(`Page range conflicts with ${conflicts.length} existing document${conflicts.length > 1 ? 's' : ''}`);
+                return;
+            }
+
+            this.canSave = true;
+        },
+
+        pagesOverlap(start1, end1, start2, end2) {
+            return !(end1 < start2 || start1 > end2);
+        },
+
+        updatePreview() {
+            if (!this.editingDoc || this.editingDoc.start_page === undefined) {
+                this.previewUrl = null;
+                return;
+            }
+
+            this.previewLoading = true;
+            // Generate preview URL for the first page of the range
+            this.previewUrl = `/api/splits/${this.sessionId}/preview/temp?start=${this.editingDoc.start_page}&end=${this.editingDoc.start_page}`;
+        },
+
+        handlePreviewError() {
+            this.previewLoading = false;
+            this.previewUrl = null;
+        },
+
+        updateSuggestedFilename() {
+            if (!this.editingDoc) return;
+
+            const type = this.editingDoc.document_type || 'document';
+            const title = this.editingDoc.title;
+            const pages = `${this.editingDoc.start_page + 1}-${this.editingDoc.end_page + 1}`;
+
+            if (title) {
+                this.editingDoc.suggested_filename = `${type}_${this.sanitizeFilename(title)}_pages_${pages}.pdf`;
+            } else {
+                this.editingDoc.suggested_filename = `${type}_pages_${pages}.pdf`;
+            }
+        },
+
+        sanitizeFilename(filename) {
+            return filename.replace(/[^a-zA-Z0-9-_. ]/g, '').replace(/\s+/g, '_').toLowerCase();
+        },
+
+        generateFilename() {
+            this.updateSuggestedFilename();
+        },
+
+        async saveBoundaryChanges() {
+            if (!this.canSave || this.savingChanges) return;
+
+            this.savingChanges = true;
+
+            try {
+                if (this.editingDoc.id === 'new') {
+                    await this.createDocument();
+                } else {
+                    await this.updateDocument(this.editingDoc.id, this.editingDoc);
+                }
+
+                await this.loadDocuments();
+                this.closeBoundaryEditor();
+                this.showNotification('Document saved successfully', 'success');
+
+            } catch (error) {
+                console.error('Save failed:', error);
+                this.showNotification(`Save failed: ${error.message}`, 'error');
+            } finally {
+                this.savingChanges = false;
+            }
+        },
+
+        async createDocument() {
+            const response = await fetch(`/api/splits/${this.sessionId}/segments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    start_page: this.editingDoc.start_page,
+                    end_page: this.editingDoc.end_page,
+                    document_type: this.editingDoc.document_type,
+                    suggested_filename: this.editingDoc.suggested_filename,
+                    summary: this.editingDoc.summary
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Create failed');
+            }
+        },
+
+        async updateDocument(docId, doc) {
+            const response = await fetch(`/api/splits/${this.sessionId}/segments/${docId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    start_page: doc.start_page,
+                    end_page: doc.end_page,
+                    document_type: doc.document_type,
+                    suggested_filename: doc.suggested_filename,
+                    summary: doc.summary
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Update failed');
+            }
+        },
+
+        getPageInfo(page) {
+            // This could be enhanced to show actual page content hints
+            return `Page ${page + 1}`;
+        },
+
+        hasPageThumbnail(page) {
+            // This could be enhanced to check if thumbnails are available
+            return false;
+        },
+
+        formatTimestamp(timestamp) {
+            if (!timestamp) return 'Never';
+            return new Date(timestamp).toLocaleString();
         },
 
         async executeSplit() {
