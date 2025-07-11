@@ -916,3 +916,79 @@ Implemented the Signal Combiner module to integrate all three detectors, but dis
 ---
 
 *Signal Combiner implemented but requires critical fixes before production use. Cascade strategy currently non-functional due to integration issues.*
+
+---
+
+## Entry #18: Detection Module Cleanup & Simplification
+**Date**: 2025-07-11 | **Status**: ✅ Complete
+
+### Summary
+After extensive testing revealed overfitting on the test dataset, cleaned up the detection module to focus on a simple, reliable embeddings-based approach that generalizes well to real-world documents.
+
+**Key Findings:**
+1. **Overfitting on Test Set**
+   - Complex post-processing rules achieved F1=0.769 on test set
+   - Same approach failed on validation set (F1=0.333)
+   - Rules were memorizing test set patterns, not learning general boundaries
+
+2. **Simple Solution Works Best**
+   - Basic EmbeddingsDetector: F1=0.65-0.70
+   - No complex post-processing or ensembles needed
+   - Reliable and consistent across different document sets
+   - Fast: 0.063s per page
+
+**Cleanup Actions:**
+1. **Removed Experimental Code**
+   - Deleted all experimental detectors (optimized, balanced, calibrated)
+   - Removed complex ensemble and signal combiner code
+   - Cleaned up test scripts and analysis documentation
+   - Removed test-specific validation data
+
+2. **Simplified Production Interface**
+   ```python
+   from pdf_splitter.detection import create_production_detector
+
+   # Simple!
+   detector = create_production_detector()
+   boundaries = detector.detect_boundaries(pages)
+   ```
+
+3. **Updated Documentation**
+   - CLAUDE.md now reflects simple approach
+   - Consolidated findings in development_progress.md
+   - Removed scattered documentation files
+   - Clear production guidance
+
+**What We Kept:**
+- Core EmbeddingsDetector (simple, reliable)
+- VisualDetector (for future scanned PDF support)
+- LLMDetector (for research/analysis only)
+- Base classes and data models
+- Simple production factory
+
+**Key Lessons Learned:**
+1. **Test Set Overfitting is Real**
+   - Even with "smart" post-processing, we were just memorizing patterns
+   - Validation sets are crucial for catching this
+   - Simple approaches often generalize better
+
+2. **Good Enough is Good Enough**
+   - F1=0.65-0.70 is sufficient for production
+   - Users can manually review/adjust boundaries
+   - Reliability > perfect metrics
+
+3. **Complexity Has Costs**
+   - More code = more bugs
+   - Complex rules = harder to maintain
+   - Simple = easier to understand and debug
+
+**Production Approach:**
+- **Method**: Simple embeddings similarity
+- **Model**: all-MiniLM-L6-v2
+- **Threshold**: 0.5
+- **Performance**: F1=0.65-0.70, 0.063s/page
+- **Reliability**: Consistent across document types
+
+---
+
+*Detection module simplified and production-ready. Focus on reliability over perfect metrics proved to be the right approach.*

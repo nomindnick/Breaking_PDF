@@ -16,24 +16,24 @@ from pdf_splitter.detection import EmbeddingsDetector
 
 class BoundaryDetector:
     """Production boundary detector using embeddings."""
-    
+
     def __init__(self):
         self.detector = EmbeddingsDetector(
             model_name='all-MiniLM-L6-v2',
             similarity_threshold=0.5
         )
-    
+
     def detect_boundaries(self, pages):
         """Detect document boundaries in pages."""
         # Get all results
         results = self.detector.detect_boundaries(pages)
-        
+
         # Filter to only boundaries (not continuations)
         boundaries = [
-            r for r in results 
+            r for r in results
             if r.boundary_type == BoundaryType.DOCUMENT_START
         ]
-        
+
         return boundaries
 ```
 
@@ -121,7 +121,7 @@ from pdf_splitter.detection.llm_detector import LLMDetector
 
 __all__ = [
     "BaseDetector",
-    "BoundaryResult", 
+    "BoundaryResult",
     "BoundaryType",
     "DetectionContext",
     "DetectorType",
@@ -183,14 +183,14 @@ pdf_splitter/detection/tests/
 def test_production_detector():
     """Test production boundary detection."""
     detector = create_production_detector()
-    
+
     # Test on standard PDF
     pages = load_test_pdf("Test_PDF_Set_2_ocr.pdf")
     boundaries = detector.detect_boundaries(pages)
-    
+
     # Should find reasonable number of boundaries
     assert 10 <= len(boundaries) <= 25
-    
+
     # Should be fast
     assert processing_time < 5.0  # seconds for whole PDF
 ```
@@ -221,7 +221,7 @@ git rm production_ready_detection.md
    ```python
    # Old way (don't use)
    from pdf_splitter.detection import OptimizedEmbeddingsDetector
-   
+
    # New way
    from pdf_splitter.detection import EmbeddingsDetector
    ```
@@ -234,7 +234,7 @@ git rm production_ready_detection.md
        ensemble_weights={...},
        cascade_config={...}
    )
-   
+
    # New way (simple)
    detector = EmbeddingsDetector()
    ```

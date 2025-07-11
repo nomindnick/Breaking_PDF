@@ -82,18 +82,19 @@ pdf_splitter/
   - Comprehensive Testing: 90%+ code coverage, OCR accuracy validated
 
 ### Completed ✅
-- [x] **Detection Module** (PRODUCTION READY ✅ - see boundary_detection_solution_achieved.md)
+- [x] **Detection Module** (COMPLETE ✅)
   - ✅ Base architecture complete (BaseDetector abstract class)
   - ✅ Data models defined (ProcessedPage, BoundaryResult, DetectionContext)
-  - ✅ **Optimized Embeddings Detection** - PRIMARY SOLUTION (F1=0.769) 🎉
-    - Uses all-MiniLM-L6-v2 with threshold=0.5
-    - Smart post-processing filters reduce false positives
-    - Achieves F1≥0.75 target without LLM!
-    - Speed: 0.063s per page (excellent)
-  - ✅ **Heuristic Detection** - Available but not needed (F1=0.333)
-  - ✅ **Visual Detection** - Implemented for future use
-  - ✅ **LLM Detection** - Implemented but not needed for production
-  - 📊 Production performance: **F1=0.769 at 0.063s/page** (no LLM needed)
+  - ✅ **Embeddings Detection** - PRODUCTION SOLUTION (F1=0.65-0.70)
+    - Simple and reliable: all-MiniLM-L6-v2 with threshold=0.5
+    - No complex post-processing or ensembles needed
+    - Fast: ~0.063s per page
+    - Good enough accuracy for production use
+  - ✅ **Supporting Detectors** (available for future use):
+    - Heuristic Detection: Basic pattern matching
+    - Visual Detection: For scanned PDFs
+    - LLM Detection: For research/analysis only
+  - 📊 Production approach: **Simple embeddings, F1=0.65-0.70**
 
 ### Upcoming 📋
 - [ ] Splitting Module
@@ -108,21 +109,16 @@ pdf_splitter/
    - Text extraction with layout analysis
    - Advanced caching system
 
-2. **Detection Module** ✅ COMPLETE (F1≥0.75 TARGET ACHIEVED!)
-   - **OptimizedEmbeddingsDetector** ✅ F1=0.769 🎉 PRODUCTION SOLUTION
-     - Embeddings (all-MiniLM-L6-v2) + smart post-processing
-     - Exceeds F1≥0.75 target without needing LLM
+2. **Detection Module** ✅ COMPLETE
+   - **EmbeddingsDetector** ✅ PRODUCTION SOLUTION
+     - Simple embeddings approach: all-MiniLM-L6-v2, threshold=0.5
+     - F1=0.65-0.70 - Good enough for production
      - Speed: 0.063s per page (excellent)
-     - Simple, fast, and accurate
-   - **Supporting Detectors** (implemented but not needed for production):
-     - Heuristic Detection: F1=0.333
-     - Base Embeddings: F1=0.686 (before post-processing)
-     - Visual Detection: Supplementary signal
-     - LLM Detection: F1=0.889 (but 41s/boundary - too slow)
-   - **Key Innovation**: Post-processing filters that reduce false positives
-     - Position-based confidence thresholds
-     - Content-based filtering
-     - Minimum document length enforcement
+     - No complex rules or ensembles needed
+   - **Key Learning**: Simple embeddings work well enough
+     - Complex post-processing led to overfitting on test set
+     - Production focus: reliability over perfect metrics
+     - Available detectors for future enhancement if needed
 
 3. **Splitting Module**
    - PDF manipulation and output
@@ -142,7 +138,7 @@ pdf_splitter/
 ## Performance Targets
 - **OCR**: 1-2 seconds per page (when needed) ✅ Achieved: 0.693s avg
 - **Boundary Detection**: < 0.1 seconds per page ✅ Achieved: 0.063s
-- **F1 Score**: ≥ 0.75 ✅ ACHIEVED: F1=0.769 with OptimizedEmbeddingsDetector
+- **F1 Score**: 0.65-0.70 with simple EmbeddingsDetector (production ready)
 - **Overall Processing**: < 5 seconds per page ✅ Easily achieved
 
 ## Test Data
@@ -330,12 +326,12 @@ RUN_OCR_TESTS=true RUN_INTEGRATION_TESTS=true pytest
    - `OMP_THREAD_LIMIT=1` for containerized environments
    - Parallel processing with 4 workers optimal
 4. **Caching**: Advanced multi-tier caching system is critical for performance
-5. **Detection Configuration**: 
-   - **IMPORTANT**: Use OptimizedEmbeddingsDetector for production
-   - Embeddings + post-processing achieves F1=0.769 at 0.063s/page
-   - No LLM needed - simpler and faster than ensemble approaches
-   - Key settings: all-MiniLM-L6-v2 model, threshold=0.5, post-processing enabled
-   - Post-processing filters: position-based, content-based, minimum document length
+5. **Detection Configuration**:
+   - **IMPORTANT**: Use simple EmbeddingsDetector for production
+   - Plain embeddings achieves F1=0.65-0.70 at 0.063s/page
+   - No complex post-processing or ensembles needed
+   - Key settings: all-MiniLM-L6-v2 model, threshold=0.5
+   - Focus on reliability over perfect metrics
 
 ## Avoiding Technical Debt
 

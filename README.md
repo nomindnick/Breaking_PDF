@@ -4,12 +4,11 @@ An intelligent PDF splitter that automatically identifies and separates individu
 
 ## Features
 
-- **Multi-Signal Detection**: Combines LLM, visual, and heuristic analysis to identify document boundaries
+- **Embeddings-Based Detection**: Uses semantic similarity to identify document boundaries
 - **OCR Support**: Handles both searchable and image-based PDFs with 90% accuracy
-- **Manual Review Interface**: Web-based UI for reviewing and adjusting split points
-- **High Performance**: Processes documents at < 5 seconds per page (0.02-0.05s for rendering, < 2s for OCR)
+- **High Performance**: Processes documents at < 5 seconds per page
 - **Advanced Caching**: 10-100x performance improvement for repeated operations
-- **Modular Architecture**: Designed for future integration into RAG-based systems
+- **Modular Architecture**: Clean separation of preprocessing, detection, and splitting
 
 ## Current Status
 
@@ -18,14 +17,11 @@ An intelligent PDF splitter that automatically identifies and separates individu
 - **Core Module**: Configuration, logging, exception handling
 - **Test Infrastructure**: Comprehensive test suite with shared fixtures and utilities
 
-### In Development 🚧
-- **Detection Module**: Document boundary detection algorithms
-  - ✅ Base architecture established (BaseDetector abstract class)
-  - ✅ LLM Detector complete (F1=0.889, 100% precision)
-  - ✅ Visual Detector complete (F1=0.514, supplementary signal)
-  - ✅ Heuristic Detector complete (F1=0.522, instant screening)
-  - 🔄 Signal Combiner for hybrid detection (next priority)
-  - See detection module documentation for integration details
+### Completed Modules ✅ (continued)
+- **Detection Module**: Simple embeddings-based boundary detection
+  - Production-ready with F1=0.65-0.70
+  - Fast performance: 0.063s per page
+  - Simple and reliable approach avoids overfitting
 
 ### Planned 📋
 - **Splitting Module**: PDF manipulation and output

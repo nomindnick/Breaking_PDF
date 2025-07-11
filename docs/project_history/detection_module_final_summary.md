@@ -64,7 +64,7 @@ with pdf_handler.load_pdf("document.pdf") as pdf:
     # Extract text from pages
     text_extractor = TextExtractor(pdf_handler)
     pages = []
-    
+
     for i in range(pdf.page_count):
         extracted = text_extractor.extract_page(i)
         page = ProcessedPage(
@@ -74,11 +74,11 @@ with pdf_handler.load_pdf("document.pdf") as pdf:
             page_type="searchable" if extracted.text.strip() else "empty"
         )
         pages.append(page)
-    
+
     # Detect boundaries
     detector = create_production_detector()
     boundaries = detector.detect_boundaries(pages)
-    
+
     # boundaries contains BoundaryResult objects with:
     # - page_number: where boundary occurs
     # - confidence: how confident the detector is
@@ -106,7 +106,7 @@ pdf_splitter/detection/
 
 The detection module is **complete and production-ready**. It may not achieve perfect accuracy, but it provides:
 - Consistent, reliable performance
-- Fast processing suitable for real-time use  
+- Fast processing suitable for real-time use
 - Simple, maintainable code
 - No overfitting or complexity issues
 
