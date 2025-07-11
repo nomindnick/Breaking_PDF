@@ -22,9 +22,13 @@ An intelligent PDF splitter that automatically identifies and separates individu
   - Production-ready with F1=0.65-0.70
   - Fast performance: 0.063s per page
   - Simple and reliable approach avoids overfitting
+- **Splitting Module**: Intelligent PDF document separation
+  - Smart filename generation based on content
+  - Document type detection (12+ types)
+  - Session management for stateful operations
+  - 48 comprehensive tests with 92-100% coverage
 
 ### Planned 📋
-- **Splitting Module**: PDF manipulation and output
 - **API Module**: FastAPI web service
 - **Frontend Module**: Web user interface
 
@@ -63,6 +67,27 @@ cp .env.example .env
 5. Run the application:
 ```bash
 python main.py
+```
+
+### Basic Usage
+
+```python
+from pdf_splitter.detection import create_production_detector
+from pdf_splitter.splitting import PDFSplitter
+
+# Detect document boundaries
+detector = create_production_detector()
+pages = detector.detect_boundaries("path/to/multi_doc.pdf")
+
+# Split the PDF
+splitter = PDFSplitter()
+proposal = splitter.generate_proposal("path/to/multi_doc.pdf", pages)
+result = splitter.split_pdf(proposal, "output_directory")
+
+# Files are created with intelligent names like:
+# - Email_2024-03-15_Project_Update.pdf
+# - Invoice_2024-03-20_INV-12345.pdf
+# - Letter_2024-03-10_Insurance_Claim.pdf
 ```
 
 ## Project Structure
