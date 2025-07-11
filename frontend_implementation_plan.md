@@ -276,19 +276,19 @@ function fileUpload() {
 
 ---
 
-## Sprint 3: WebSocket Progress Tracking (2 hours)
+## Sprint 3: WebSocket Progress Tracking (2 hours) ✅ COMPLETED
 
 ### Goals
-- Establish WebSocket connection for real-time updates
-- Create progress component
-- Handle connection errors and reconnection
-- Display detection progress
+- ✅ Establish WebSocket connection for real-time updates
+- ✅ Create progress component
+- ✅ Handle connection errors and reconnection
+- ✅ Display detection progress
 
 ### Tasks
-1. Create WebSocket manager class
-2. Build progress indicator component
-3. Handle progress events
-4. Implement auto-reconnection
+1. ✅ Create WebSocket manager class
+2. ✅ Build progress indicator component
+3. ✅ Handle progress events
+4. ✅ Implement auto-reconnection
 
 ### Deliverables
 ```javascript
@@ -455,21 +455,52 @@ function progressTracker() {
 </script>
 ```
 
+### Completion Notes
+- **Completed**: July 11, 2025
+- **Implementation Details**:
+  - Created `websocket.js` with robust WebSocket manager class featuring:
+    - Auto-connection with exponential backoff reconnection (max 30s delay)
+    - Comprehensive message type handling (progress, stage_complete, error, etc.)
+    - Event emitter pattern for component integration
+    - Ping/pong keepalive mechanism
+    - Connection state management and message queuing
+  - Created `progress.html` with real-time progress tracking:
+    - Visual stage indicators with completion states
+    - Overall progress bar with smooth animations
+    - Connection status indicators and error handling
+    - Alpine.js component for state management
+    - Auto-redirect to review page when complete
+  - Added `/progress/{session_id}` route to pages.py
+  - Updated upload.js to redirect to progress page instead of review
+  - Created reusable progress_bar.html component
+- **Key Features**:
+  - Real-time WebSocket updates with automatic reconnection
+  - Visual progress tracking across 4 stages (upload, validation, detection, preview generation)
+  - Connection state management with user feedback
+  - Error handling with recovery options
+  - Page-level progress for detection stage
+  - Smooth animations and professional UI
+- **Integration Points**:
+  - Connects to existing WebSocket endpoints `/ws/{session_id}`
+  - Handles all message types from ProgressService
+  - Seamlessly integrates with upload flow
+  - Provides smooth transition to review page
+
 ---
 
-## Sprint 4: Document Review Interface - Part 1 (2 hours)
+## Sprint 4: Document Review Interface - Part 1 (2 hours) ✅ COMPLETED
 
 ### Goals
-- Display detected document boundaries
-- Show document previews
-- Create basic layout for review interface
-- Display document metadata
+- ✅ Display detected document boundaries
+- ✅ Show document previews
+- ✅ Create basic layout for review interface
+- ✅ Display document metadata
 
 ### Tasks
-1. Create review page layout
-2. Build document card component
-3. Implement preview display
-4. Add document type badges
+1. ✅ Create review page layout
+2. ✅ Build document card component
+3. ✅ Implement preview display
+4. ✅ Add document type badges
 
 ### Deliverables
 ```html
@@ -622,6 +653,47 @@ function documentReview() {
 </script>
 {% endblock %}
 ```
+
+### Completion Notes
+- **Completed**: July 11, 2025
+- **Implementation Details**:
+  - Created comprehensive `review.html` template with responsive layout
+  - Built reusable `document_card.html` component for document display
+  - Implemented full API integration with `/api/splits/{session_id}/proposal` endpoint
+  - Added document selection with multi-select checkbox functionality
+  - Created action panel with all required buttons (Add, Merge, Delete, Split PDF)
+  - Implemented document type badges with color coding for 8+ document types
+  - Added preview toggle functionality with error handling
+  - Created loading states and error handling for better UX
+
+- **Key Features Implemented**:
+  - **Document List**: Responsive grid layout with document cards
+  - **Document Cards**: Show metadata (pages, type, confidence), preview text, thumbnails
+  - **Selection System**: Multi-select with visual feedback and selection count
+  - **Action Panel**: Sticky sidebar with document operations and summary
+  - **Preview System**: Toggle-able document previews with error fallbacks
+  - **Type System**: Color-coded badges for letter, email, report, invoice, memo, contract, form, other
+  - **Error Handling**: Comprehensive error states and user feedback
+  - **Loading States**: Skeleton screens and loading indicators
+  - **Responsive Design**: Works on mobile, tablet, and desktop
+
+- **API Integration**:
+  - Uses `/api/splits/{session_id}/proposal` to load document segments
+  - Preview images from `/api/splits/{session_id}/preview/{segment_id}`
+  - Split execution via `/api/splits/{session_id}/execute`
+  - Full error handling for API failures
+
+- **Technical Implementation**:
+  - Alpine.js for reactive state management
+  - TailwindCSS for styling and responsive design
+  - Fetch API for backend communication
+  - SVG icons for consistent UI
+  - Transition animations for smooth UX
+
+- **Placeholders for Sprint 5**:
+  - Add/Edit/Merge/Delete operations show notifications
+  - Boundary editing functionality will be implemented in Sprint 5
+  - All UI elements are in place for advanced operations
 
 ---
 

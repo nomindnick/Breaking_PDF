@@ -109,10 +109,11 @@ function fileUpload() {
                                 window.notify.show('PDF uploaded successfully!', 'success');
                             }
 
-                            // Redirect to detection/review page after a short delay
+                            // Redirect to progress page after a short delay
                             setTimeout(() => {
                                 if (response.session_id) {
-                                    window.location.href = `/review/${response.session_id}`;
+                                    // Redirect to progress page to track detection
+                                    window.location.href = `/progress/${response.session_id}`;
                                 } else {
                                     // If no session_id, create a new session
                                     this.createSessionAndRedirect();
@@ -168,7 +169,8 @@ function fileUpload() {
 
                 if (response.ok) {
                     const data = await response.json();
-                    window.location.href = `/review/${data.session_id}`;
+                    // Redirect to progress page to track detection
+                    window.location.href = `/progress/${data.session_id}`;
                 } else {
                     throw new Error('Failed to create session');
                 }

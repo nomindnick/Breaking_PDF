@@ -1,0 +1,106 @@
+<!-- Document Card Component -->
+<!-- This component can be included in other templates for displaying document segments -->
+
+<div
+    class="border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md"
+    :class="{
+        'border-blue-500 bg-blue-50': isSelected(doc),
+        'border-gray-200': !isSelected(doc)
+    }"
+    @click="toggleDocumentSelection(doc)"
+>
+    <!-- Document Header -->
+    <div class="flex items-start justify-between">
+        <div class="flex-1">
+            <div class="flex items-center space-x-3">
+                <!-- Selection Checkbox -->
+                <input
+                    type="checkbox"
+                    :checked="isSelected(doc)"
+                    @click.stop
+                    @change="toggleDocumentSelection(doc)"
+                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                >
+
+                <!-- Document Title -->
+                <h4 class="font-semibold text-lg text-gray-900">
+                    Document <span x-text="index + 1"></span>
+                </h4>
+
+                <!-- Document Type Badge -->
+                <span
+                    class="px-2 py-1 text-xs font-medium rounded-full"
+                    :class="getDocumentTypeColor(doc.document_type)"
+                    x-text="formatDocumentType(doc.document_type)"
+                ></span>
+            </div>
+
+            <!-- Document Metadata -->
+            <div class="mt-2 space-y-1 text-sm text-gray-600">
+                <div class="flex items-center space-x-4">
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Pages <span x-text="doc.start_page + 1"></span>-<span x-text="doc.end_page + 1"></span>
+                    </span>
+                    <span class="flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span x-text="doc.end_page - doc.start_page + 1"></span> pages
+                    </span>
+                    <span class="flex items-center" x-show="doc.confidence !== undefined">
+                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span x-text="Math.round(doc.confidence * 100)"></span>% confidence
+                    </span>
+                </div>
+
+                <!-- Document Title (if available) -->
+                <p x-show="doc.title" class="font-medium text-gray-700" x-text="doc.title"></p>
+
+                <!-- Preview Text -->
+                <p x-show="doc.preview_text" class="text-gray-600 line-clamp-2" x-text="doc.preview_text"></p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-2 ml-4">
+            <button
+                @click.stop="togglePreview(doc)"
+                class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors duration-200"
+                :title="doc.showPreview ? 'Hide Preview' : 'Show Preview'"
+            >
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+            </button>
+            <button
+                @click.stop="editDocument(doc)"
+                class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors duration-200"
+                title="Edit Document"
+            >
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Preview Section -->
+    <div x-show="doc.showPreview" x-transition class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex justify-center">
+            <div class="max-w-sm">
+                <img
+                    :src="getPreviewUrl(doc)"
+                    :alt="'Preview of Document ' + (index + 1)"
+                    class="w-full rounded-lg border shadow-sm"
+                    @error="handlePreviewError($event, doc)"
+                >
+            </div>
+        </div>
+    </div>
+</div>

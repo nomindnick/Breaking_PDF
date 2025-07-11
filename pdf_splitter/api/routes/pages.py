@@ -27,6 +27,19 @@ async def history_page(request: Request):
     return templates.TemplateResponse("history.html", {"request": request})
 
 
+@router.get("/progress/{session_id}", response_class=HTMLResponse)
+async def progress_page(request: Request, session_id: str):
+    """Render the progress tracking page for a session."""
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "progress.html",
+        {
+            "request": request,
+            "session_id": session_id,
+        },
+    )
+
+
 @router.get("/review/{session_id}", response_class=HTMLResponse)
 async def review_page(request: Request, session_id: str):
     """Render the review page for a specific session."""

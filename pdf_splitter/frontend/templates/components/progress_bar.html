@@ -1,0 +1,19 @@
+<!-- Reusable Progress Bar Component -->
+<!-- Usage: {% include 'components/progress_bar.html' %} -->
+<!-- Expects: progress (0-100), label, color (optional) -->
+
+<div class="w-full">
+    {% if label %}
+    <div class="flex justify-between text-sm mb-1">
+        <span class="text-gray-700">{{ label }}</span>
+        <span class="text-gray-600">{{ progress }}%</span>
+    </div>
+    {% endif %}
+
+    <div class="bg-gray-200 rounded-full h-2.5 overflow-hidden">
+        <div
+            class="h-2.5 rounded-full transition-all duration-300 ease-out {{ color|default('bg-blue-600') }}"
+            style="width: {{ progress }}%"
+        ></div>
+    </div>
+</div>

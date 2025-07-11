@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}Processing - PDF Splitter{% endblock %}
+
+{% block content %}
+<div x-data="progressTracker()" x-init="init()" class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold">Processing Your PDF</h2>
+        <p class="text-gray-600">We're analyzing your document to detect boundaries...</p>
+    </div>
+
+    <!-- Connection Status -->
+    <div x-show="connectionState !== 'connected'" class="mb-4">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-md p-4" x-show="connectionState === 'connecting'">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="animate-spin h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-800">Connecting to server...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-red-50 border border-red-200 rounded-md p-4" x-show="connectionState === 'disconnected' || connectionState === 'error'">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-800">
+                        <span x-show="reconnectAttempts > 0">
+                            Connection lost. Reconnecting... (Attempt <span x-text="reconnectAttempts"></span>/<span x-text="maxReconnectAttempts"></span>)
+                        </span>
+                        <span x-show="reconnectAttempts === 0">
+                            Unable to connect to server
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Progress Section -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <!-- Overall Progress -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="font-medium">Overall Progress</span>
+                <span x-text="Math.round(overallProgress * 100) + '%'"></span>
+            </div>
+            <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                    class="bg-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+                    :style="'width: ' + (overallProgress * 100) + '%'"
+                ></div>
+            </div>
+        </div>
+
+        <!-- Stage Progress -->
+        <div class="space-y-4">
+            <!-- Upload Stage -->
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300"
+                         :class="getStageClass('upload')">
+                        <svg x-show="!isStageComplete('upload')" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <svg x-show="isStageComplete('upload')" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium" :class="getCurrentStage() === 'upload' ? 'text-blue-600' : ''">
+                        File Upload
+                    </p>
+                    <p class="text-sm text-gray-600" x-text="getStageMessage('upload')"></p>
+                </div>
+            </div>
+
+            <!-- Validation Stage -->
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300"
+                         :class="getStageClass('validation')">
+                        <svg x-show="!isStageComplete('validation')" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <svg x-show="isStageComplete('validation')" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium" :class="getCurrentStage() === 'validation' ? 'text-blue-600' : ''">
+                        Document Validation
+                    </p>
+                    <p class="text-sm text-gray-600" x-text="getStageMessage('validation')"></p>
+                </div>
+            </div>
+
+            <!-- Detection Stage -->
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300"
+                         :class="getStageClass('detection')">
+                        <svg x-show="!isStageComplete('detection')" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg x-show="isStageComplete('detection')" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium" :class="getCurrentStage() === 'detection' ? 'text-blue-600' : ''">
+                        Boundary Detection
+                    </p>
+                    <p class="text-sm text-gray-600" x-text="getStageMessage('detection')"></p>
+                    <div x-show="currentStage === 'detection' && detectionDetails.current_page" class="mt-1">
+                        <div class="text-xs text-gray-500">
+                            Processing page <span x-text="detectionDetails.current_page"></span> of <span x-text="detectionDetails.total_pages"></span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-1 mt-1">
+                            <div
+                                class="bg-blue-600 h-1 rounded-full transition-all duration-300"
+                                :style="'width: ' + ((detectionDetails.current_page / detectionDetails.total_pages) * 100) + '%'"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Generation Stage -->
+            <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300"
+                         :class="getStageClass('preview_generation')">
+                        <svg x-show="!isStageComplete('preview_generation')" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <svg x-show="isStageComplete('preview_generation')" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium" :class="getCurrentStage() === 'preview_generation' ? 'text-blue-600' : ''">
+                        Generate Previews
+                    </p>
+                    <p class="text-sm text-gray-600" x-text="getStageMessage('preview_generation')"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Status Message -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p class="text-sm text-gray-700" x-text="statusMessage || 'Initializing...'"></p>
+        </div>
+
+        <!-- Error Display -->
+        <div x-show="error" x-transition class="mt-4">
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-800" x-text="error.message"></p>
+                        <button
+                            x-show="error.recoverable"
+                            @click="retryProcessing()"
+                            class="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex justify-between">
+        <button
+            @click="cancelProcessing()"
+            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+        >
+            Cancel
+        </button>
+        <button
+            x-show="processingComplete"
+            @click="continueToReview()"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+            Continue to Review
+        </button>
+    </div>
+</div>
+
+<script src="/static/js/websocket.js"></script>
+<script>
+function progressTracker() {
+    return {
+        ws: null,
+        sessionId: '{{ session_id }}',
+        connectionState: 'disconnected',
+        reconnectAttempts: 0,
+        maxReconnectAttempts: 5,
+
+        // Progress tracking
+        overallProgress: 0,
+        currentStage: null,
+        completedStages: [],
+        statusMessage: '',
+        error: null,
+        processingComplete: false,
+
+        // Stage details
+        stageMessages: {
+            upload: 'File uploaded successfully',
+            validation: 'Document validated',
+            detection: 'Detecting document boundaries...',
+            preview_generation: 'Generating previews...'
+        },
+
+        detectionDetails: {
+            current_page: 0,
+            total_pages: 0
+        },
+
+        init() {
+            this.connectWebSocket();
+        },
+
+        connectWebSocket() {
+            this.ws = new ProgressWebSocket(this.sessionId);
+
+            // Connection events
+            this.ws.on('connected', () => {
+                this.connectionState = 'connected';
+                this.reconnectAttempts = 0;
+                console.log('WebSocket connected');
+            });
+
+            this.ws.on('disconnected', (data) => {
+                this.connectionState = 'disconnected';
+                console.log('WebSocket disconnected:', data);
+            });
+
+            this.ws.on('reconnecting', (data) => {
+                this.connectionState = 'reconnecting';
+                this.reconnectAttempts = data.attempt;
+            });
+
+            this.ws.on('error', (error) => {
+                this.handleError(error);
+            });
+
+            // Progress events
+            this.ws.on('progress', (data) => {
+                this.handleProgress(data);
+            });
+
+            this.ws.on('stage_complete', (data) => {
+                this.handleStageComplete(data);
+            });
+
+            this.ws.on('split_complete', (data) => {
+                this.handleSplitComplete(data);
+            });
+
+            // Connect
+            this.ws.connect();
+        },
+
+        handleProgress(data) {
+            this.currentStage = data.stage;
+            this.overallProgress = data.progress;
+            this.statusMessage = data.message;
+            this.error = null;
+
+            // Update detection details if available
+            if (data.stage === 'detection' && data.current_item && data.total_items) {
+                this.detectionDetails.current_page = data.current_item;
+                this.detectionDetails.total_pages = data.total_items;
+            }
+        },
+
+        handleStageComplete(data) {
+            if (!this.completedStages.includes(data.stage)) {
+                this.completedStages.push(data.stage);
+            }
+
+            this.stageMessages[data.stage] = data.message;
+
+            if (data.next_stage) {
+                this.currentStage = data.next_stage;
+            }
+
+            // Show success notification
+            if (window.notify) {
+                window.notify.show(`${this.getStageName(data.stage)} completed`, 'success');
+            }
+        },
+
+        handleSplitComplete(data) {
+            this.processingComplete = true;
+            this.overallProgress = 1.0;
+            this.statusMessage = 'Processing complete! Ready for review.';
+
+            // Auto-redirect after a short delay
+            setTimeout(() => {
+                this.continueToReview();
+            }, 2000);
+        },
+
+        handleError(error) {
+            this.error = error;
+            this.statusMessage = error.message || 'An error occurred';
+
+            if (window.notify) {
+                window.notify.show(error.message, 'error', 5000);
+            }
+        },
+
+        getStageClass(stage) {
+            if (this.completedStages.includes(stage)) {
+                return 'bg-green-500 text-white';
+            } else if (this.currentStage === stage) {
+                return 'bg-blue-500 text-white';
+            } else {
+                return 'bg-gray-300 text-gray-600';
+            }
+        },
+
+        isStageComplete(stage) {
+            return this.completedStages.includes(stage);
+        },
+
+        getCurrentStage() {
+            return this.currentStage;
+        },
+
+        getStageMessage(stage) {
+            return this.stageMessages[stage] || 'Pending';
+        },
+
+        getStageName(stage) {
+            const names = {
+                upload: 'File Upload',
+                validation: 'Document Validation',
+                detection: 'Boundary Detection',
+                preview_generation: 'Preview Generation'
+            };
+            return names[stage] || stage;
+        },
+
+        cancelProcessing() {
+            if (confirm('Are you sure you want to cancel processing?')) {
+                // Close WebSocket
+                if (this.ws) {
+                    this.ws.close();
+                }
+
+                // Redirect back to upload
+                window.location.href = '/upload';
+            }
+        },
+
+        continueToReview() {
+            window.location.href = `/review/${this.sessionId}`;
+        },
+
+        retryProcessing() {
+            // Reload the page to restart processing
+            window.location.reload();
+        }
+    }
+}
+</script>
+{% endblock %}
