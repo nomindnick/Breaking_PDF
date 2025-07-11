@@ -264,6 +264,140 @@
 <!-- Boundary Editor Modal -->
 {% include 'components/boundary_editor.html' %}
 
+<!-- Split Progress Modal -->
+<div x-show="showSplitProgress" class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center" x-cloak>
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-semibold text-gray-900">Splitting PDF</h3>
+            <div x-show="splitProgress.stage !== 'complete' && !splitProgress.error" class="text-sm text-gray-500">
+                <span x-text="getSplitElapsedTime()"></span>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="space-y-4 mb-6">
+            <!-- Step 1: Preparing -->
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                     :class="['initializing', 'preparing'].includes(splitProgress.stage) ? 'bg-blue-500 text-white' :
+                             splitProgress.stage === 'error' ? 'bg-red-500 text-white' :
+                             'bg-green-500 text-white'">
+                    <svg x-show="!['initializing', 'preparing'].includes(splitProgress.stage) && splitProgress.stage !== 'error'"
+                         class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span x-show="['initializing', 'preparing'].includes(splitProgress.stage) || splitProgress.stage === 'error'" x-text="'1'"></span>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium text-gray-900">Preparing split operation</p>
+                    <p class="text-sm text-gray-600">Validating document boundaries</p>
+                </div>
+            </div>
+
+            <!-- Step 2: Splitting -->
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                     :class="splitProgress.stage === 'splitting' ? 'bg-blue-500 text-white' :
+                             ['complete'].includes(splitProgress.stage) ? 'bg-green-500 text-white' :
+                             splitProgress.stage === 'error' ? 'bg-red-500 text-white' :
+                             'bg-gray-300 text-gray-600'">
+                    <svg x-show="splitProgress.stage === 'complete'"
+                         class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <div x-show="splitProgress.stage === 'splitting'" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span x-show="!['splitting', 'complete'].includes(splitProgress.stage)" x-text="'2'"></span>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium text-gray-900">Creating documents</p>
+                    <p class="text-sm text-gray-600">
+                        <span x-show="splitProgress.currentFile" x-text="'Processing: ' + splitProgress.currentFile"></span>
+                        <span x-show="!splitProgress.currentFile">Splitting PDF into separate files</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3: Finalizing -->
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+                     :class="splitProgress.stage === 'complete' ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'">
+                    <svg x-show="splitProgress.stage === 'complete'"
+                         class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span x-show="splitProgress.stage !== 'complete'" x-text="'3'"></span>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium text-gray-900">Finalizing</p>
+                    <p class="text-sm text-gray-600">Preparing download links</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Progress</span>
+                <span class="font-medium" x-text="splitProgress.progress + '%'"></span>
+            </div>
+            <div class="bg-gray-200 rounded-full h-3">
+                <div class="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                     :style="'width: ' + getSplitProgressWidth() + '%'"></div>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="mb-6">
+            <p class="text-sm text-gray-700" x-text="splitProgress.message"></p>
+            <div x-show="splitProgress.filesCreated > 0" class="text-xs text-gray-500 mt-1">
+                Files created: <span x-text="splitProgress.filesCreated"></span>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="splitProgress.error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-center mb-2">
+                <svg class="w-5 h-5 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h4 class="text-red-800 font-semibold">Split Failed</h4>
+            </div>
+            <p class="text-red-700 text-sm" x-text="splitProgress.error"></p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3">
+            <button
+                x-show="splitProgress.error || splitProgress.stage === 'complete'"
+                @click="closeSplitProgress()"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+                <span x-show="splitProgress.error">Close</span>
+                <span x-show="splitProgress.stage === 'complete'">View Results</span>
+            </button>
+
+            <button
+                x-show="splitProgress.error"
+                @click="closeSplitProgress(); executeSplit()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+                Try Again
+            </button>
+        </div>
+
+        <!-- Success Indicator -->
+        <div x-show="splitProgress.stage === 'complete'" class="mt-4 text-center">
+            <div class="inline-flex items-center text-green-600">
+                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="font-medium">Redirecting to results...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Notification Area -->
 <div id="notifications" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
 
@@ -288,6 +422,20 @@ function documentReview() {
         previewUrl: null,
         previewLoading: false,
         totalPages: 0,
+
+        // Split Progress State
+        showSplitProgress: false,
+        splitProgress: {
+            stage: 'initializing',
+            progress: 0,
+            message: '',
+            currentFile: null,
+            filesCreated: 0,
+            error: null,
+            startTime: null
+        },
+        currentSplitId: null,
+        splitWs: null,
 
         async init() {
             await this.loadDocuments();
@@ -661,30 +809,103 @@ function documentReview() {
                 return;
             }
 
-            try {
-                this.showNotification('Starting PDF split...', 'info');
+            // Show split progress modal
+            this.showSplitProgress = true;
+            this.splitProgress = {
+                stage: 'initializing',
+                progress: 0,
+                message: 'Preparing to split PDF...',
+                currentFile: null,
+                filesCreated: 0,
+                error: null,
+                startTime: Date.now()
+            };
 
+            try {
+                // Start the split process
                 const response = await fetch(`/api/splits/${this.sessionId}/execute`, {
                     method: 'POST'
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Split failed: ${response.statusText}`);
+                    throw new Error(`Failed to start split: ${response.statusText}`);
                 }
 
                 const result = await response.json();
+                this.currentSplitId = result.split_id;
 
-                this.showNotification('Split started successfully! Redirecting...', 'success');
-
-                // Redirect to results page
-                setTimeout(() => {
-                    window.location.href = `/results/${result.split_id}`;
-                }, 1500);
+                // Set up WebSocket for progress tracking
+                this.setupSplitProgressWebSocket(result.split_id);
 
             } catch (error) {
                 console.error('Split execution failed:', error);
-                this.showNotification(`Split failed: ${error.message}`, 'error');
+                this.splitProgress.error = error.message;
+                this.splitProgress.stage = 'error';
             }
+        },
+
+        setupSplitProgressWebSocket(splitId) {
+            // Create a new WebSocket connection for split progress
+            this.splitWs = new ProgressWebSocket(splitId);
+
+            this.splitWs.on('progress', (data) => {
+                this.splitProgress.stage = data.stage;
+                this.splitProgress.progress = Math.round(data.progress * 100);
+                this.splitProgress.message = data.message;
+                this.splitProgress.currentFile = data.current_item;
+                this.splitProgress.filesCreated = data.total_items || 0;
+            });
+
+            this.splitWs.on('stage_complete', (data) => {
+                if (data.stage === 'splitting') {
+                    this.splitProgress.stage = 'complete';
+                    this.splitProgress.progress = 100;
+                    this.splitProgress.message = 'PDF split completed successfully!';
+
+                    // Auto-redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = `/results/${this.currentSplitId}`;
+                    }, 2000);
+                }
+            });
+
+            this.splitWs.on('split_complete', (data) => {
+                this.splitProgress.stage = 'complete';
+                this.splitProgress.progress = 100;
+                this.splitProgress.message = `Successfully created ${data.files_created} files`;
+                this.splitProgress.filesCreated = data.files_created;
+
+                // Auto-redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = `/results/${this.currentSplitId}`;
+                }, 2000);
+            });
+
+            this.splitWs.on('error', (data) => {
+                this.splitProgress.error = data.message;
+                this.splitProgress.stage = 'error';
+            });
+
+            this.splitWs.connect();
+        },
+
+        closeSplitProgress() {
+            this.showSplitProgress = false;
+            if (this.splitWs) {
+                this.splitWs.close();
+                this.splitWs = null;
+            }
+        },
+
+        getSplitProgressWidth() {
+            return Math.max(this.splitProgress.progress, 5); // Minimum 5% for visibility
+        },
+
+        getSplitElapsedTime() {
+            if (!this.splitProgress.startTime) return '0s';
+            const elapsed = Math.floor((Date.now() - this.splitProgress.startTime) / 1000);
+            if (elapsed < 60) return `${elapsed}s`;
+            return `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`;
         },
 
         showNotification(message, type = 'info') {

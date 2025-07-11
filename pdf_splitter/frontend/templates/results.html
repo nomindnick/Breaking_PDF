@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}Split Results - PDF Splitter{% endblock %}
+
+{% block content %}
+<div x-data="splitResults()" x-init="init()">
+    <!-- Header with Summary -->
+    <div class="mb-8">
+        <div class="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Split Complete! 🎉</h1>
+                    <p class="text-green-100 text-lg">
+                        Your PDF has been successfully split into
+                        <span x-text="results.length" class="font-semibold"></span> documents
+                    </p>
+                    <div x-show="splitSummary" class="mt-3 text-sm text-green-50">
+                        <p>Original file: <span x-text="splitSummary.original_filename" class="font-medium"></span></p>
+                        <p>Processing time: <span x-text="splitSummary.processing_time" class="font-medium"></span></p>
+                        <p>Total pages: <span x-text="splitSummary.total_pages" class="font-medium"></span></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <button
+                        @click="downloadAll()"
+                        :disabled="downloading.all"
+                        class="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors flex items-center space-x-2 disabled:opacity-50"
+                    >
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span x-show="!downloading.all">Download All as ZIP</span>
+                        <span x-show="downloading.all">Preparing ZIP...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div x-show="loading" class="space-y-4">
+        <div class="animate-pulse">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="i in 6" class="bg-gray-200 h-80 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Grid -->
+    <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <template x-for="(file, index) in results" :key="file.filename">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <!-- Preview Image -->
+                <div class="aspect-w-3 aspect-h-4 bg-gray-100">
+                    <img
+                        :src="file.preview_url"
+                        :alt="file.filename"
+                        class="w-full h-48 object-cover"
+                        @error="handleImageError($event)"
+                        loading="lazy"
+                    >
+                </div>
+
+                <!-- File Details -->
+                <div class="p-4">
+                    <div class="flex items-start justify-between mb-2">
+                        <h3 class="font-semibold text-gray-900 text-sm truncate flex-1" x-text="file.display_name || file.filename"></h3>
+                        <span
+                            class="ml-2 px-2 py-1 text-xs rounded-full flex-shrink-0"
+                            :class="getTypeColor(file.document_type)"
+                            x-text="file.document_type"
+                        ></span>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="space-y-1 text-xs text-gray-600 mb-4">
+                        <div class="flex justify-between">
+                            <span>Pages:</span>
+                            <span x-text="file.page_count" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Size:</span>
+                            <span x-text="formatFileSize(file.size)" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Created:</span>
+                            <span x-text="formatDate(file.created_at)" class="font-medium"></span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-2">
+                        <button
+                            @click="downloadFile(file)"
+                            :disabled="downloading.files[file.filename]"
+                            class="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+                        >
+                            <svg x-show="!downloading.files[file.filename]" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <div x-show="downloading.files[file.filename]" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                            <span x-show="!downloading.files[file.filename]">Download</span>
+                            <span x-show="downloading.files[file.filename]">Downloading...</span>
+                        </button>
+
+                        <button
+                            @click="previewFile(file)"
+                            class="px-3 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition-colors"
+                            title="Open preview in new tab"
+                        >
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <!-- Empty State -->
+    <div x-show="!loading && results.length === 0" class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No files found</h3>
+        <p class="mt-2 text-gray-600">The split may have failed or files are still being processed.</p>
+        <button
+            @click="init()"
+            class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+            Refresh
+        </button>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="bg-white border-t border-gray-200 px-6 py-4 mt-8 rounded-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            <div class="flex items-center space-x-4">
+                <button
+                    @click="goHome()"
+                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                    Process Another PDF
+                </button>
+                <button
+                    @click="saveToHistory()"
+                    :disabled="saving"
+                    class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors disabled:opacity-50"
+                >
+                    <span x-show="!saving">Save to History</span>
+                    <span x-show="saving">Saving...</span>
+                </button>
+            </div>
+
+            <div class="text-sm text-gray-600">
+                Session ID: <span x-text="splitId" class="font-mono"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div x-show="errorMessage" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" @click.self="errorMessage = null">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+            <div class="flex items-center mb-4">
+                <svg class="w-6 h-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900">Error</h3>
+            </div>
+            <p class="text-gray-700 mb-4" x-text="errorMessage"></p>
+            <div class="flex justify-end space-x-3">
+                <button
+                    @click="errorMessage = null"
+                    class="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                >
+                    Close
+                </button>
+                <button
+                    @click="init(); errorMessage = null"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Retry
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function splitResults() {
+    return {
+        splitId: '{{ split_id }}',
+        results: [],
+        splitSummary: null,
+        loading: true,
+        saving: false,
+        errorMessage: null,
+        downloading: {
+            all: false,
+            files: {}
+        },
+
+        async init() {
+            this.loading = true;
+            this.errorMessage = null;
+
+            try {
+                await this.loadResults();
+            } catch (error) {
+                this.errorMessage = error.message || 'Failed to load results';
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async loadResults() {
+            const response = await fetch(`/api/splits/${this.splitId}/results`);
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Split results not found. The session may have expired.');
+                }
+                throw new Error(`Failed to load results: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            this.results = data.files || [];
+            this.splitSummary = data.summary || null;
+
+            // Initialize download states
+            this.downloading.files = {};
+            this.results.forEach(file => {
+                this.downloading.files[file.filename] = false;
+            });
+        },
+
+        formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        },
+
+        formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleString();
+        },
+
+        getTypeColor(type) {
+            const colors = {
+                'letter': 'bg-blue-100 text-blue-800',
+                'email': 'bg-purple-100 text-purple-800',
+                'report': 'bg-green-100 text-green-800',
+                'invoice': 'bg-yellow-100 text-yellow-800',
+                'memo': 'bg-indigo-100 text-indigo-800',
+                'contract': 'bg-red-100 text-red-800',
+                'form': 'bg-pink-100 text-pink-800',
+                'other': 'bg-gray-100 text-gray-800'
+            };
+            return colors[type] || colors['other'];
+        },
+
+        async downloadFile(file) {
+            if (this.downloading.files[file.filename]) return;
+
+            this.downloading.files[file.filename] = true;
+
+            try {
+                // Create a temporary link to trigger download
+                const downloadUrl = `/api/splits/${this.splitId}/download/${encodeURIComponent(file.filename)}`;
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = file.filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Show success notification
+                window.notify?.show(`Downloaded ${file.filename}`, 'success');
+
+            } catch (error) {
+                window.notify?.show(`Failed to download ${file.filename}: ${error.message}`, 'error');
+            } finally {
+                this.downloading.files[file.filename] = false;
+            }
+        },
+
+        async downloadAll() {
+            if (this.downloading.all || this.results.length === 0) return;
+
+            this.downloading.all = true;
+
+            try {
+                // Request zip file creation
+                const response = await fetch(`/api/splits/${this.splitId}/download/zip`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to create zip file: ${response.statusText}`);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `split_results_${this.splitId}.zip`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                window.notify?.show('All files downloaded as ZIP', 'success');
+
+            } catch (error) {
+                window.notify?.show(`Failed to download ZIP: ${error.message}`, 'error');
+            } finally {
+                this.downloading.all = false;
+            }
+        },
+
+        previewFile(file) {
+            if (file.preview_url) {
+                window.open(file.preview_url, '_blank');
+            } else {
+                window.notify?.show('Preview not available for this file', 'warning');
+            }
+        },
+
+        async saveToHistory() {
+            if (this.saving) return;
+
+            this.saving = true;
+
+            try {
+                const response = await fetch(`/api/splits/${this.splitId}/save`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    window.notify?.show('Saved to history!', 'success');
+                } else {
+                    throw new Error('Failed to save to history');
+                }
+            } catch (error) {
+                window.notify?.show(`Failed to save: ${error.message}`, 'error');
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        goHome() {
+            window.location.href = '/';
+        },
+
+        handleImageError(event) {
+            // Replace broken image with placeholder
+            event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik04MCA2MEwyMCA2MEwyMCAxMjBMODAgMTIwTDgwIDYwWiIgZmlsbD0iI0U1RTdFQiIvPgo8cGF0aCBkPSJNMTAwIDkwTDE0MCA5MEwxNDAgMTIwTDEwMCAxMjBMMTAwIDkwWiIgZmlsbD0iI0U1RTdFQiIvPgo8cGF0aCBkPSJNMTYwIDcwTDE4MCA3MEwxODAgMTIwTDE2MCAxMjBMMTYwIDcwWiIgZmlsbD0iI0U1RTdFQiIvPgo8L3N2Zz4K';
+            event.target.classList.add('opacity-50');
+        }
+    }
+}
+</script>
+{% endblock %}
