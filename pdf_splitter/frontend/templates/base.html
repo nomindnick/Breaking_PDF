@@ -8,9 +8,15 @@
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/css/custom.css">
+    <link rel="stylesheet" href="/static/css/print.css" media="print">
 </head>
 <body class="bg-gray-50">
-    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }">
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
+        Skip to main content
+    </a>
+
+    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }" role="navigation" aria-label="Main navigation">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -54,13 +60,21 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto py-6 px-4">
+    <main id="main-content" class="max-w-7xl mx-auto py-6 px-4" role="main">
         {% block content %}{% endblock %}
     </main>
 
-    <div id="notifications" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+    <!-- Notification Container -->
+    <div id="notifications" class="fixed bottom-4 right-4 space-y-2 z-50" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Connection Status Indicator -->
+    {% include 'components/connection_status.html' %}
 
     <!-- Global JavaScript -->
+    <script src="/static/js/error-handler.js"></script>
+    <script src="/static/js/focus-trap.js"></script>
+    <script src="/static/js/help-system.js"></script>
+    <script src="/static/js/performance-monitor.js"></script>
     <script src="/static/js/app.js"></script>
 
     {% block scripts %}{% endblock %}

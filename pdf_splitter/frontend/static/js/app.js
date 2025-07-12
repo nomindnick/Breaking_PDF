@@ -263,6 +263,20 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+// Print functionality
+window.printPage = function() {
+    // Prepare page for printing
+    document.body.classList.add('printing');
+
+    // Trigger print dialog
+    window.print();
+
+    // Clean up after printing
+    window.addEventListener('afterprint', () => {
+        document.body.classList.remove('printing');
+    }, { once: true });
+};
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('PDF Splitter frontend initialized');

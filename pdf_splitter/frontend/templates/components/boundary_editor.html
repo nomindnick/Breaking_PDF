@@ -10,7 +10,11 @@
      x-transition:leave-end="opacity-0"
      class="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto"
      @click.self="closeBoundaryEditor()"
-     @keydown.escape.window="closeBoundaryEditor()">
+     @keydown.escape.window="closeBoundaryEditor()"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="boundary-editor-title"
+     aria-describedby="boundary-editor-description">
 
     <div class="min-h-screen px-4 text-center">
         <!-- This element is to trick the browser into centering the modal contents. -->
@@ -22,7 +26,10 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
              x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             class="inline-block w-full max-w-6xl my-0 sm:my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-none sm:rounded-2xl max-h-screen sm:max-h-none overflow-y-auto">
+             class="inline-block w-full max-w-6xl my-0 sm:my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-none sm:rounded-2xl max-h-screen sm:max-h-none overflow-y-auto"
+             x-trap="showBoundaryEditor"
+             data-initial-focus="[data-focus-initial]"
+             @click.stop>
 
             <!-- Modal Header -->
             <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">

@@ -1,0 +1,200 @@
+<!-- Connection Status Indicator Component -->
+<div id="connection-status" class="fixed bottom-4 left-4 z-50">
+    <div x-data="connectionStatus()" x-init="init()"
+         class="flex items-center space-x-2 px-3 py-2 rounded-lg shadow-lg transition-all duration-300"
+         :class="isConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+
+        <!-- Status Icon -->
+        <div class="relative">
+            <svg x-show="isConnected" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5.05 3.636a7 7 0 119.9 0 1 1 0 01-1.415 1.414 5 5 0 10-7.07 0 1 1 0 01-1.415-1.414zM11 11a1 1 0 11-2 0V7a1 1 0 112 0v4z"/>
+            </svg>
+
+            <svg x-show="!isConnected" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l6.921 6.922c.05.062.105.118.168.167l6.91 6.911a1 1 0 001.415-1.414l-6.91-6.91a1 1 0 00-.168-.168L3.707 2.293z" clip-rule="evenodd"/>
+                <path d="M5.05 3.636a7 7 0 019.9 0 1 1 0 01-1.415 1.414 5 5 0 00-7.07 0 1 1 0 01-1.415-1.414z" opacity="0.4"/>
+            </svg>
+
+            <!-- Pulse animation when connected -->
+            <span x-show="isConnected"
+                  class="absolute top-0 right-0 -mt-1 -mr-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></span>
+        </div>
+
+        <!-- Status Text -->
+        <span class="text-sm font-medium" x-text="statusText"></span>
+
+        <!-- Retry Button (when disconnected) -->
+        <button x-show="!isConnected && !isRetrying"
+                @click="retry()"
+                class="ml-2 px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+            Retry
+        </button>
+
+        <!-- Loading Spinner (when retrying) -->
+        <svg x-show="isRetrying" class="animate-spin h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+
+        <!-- Details Tooltip -->
+        <div x-show="showDetails"
+             x-transition
+             @click.away="showDetails = false"
+             class="absolute bottom-full left-0 mb-2 w-64 p-3 bg-white rounded-lg shadow-xl border">
+            <h4 class="font-semibold text-sm mb-2">Connection Details</h4>
+            <div class="space-y-1 text-xs">
+                <div class="flex justify-between">
+                    <span>API Server:</span>
+                    <span :class="apiStatus ? 'text-green-600' : 'text-red-600'"
+                          x-text="apiStatus ? 'Connected' : 'Disconnected'"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span>WebSocket:</span>
+                    <span :class="wsStatus ? 'text-green-600' : 'text-red-600'"
+                          x-text="wsStatus ? 'Connected' : 'Disconnected'"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Last Check:</span>
+                    <span x-text="lastCheckTime"></span>
+                </div>
+            </div>
+
+            <div x-show="!isConnected" class="mt-3 pt-3 border-t text-xs text-gray-600">
+                <p>Some features may be unavailable while offline. Your work is automatically saved locally.</p>
+            </div>
+        </div>
+
+        <!-- Click for details -->
+        <button @click="showDetails = !showDetails"
+                class="ml-2 text-xs opacity-70 hover:opacity-100">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+function connectionStatus() {
+    return {
+        isConnected: true,
+        apiStatus: true,
+        wsStatus: true,
+        statusText: 'Connected',
+        lastCheckTime: 'Just now',
+        showDetails: false,
+        isRetrying: false,
+        checkInterval: null,
+
+        init() {
+            // Listen for connection status changes
+            window.addEventListener('connectionStatusChanged', (event) => {
+                this.updateStatus(event.detail.status);
+            });
+
+            // Initial status check
+            if (window.errorHandler) {
+                const status = window.errorHandler.getConnectionStatus();
+                this.updateStatus(status);
+            }
+
+            // Update last check time periodically
+            this.checkInterval = setInterval(() => {
+                this.updateLastCheckTime();
+            }, 10000);
+        },
+
+        updateStatus(status) {
+            this.apiStatus = status.api;
+            this.wsStatus = status.websocket;
+            this.isConnected = status.api && status.websocket;
+
+            if (this.isConnected) {
+                this.statusText = 'Connected';
+            } else if (!status.api) {
+                this.statusText = 'No connection';
+            } else if (!status.websocket) {
+                this.statusText = 'Limited connection';
+            }
+
+            this.updateLastCheckTime(status.lastCheck);
+        },
+
+        updateLastCheckTime(timestamp) {
+            if (!timestamp && window.errorHandler) {
+                const status = window.errorHandler.getConnectionStatus();
+                timestamp = status.lastCheck;
+            }
+
+            if (!timestamp) return;
+
+            const now = Date.now();
+            const diff = now - timestamp;
+
+            if (diff < 10000) {
+                this.lastCheckTime = 'Just now';
+            } else if (diff < 60000) {
+                this.lastCheckTime = Math.floor(diff / 1000) + 's ago';
+            } else if (diff < 3600000) {
+                this.lastCheckTime = Math.floor(diff / 60000) + 'm ago';
+            } else {
+                this.lastCheckTime = 'Long time ago';
+            }
+        },
+
+        async retry() {
+            this.isRetrying = true;
+
+            try {
+                // Force connection check
+                if (window.errorHandler) {
+                    await window.errorHandler.checkConnections();
+                }
+
+                // If WebSocket disconnected, try to reconnect
+                if (!this.wsStatus && window.progressWS) {
+                    window.progressWS.connect();
+                }
+
+                window.notify.show('Checking connection...', 'info');
+            } catch (error) {
+                window.notify.show('Connection check failed', 'error');
+            } finally {
+                this.isRetrying = false;
+            }
+        },
+
+        destroy() {
+            if (this.checkInterval) {
+                clearInterval(this.checkInterval);
+            }
+        }
+    }
+}
+</script>
+
+<style>
+/* Connection status specific styles */
+#connection-status {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+#connection-status.connected {
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#connection-status:hover.connected {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Always show when disconnected */
+#connection-status.disconnected {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+</style>

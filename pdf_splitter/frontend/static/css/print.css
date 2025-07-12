@@ -1,0 +1,425 @@
+/* Print-Friendly Stylesheets for PDF Splitter */
+
+@media print {
+    /* Reset and base styles */
+    * {
+        background: transparent !important;
+        color: black !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* Page setup */
+    @page {
+        margin: 0.75in;
+        size: letter portrait;
+    }
+
+    @page :first {
+        margin-top: 0.5in;
+    }
+
+    /* Remove unnecessary elements */
+    nav,
+    #notifications,
+    #connection-status,
+    .no-print,
+    .modal,
+    .tooltip,
+    #help-modal,
+    #onboarding-overlay,
+    button:not(.print-button),
+    .action-panel,
+    .mobile-menu,
+    [role="navigation"],
+    [x-show*="showBoundaryEditor"],
+    [x-show*="showSplitProgress"],
+    .boundary-editor-modal {
+        display: none !important;
+    }
+
+    /* Layout adjustments */
+    body {
+        font-size: 11pt;
+        line-height: 1.5;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        color: #000;
+        background: white;
+    }
+
+    main {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Headers */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        page-break-after: avoid;
+        page-break-inside: avoid;
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+    }
+
+    h1 {
+        font-size: 20pt;
+        border-bottom: 2pt solid #000;
+        padding-bottom: 0.5em;
+        margin-bottom: 1em;
+    }
+
+    h2 {
+        font-size: 16pt;
+    }
+
+    h3 {
+        font-size: 14pt;
+    }
+
+    /* Content styling */
+    p {
+        margin: 0 0 1em;
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* Links */
+    a {
+        text-decoration: underline;
+        color: #000;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 0.8em;
+        font-style: italic;
+    }
+
+    /* But not for internal links */
+    a[href^="#"]:after,
+    a[href^="javascript:"]:after {
+        content: "";
+    }
+
+    /* Images */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+        display: block;
+        margin: 1em 0;
+    }
+
+    /* Tables */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1em 0;
+        page-break-inside: auto;
+    }
+
+    table, th, td {
+        border: 1px solid #000;
+    }
+
+    th, td {
+        padding: 0.5em;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f0f0f0 !important;
+        font-weight: bold;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    /* Lists */
+    ul, ol {
+        margin: 0 0 1em 1.5em;
+    }
+
+    li {
+        margin: 0 0 0.5em;
+    }
+
+    /* Document Review Page Specific */
+    .document-card {
+        page-break-inside: avoid;
+        border: 1px solid #000;
+        padding: 1em;
+        margin-bottom: 1em;
+    }
+
+    .document-card h3 {
+        margin-top: 0;
+    }
+
+    .document-preview {
+        max-height: 3in;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        padding: 0.5em;
+        margin: 0.5em 0;
+    }
+
+    .document-metadata {
+        font-size: 10pt;
+        margin: 0.5em 0;
+    }
+
+    .document-metadata dt {
+        font-weight: bold;
+        float: left;
+        width: 6em;
+        clear: left;
+    }
+
+    .document-metadata dd {
+        margin-left: 7em;
+        margin-bottom: 0.25em;
+    }
+
+    /* Results Page Specific */
+    .results-summary {
+        background: #f5f5f5 !important;
+        border: 1px solid #000;
+        padding: 1em;
+        margin-bottom: 2em;
+        page-break-after: avoid;
+    }
+
+    .results-grid {
+        display: block;
+    }
+
+    .result-item {
+        page-break-inside: avoid;
+        margin-bottom: 1em;
+        padding: 0.5em;
+        border: 1px solid #ccc;
+    }
+
+    .result-item img {
+        max-height: 2in;
+    }
+
+    /* History Page Specific */
+    .history-table {
+        font-size: 10pt;
+    }
+
+    .history-table th {
+        position: sticky;
+        top: 0;
+        background: white !important;
+    }
+
+    /* Session Details */
+    .session-details {
+        page-break-inside: avoid;
+    }
+
+    .session-header {
+        border-bottom: 1pt solid #000;
+        padding-bottom: 0.5em;
+        margin-bottom: 1em;
+    }
+
+    /* Forms (for documentation purposes) */
+    form {
+        border: 1px solid #000;
+        padding: 1em;
+        margin: 1em 0;
+    }
+
+    input, select, textarea {
+        border: 1px solid #000 !important;
+        padding: 0.25em;
+        margin: 0.25em 0;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 0.5em;
+    }
+
+    /* Utility classes */
+    .print-only {
+        display: block !important;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    /* Status badges */
+    .badge {
+        border: 1px solid #000;
+        padding: 0.25em 0.5em;
+        font-size: 0.9em;
+        display: inline-block;
+    }
+
+    /* Print header/footer */
+    .print-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 10pt;
+        border-bottom: 1px solid #000;
+        padding: 0.5em;
+        background: white;
+    }
+
+    .print-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 9pt;
+        border-top: 1px solid #000;
+        padding: 0.5em;
+        background: white;
+    }
+
+    /* Page numbers */
+    .page-number:after {
+        content: counter(page);
+    }
+
+    /* Document boundaries report */
+    .boundaries-report {
+        width: 100%;
+    }
+
+    .boundaries-report th {
+        text-align: left;
+        border-bottom: 2px solid #000;
+    }
+
+    .boundaries-report td {
+        border-bottom: 1px solid #ccc;
+        padding: 0.5em 0;
+    }
+
+    /* QR codes for URLs (if implemented) */
+    .qr-code {
+        width: 1.5in;
+        height: 1.5in;
+        margin: 0.5em 0;
+    }
+
+    /* Accessibility notes for print */
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    /* High contrast for better readability */
+    .high-contrast {
+        filter: contrast(1.5);
+    }
+
+    /* Specific component hiding */
+    .hover\:shadow-lg:hover,
+    .transition,
+    .transform,
+    .animate-pulse,
+    .animate-spin {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* Print preview helper styles */
+@media screen and (min-width: 768px) {
+    .print-preview {
+        max-width: 8.5in;
+        margin: 0 auto;
+        padding: 0.75in;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Custom print layouts for specific pages */
+@media print {
+    /* Review page print layout */
+    .review-print-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1em;
+    }
+
+    .review-print-summary {
+        page-break-after: always;
+    }
+
+    /* Results page print layout */
+    .results-print-layout {
+        column-count: 2;
+        column-gap: 1em;
+    }
+
+    .results-print-layout .result-item {
+        break-inside: avoid;
+    }
+
+    /* History page print layout */
+    .history-print-layout {
+        font-size: 9pt;
+    }
+
+    .history-print-layout td,
+    .history-print-layout th {
+        padding: 0.25em;
+    }
+}
+
+/* Print button styling (visible on screen) */
+@media screen {
+    .print-button {
+        background: white;
+        color: #333;
+        border: 1px solid #ccc;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+    }
+
+    .print-button:hover {
+        background: #f5f5f5;
+    }
+
+    .print-button svg {
+        width: 1em;
+        height: 1em;
+    }
+}

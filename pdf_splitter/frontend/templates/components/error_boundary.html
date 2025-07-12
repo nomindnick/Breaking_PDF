@@ -1,0 +1,234 @@
+<!-- Error Boundary Component for graceful error handling -->
+<div x-data="errorBoundary()" x-init="init()" style="display: contents;">
+    <!-- Normal content slot -->
+    <div x-show="!hasError" x-ref="content">
+        {{ content | safe }}
+    </div>
+
+    <!-- Error state -->
+    <div x-show="hasError" class="min-h-[400px] flex items-center justify-center p-8">
+        <div class="max-w-md w-full">
+            <div class="text-center">
+                <!-- Error Icon -->
+                <div class="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+
+                <!-- Error Message -->
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h3>
+                <p class="text-gray-600 mb-6" x-text="errorMessage"></p>
+
+                <!-- Error Details (collapsible) -->
+                <div x-show="showDetails" class="mb-6 text-left">
+                    <div class="bg-gray-100 rounded-lg p-4 text-sm">
+                        <p class="font-mono text-xs text-gray-700 whitespace-pre-wrap" x-text="errorDetails"></p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button @click="retry()"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                        </svg>
+                        Try Again
+                    </button>
+
+                    <button @click="goHome()"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <svg class="w-4 h-4 mr-2 inline" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        Go Home
+                    </button>
+
+                    <button @click="showDetails = !showDetails"
+                            class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <span x-text="showDetails ? 'Hide' : 'Show'"></span> Details
+                    </button>
+                </div>
+
+                <!-- Report Link -->
+                <p class="mt-6 text-sm text-gray-500">
+                    If this problem persists, please
+                    <a href="#" @click.prevent="reportError()" class="text-blue-600 hover:text-blue-800 underline">
+                        report this issue
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function errorBoundary() {
+    return {
+        hasError: false,
+        errorMessage: 'An unexpected error occurred',
+        errorDetails: '',
+        showDetails: false,
+        originalContent: null,
+        retryCount: 0,
+        maxRetries: 3,
+
+        init() {
+            // Capture original content
+            this.originalContent = this.$refs.content.innerHTML;
+
+            // Set up error catching for this component
+            this.setupErrorHandling();
+        },
+
+        setupErrorHandling() {
+            // Catch errors in Alpine components within this boundary
+            const originalHandleError = Alpine.handleError;
+
+            Alpine.handleError = (error, el) => {
+                // Check if error occurred within our boundary
+                if (this.$el.contains(el)) {
+                    this.handleError(error);
+                } else {
+                    // Pass to original handler
+                    originalHandleError(error, el);
+                }
+            };
+
+            // Listen for custom error events
+            this.$el.addEventListener('component-error', (event) => {
+                this.handleError(event.detail.error);
+            });
+        },
+
+        handleError(error) {
+            console.error('Error caught by boundary:', error);
+
+            // Update state
+            this.hasError = true;
+            this.errorMessage = this.getUserFriendlyMessage(error);
+            this.errorDetails = this.getErrorDetails(error);
+
+            // Log to error handler
+            if (window.errorHandler) {
+                window.errorHandler.handleError(error, {
+                    component: 'ErrorBoundary',
+                    location: window.location.pathname
+                });
+            }
+
+            // Emit event for parent components
+            this.$dispatch('boundary-error', { error });
+        },
+
+        getUserFriendlyMessage(error) {
+            // Map technical errors to user-friendly messages
+            const messageMap = {
+                'NetworkError': 'Unable to connect to the server',
+                'TimeoutError': 'The operation took too long',
+                'ValidationError': 'Please check your input and try again',
+                'PermissionError': 'You don\'t have permission to perform this action',
+                'NotFoundError': 'The requested resource was not found'
+            };
+
+            if (error.type && messageMap[error.type]) {
+                return messageMap[error.type];
+            }
+
+            if (error.message && error.message.length < 100) {
+                return error.message;
+            }
+
+            return 'An unexpected error occurred while loading this content';
+        },
+
+        getErrorDetails(error) {
+            const details = [];
+
+            if (error.name) details.push(`Type: ${error.name}`);
+            if (error.message) details.push(`Message: ${error.message}`);
+            if (error.code) details.push(`Code: ${error.code}`);
+            if (error.stack) {
+                // Simplify stack trace
+                const stackLines = error.stack.split('\n').slice(0, 5);
+                details.push(`Stack:\n${stackLines.join('\n')}`);
+            }
+
+            return details.join('\n\n');
+        },
+
+        async retry() {
+            this.retryCount++;
+
+            if (this.retryCount > this.maxRetries) {
+                window.notify.show('Maximum retry attempts reached', 'error');
+                return;
+            }
+
+            try {
+                // Show loading state
+                window.notify.show('Retrying...', 'info');
+
+                // Reset error state
+                this.hasError = false;
+                this.errorMessage = '';
+                this.errorDetails = '';
+
+                // Restore original content
+                this.$refs.content.innerHTML = this.originalContent;
+
+                // Re-initialize Alpine components
+                await this.$nextTick();
+                Alpine.initTree(this.$refs.content);
+
+                // Reset retry count on success
+                this.retryCount = 0;
+
+            } catch (error) {
+                // Error occurred during retry
+                this.handleError(error);
+            }
+        },
+
+        goHome() {
+            window.location.href = '/';
+        },
+
+        reportError() {
+            // Prepare error report
+            const report = {
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                userAgent: navigator.userAgent,
+                error: {
+                    message: this.errorMessage,
+                    details: this.errorDetails
+                }
+            };
+
+            // Copy to clipboard
+            const reportText = JSON.stringify(report, null, 2);
+            navigator.clipboard.writeText(reportText).then(() => {
+                window.notify.show('Error details copied to clipboard', 'success');
+            });
+
+            // Open GitHub issues (or support email)
+            window.open('https://github.com/anthropics/claude-code/issues/new?template=bug_report.md', '_blank');
+        }
+    };
+}
+
+// Global function to wrap content in error boundary
+function withErrorBoundary(content) {
+    return `
+        <div x-data="errorBoundary()" x-init="init()" style="display: contents;">
+            <div x-show="!hasError" x-ref="content">
+                ${content}
+            </div>
+            <!-- Error state template included automatically -->
+        </div>
+    `;
+}
+</script>
