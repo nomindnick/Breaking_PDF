@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pdf-splitter-config
+  namespace: pdf-splitter
+data:
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+  UPLOAD_DIR: "/data/uploads"
+  OUTPUT_DIR: "/data/outputs"
+  SESSION_DB_PATH: "/data/sessions/sessions.db"
+  MAX_UPLOAD_SIZE: "104857600"
+  SESSION_TIMEOUT: "86400"
+  MAX_CONCURRENT_PROCESSES: "4"
+  PROCESS_TIMEOUT: "300"
+  OCR_ENGINE: "paddleocr"
+  PADDLE_ENABLE_MKLDNN: "false"
+  DEFAULT_DPI: "300"
+  RATE_LIMIT_ENABLED: "true"
+  RATE_LIMIT_DEFAULT: "60"

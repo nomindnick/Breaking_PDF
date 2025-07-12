@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdf-splitter-api
+  namespace: pdf-splitter
+  labels:
+    app: pdf-splitter-api
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pdf-splitter-api
+  template:
+    metadata:
+      labels:
+        app: pdf-splitter-api
+        version: v1
+    spec:
+      serviceAccountName: pdf-splitter-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: pdf-splitter-api
+        image: pdf-splitter:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        env:
+        - name: API_PORT
+          value: "8000"
+        - name: API_WORKERS
+          value: "4"
+        - name: DEBUG
+          value: "false"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pdf-splitter-secrets
+              key: database-url
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pdf-splitter-secrets
+              key: jwt-secret-key
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: pdf-splitter-secrets
+              key: redis-url
+        envFrom:
+        - configMapRef:
+            name: pdf-splitter-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /api/health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: http
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: logs
+          mountPath: /app/logs
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pdf-splitter-data-pvc
+      - name: logs
+        emptyDir: {}

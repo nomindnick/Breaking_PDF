@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  pdf-splitter-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pdf-splitter:latest
+    container_name: pdf-splitter-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # API Configuration
+      - API_TITLE=PDF Splitter API
+      - API_VERSION=1.0.0
+      - API_PORT=8000
+      - API_WORKERS=4
+      - DEBUG=false
+
+      # Security
+      - API_KEY_ENABLED=true
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,https://app.example.com
+
+      # File Storage
+      - UPLOAD_DIR=/data/uploads
+      - OUTPUT_DIR=/data/outputs
+      - MAX_UPLOAD_SIZE=104857600  # 100MB
+
+      # Session Management
+      - SESSION_DB_PATH=/data/sessions/sessions.db
+      - SESSION_TIMEOUT=86400  # 24 hours
+
+      # Processing
+      - MAX_CONCURRENT_PROCESSES=4
+      - PROCESS_TIMEOUT=300
+
+      # Logging
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+
+      # Performance
+      - OMP_THREAD_LIMIT=1
+      - LLM_CACHE_ENABLED=true
+      - LLM_CACHE_PATH=/data/cache/llm_cache.db
+
+      # OCR Configuration
+      - OCR_ENGINE=paddleocr
+      - PADDLE_ENABLE_MKLDNN=false
+      - DEFAULT_DPI=300
+
+      # Rate Limiting
+      - RATE_LIMIT_ENABLED=true
+      - RATE_LIMIT_DEFAULT=60
+      - RATE_LIMIT_UPLOAD=10
+      - RATE_LIMIT_DOWNLOAD=100
+
+    volumes:
+      - pdf-data:/data
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
+  # Nginx Reverse Proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: pdf-splitter-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - pdf-splitter-api
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache (optional, for future scaling)
+  redis:
+    image: redis:7-alpine
+    container_name: pdf-splitter-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Prometheus (optional, for monitoring)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pdf-splitter-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    depends_on:
+      - pdf-splitter-api
+
+  # Grafana (optional, for dashboards)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pdf-splitter-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
+volumes:
+  pdf-data:
+    driver: local
+  nginx-cache:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  default:
+    name: pdf-splitter-network

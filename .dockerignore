@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.env
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Development
+.git/
+.gitignore
+.pre-commit-config.yaml
+.editorconfig
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation
+docs/
+*.md
+!README.md
+!CLAUDE.md
+
+# Logs and data
+logs/
+*.log
+data/
+uploads/
+outputs/
+sessions/
+
+# Test files
+tests/
+test_*.pdf
+Test_PDF_*.pdf
+*_test.pdf
+*_ground_truth.json
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+scripts/test_*.py
+scripts/debug_*.py
+scripts/diagnose_*.py
+*.png
+analysis_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.cache
