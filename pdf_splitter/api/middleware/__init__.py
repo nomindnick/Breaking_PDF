@@ -24,7 +24,7 @@ from pdf_splitter.api.middleware.error_handler import (
     ErrorRecoveryMiddleware,
     ErrorResponse,
 )
-from pdf_splitter.api.middleware.logging import (
+from pdf_splitter.api.middleware.logging_middleware import (
     AuditLoggingMiddleware,
     MetricsExportMiddleware,
     PerformanceMonitoringMiddleware,

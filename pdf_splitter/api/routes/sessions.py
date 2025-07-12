@@ -10,14 +10,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from pdf_splitter.api.dependencies import get_session_manager, get_upload_manager
-from pdf_splitter.api.exceptions import (
-    SessionExpiredError,
-    SessionNotFoundError,
-    ValidationError,
-)
+from pdf_splitter.api.exceptions import SessionExpiredError as APISessionExpiredError
+from pdf_splitter.api.exceptions import SessionNotFoundError as APISessionNotFoundError
+from pdf_splitter.api.exceptions import ValidationError
 from pdf_splitter.api.models.requests import SessionCreateRequest
 from pdf_splitter.api.models.responses import SessionListResponse, SessionResponse
 from pdf_splitter.core.logging import get_logger
+from pdf_splitter.splitting.exceptions import SessionExpiredError, SessionNotFoundError
 from pdf_splitter.splitting.models import SplitProposal, SplitSession
 from pdf_splitter.splitting.session_manager import SplitSessionManager
 
@@ -189,14 +188,12 @@ async def get_session(
         HTTPException: If session not found
     """
     try:
-        # Get session
+        # Get session - this will raise SessionNotFoundError if not found
         session = session_manager.get_session(session_id)
-        if not session:
-            raise SessionNotFoundError(session_id)
 
         # Check if expired
         if session.is_expired:
-            raise SessionExpiredError(session_id)
+            raise APISessionExpiredError(session_id)
 
         # Try to get upload info (may not exist if upload was cleaned up)
         upload_info = None
@@ -213,7 +210,11 @@ async def get_session(
 
         return _session_to_response(session, upload_info)
 
-    except (SessionNotFoundError, SessionExpiredError) as e:
+    except SessionNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    except SessionExpiredError:
+        raise HTTPException(status_code=410, detail=f"Session {session_id} has expired")
+    except (APISessionNotFoundError, APISessionExpiredError) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         if "not found" in str(e).lower():
@@ -322,22 +323,15 @@ async def delete_session(
         HTTPException: If session not found or deletion fails
     """
     try:
-        # Get session
+        # Get session - this will raise SessionNotFoundError if not found
         session = session_manager.get_session(session_id)
-        if not session:
-            # Debug: list all sessions to see what's there
-            all_sessions = session_manager.list_active_sessions()
-            logger.debug(
-                f"Looking for session {session_id}, found sessions: {[s.session_id for s in all_sessions]}"
-            )
-            raise SessionNotFoundError(session_id)
 
         # Cancel session
         session.cancel()
         session_manager.update_session(session)
 
-        # Optionally clean up immediately
-        session_manager.cleanup_expired_sessions()
+        # Don't clean up immediately - let scheduled cleanup handle it
+        # session_manager.cleanup_expired_sessions()
 
         return JSONResponse(
             content={
@@ -346,7 +340,9 @@ async def delete_session(
             }
         )
 
-    except SessionNotFoundError as e:
+    except SessionNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    except APISessionNotFoundError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         if "not found" in str(e).lower():
@@ -377,14 +373,12 @@ async def extend_session(
         HTTPException: If session not found or extension fails
     """
     try:
-        # Get session
+        # Get session - this will raise SessionNotFoundError if not found
         session = session_manager.get_session(session_id)
-        if not session:
-            raise SessionNotFoundError(session_id)
 
         # Check if already expired
         if session.is_expired:
-            raise SessionExpiredError(session_id)
+            raise APISessionExpiredError(session_id)
 
         # Extend expiration
         new_expires_at = datetime.now() + timedelta(hours=hours)
@@ -407,7 +401,11 @@ async def extend_session(
             }
         )
 
-    except (SessionNotFoundError, SessionExpiredError) as e:
+    except SessionNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+    except SessionExpiredError:
+        raise HTTPException(status_code=410, detail=f"Session {session_id} has expired")
+    except (APISessionNotFoundError, APISessionExpiredError) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         if "not found" in str(e).lower():

@@ -120,7 +120,11 @@ class UploadService:
             if validate_only:
                 # Return validation results without saving
                 return str(uuid4()), {
-                    **validation_result,
+                    "file_name": validation_result[
+                        "filename"
+                    ],  # Use consistent key name
+                    "file_size": validation_result["file_size"],
+                    "content_type": validation_result["content_type"],
                     "upload_id": None,
                     "status": "validated",
                     "total_pages": None,

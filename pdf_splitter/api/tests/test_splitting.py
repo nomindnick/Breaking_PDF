@@ -116,6 +116,17 @@ class TestSplittingEndpoints:
         """Test creating a new segment."""
         session_id = test_session["session_id"]
 
+        # First, get the existing segments to understand what we have
+        proposal_response = client.get(f"/api/splits/{session_id}/proposal")
+        proposal_data = assert_api_response(proposal_response)
+
+        # Clear existing segments first if there's a default one
+        if proposal_data["segments"]:
+            for segment in proposal_data["segments"]:
+                client.delete(
+                    f"/api/splits/{session_id}/segments/{segment['segment_id']}"
+                )
+
         # Create new segment
         segment_data = {
             "start_page": 1,
@@ -142,6 +153,16 @@ class TestSplittingEndpoints:
     def test_create_segment_overlapping(self, client: TestClient, test_session: dict):
         """Test creating overlapping segments."""
         session_id = test_session["session_id"]
+
+        # First, clear existing segments
+        proposal_response = client.get(f"/api/splits/{session_id}/proposal")
+        proposal_data = assert_api_response(proposal_response)
+
+        if proposal_data["segments"]:
+            for segment in proposal_data["segments"]:
+                client.delete(
+                    f"/api/splits/{session_id}/segments/{segment['segment_id']}"
+                )
 
         # First segment: pages 0-2
         response1 = client.post(
@@ -170,6 +191,16 @@ class TestSplittingEndpoints:
     def test_delete_segment(self, client: TestClient, test_session: dict):
         """Test deleting a segment."""
         session_id = test_session["session_id"]
+
+        # First, clear existing segments
+        proposal_response = client.get(f"/api/splits/{session_id}/proposal")
+        proposal_data = assert_api_response(proposal_response)
+
+        if proposal_data["segments"]:
+            for segment in proposal_data["segments"]:
+                client.delete(
+                    f"/api/splits/{session_id}/segments/{segment['segment_id']}"
+                )
 
         # Create a segment first
         create_response = client.post(

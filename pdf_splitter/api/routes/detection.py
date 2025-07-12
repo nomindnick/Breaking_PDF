@@ -20,10 +20,8 @@ from pdf_splitter.api.models.responses import (
 )
 from pdf_splitter.api.routes.sessions import get_session_by_upload_id
 from pdf_splitter.api.services.detection_service import DetectionService
-from pdf_splitter.api.services.progress_service import (
-    ProcessingStage,
-    get_progress_service,
-)
+from pdf_splitter.api.services.process_service import ProcessingStage
+from pdf_splitter.api.services.progress_service import get_progress_service
 from pdf_splitter.core.config import PDFConfig
 from pdf_splitter.core.logging import get_logger
 from pdf_splitter.splitting.exceptions import SessionNotFoundError
@@ -84,7 +82,7 @@ async def start_detection(
 
         # Create progress callback
         progress_callback = progress_service.create_progress_callback(
-            session.session_id, ProcessingStage.DETECTION
+            session.session_id, ProcessingStage.DETECTING_BOUNDARIES
         )
 
         # Start detection

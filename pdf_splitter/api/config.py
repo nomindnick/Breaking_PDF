@@ -3,10 +3,14 @@ API Configuration Module.
 
 Manages all configuration settings for the PDF Splitter API.
 """
+import logging
+import os
+import warnings
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseSettings, validator
+from pydantic import field_validator
+from pydantic_settings import BaseSettings
 
 
 class APIConfig(BaseSettings):
@@ -87,7 +91,8 @@ class APIConfig(BaseSettings):
     health_check_interval: int = 60  # seconds
     health_check_timeout: int = 10  # seconds
 
-    @validator("upload_dir", "output_dir", "log_file", pre=True)
+    @field_validator("upload_dir", "output_dir", "log_file", mode="before")
+    @classmethod
     def create_directories(cls, v):
         """Ensure directories exist."""
         if v:
@@ -99,19 +104,130 @@ class APIConfig(BaseSettings):
             return path
         return v
 
-    @validator("cors_origins", pre=True)
+    @field_validator("cors_origins", mode="before")
+    @classmethod
     def parse_cors_origins(cls, v):
         """Parse CORS origins from comma-separated string or list."""
         if isinstance(v, str):
             return [origin.strip() for origin in v.split(",")]
         return v
 
-    class Config:
-        """Pydantic configuration."""
+    @field_validator("secret_key")
+    @classmethod
+    def validate_secret_key(cls, v):
+        """Validate secret key security."""
+        if v == "your-secret-key-here":
+            if os.getenv("ENVIRONMENT") == "production":
+                raise ValueError(
+                    "Secret key must be changed from default in production"
+                )
+            warnings.warn(
+                "Using default secret key. This is insecure for production use. "
+                "Generate a secure key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'",
+                UserWarning,
+            )
+        elif len(v) < 32:
+            warnings.warn(
+                f"Secret key is only {len(v)} characters. Recommend at least 32 characters for security.",
+                UserWarning,
+            )
+        return v
 
-        env_file = ".env"
-        env_prefix = "API_"
-        case_sensitive = False
+    @field_validator("jwt_secret_key")
+    @classmethod
+    def validate_jwt_secret_key(cls, v):
+        """Validate JWT secret key security."""
+        if v == "your-jwt-secret-key":
+            if os.getenv("ENVIRONMENT") == "production":
+                raise ValueError(
+                    "JWT secret key must be changed from default in production"
+                )
+            warnings.warn(
+                "Using default JWT secret key. This is insecure for production use. "
+                "Generate a secure key with: python -c 'import secrets; print(secrets.token_urlsafe(32))'",
+                UserWarning,
+            )
+        elif len(v) < 32:
+            warnings.warn(
+                f"JWT secret key is only {len(v)} characters. Recommend at least 32 characters for security.",
+                UserWarning,
+            )
+        return v
+
+    @field_validator("cors_origins")
+    @classmethod
+    def validate_cors_origins(cls, v):
+        """Validate CORS origins for security."""
+        if "*" in v:
+            if os.getenv("ENVIRONMENT") == "production":
+                raise ValueError("Wildcard CORS origins (*) not allowed in production")
+            warnings.warn(
+                "Using wildcard CORS origins (*). This is insecure for production use.",
+                UserWarning,
+            )
+
+        for origin in v:
+            if (
+                origin.startswith("http://")
+                and os.getenv("ENVIRONMENT") == "production"
+            ):
+                warnings.warn(
+                    f"HTTP origin '{origin}' in production. Consider using HTTPS for security.",
+                    UserWarning,
+                )
+        return v
+
+    @field_validator("debug")
+    @classmethod
+    def validate_debug_mode(cls, v):
+        """Validate debug mode settings."""
+        if v and os.getenv("ENVIRONMENT") == "production":
+            raise ValueError("Debug mode must be disabled in production")
+        return v
+
+    def __init__(self, **kwargs):
+        """Initialize configuration with security checks."""
+        super().__init__(**kwargs)
+
+        # Log security warnings if in production mode
+        if os.getenv("ENVIRONMENT") == "production":
+            self._check_production_security()
+
+    def _check_production_security(self):
+        """Check production security settings and log warnings."""
+        logger = logging.getLogger(__name__)
+
+        security_issues = []
+
+        if not self.require_api_key and not self.api_key_enabled:
+            security_issues.append("API key authentication is disabled")
+
+        if not self.require_websocket_auth:
+            security_issues.append("WebSocket authentication is disabled")
+
+        if self.websocket_url.startswith("ws://"):
+            security_issues.append(
+                "WebSocket URL uses unencrypted connection (ws://) instead of wss://"
+            )
+
+        if not self.rate_limit_enabled:
+            security_issues.append("Rate limiting is disabled")
+
+        if self.log_level == "DEBUG":
+            security_issues.append("Debug logging enabled in production")
+
+        if security_issues:
+            logger.warning(
+                "Production security issues detected: %s. "
+                "Review security settings for production deployment.",
+                "; ".join(security_issues),
+            )
+
+    model_config = {
+        "env_file": ".env",
+        "env_prefix": "API_",
+        "case_sensitive": False,
+    }
 
 
 # Global configuration instance

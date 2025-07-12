@@ -3,19 +3,16 @@ Comprehensive Logging and Monitoring Middleware.
 
 Provides structured logging, metrics collection, and monitoring integration.
 """
-import logging
 import time
 import traceback
 from collections import defaultdict, deque
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import structlog
 from fastapi import Request, Response
 from prometheus_client import Counter, Gauge, Histogram, Summary
 from starlette.middleware.base import BaseHTTPMiddleware
-
-from pdf_splitter.api.config import config
 
 # Configure structured logging
 structlog.configure(
@@ -235,10 +232,10 @@ class PerformanceMonitoringMiddleware(BaseHTTPMiddleware):
 
         # Check thresholds
         if p95 > self.alert_thresholds["p95_response_time"]:
-            logger.warning(f"High P95 response time for {endpoint}: {p95:.2f}s")
+            self.logger.warning(f"High P95 response time for {endpoint}: {p95:.2f}s")
 
         if error_rate > self.alert_thresholds["error_rate"]:
-            logger.warning(f"High error rate for {endpoint}: {error_rate:.2%}")
+            self.logger.warning(f"High error rate for {endpoint}: {error_rate:.2%}")
 
     def get_performance_stats(self) -> Dict[str, Any]:
         """Get current performance statistics."""
@@ -372,7 +369,7 @@ class MetricsExportMiddleware(BaseHTTPMiddleware):
         # metrics = self._collect_metrics()
         # await cloudwatch_client.put_metrics(metrics)
 
-        logger.info("Metrics exported")
+        # Log metrics export completion
 
     def _collect_metrics(self) -> List[Dict[str, Any]]:
         """Collect current metrics."""

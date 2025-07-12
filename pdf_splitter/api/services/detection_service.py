@@ -62,13 +62,15 @@ class DetectionService:
         if detector_type not in self._detectors:
             try:
                 if detector_type == "embeddings":
-                    self._detectors[detector_type] = EmbeddingsDetector(self.config)
+                    self._detectors[detector_type] = EmbeddingsDetector()
                 elif detector_type == "heuristic":
                     self._detectors[detector_type] = HeuristicDetector(self.config)
                 elif detector_type == "visual":
-                    self._detectors[detector_type] = VisualDetector(self.config)
+                    # VisualDetector needs a PDFHandler instance
+                    pdf_handler = PDFHandler(config=self.config)
+                    self._detectors[detector_type] = VisualDetector(pdf_handler)
                 elif detector_type == "llm":
-                    self._detectors[detector_type] = LLMDetector(self.config)
+                    self._detectors[detector_type] = LLMDetector()
                 else:
                     raise ValidationError(
                         f"Invalid detector type: {detector_type}",

@@ -199,15 +199,23 @@ class TestAPIIntegration:
         for f in output_files:
             f.write_bytes(b"Mock PDF content")
 
-        with patch.object(SplittingService, "get_split_results") as mock_results:
-            mock_results.return_value = {
-                "output_files": [str(f) for f in output_files],
-                "zip_file": str(temp_dir / "output.zip"),
-                "manifest_file": str(temp_dir / "manifest.json"),
+        with patch.object(SplittingService, "get_split_status") as mock_status:
+            mock_status.return_value = {
+                "split_id": split_id,
+                "session_id": session_id,
+                "status": "completed",
+                "elapsed_time": 5.0,
             }
 
-            results_response = client.get(f"/api/splits/{split_id}/results")
-            results_data = assert_api_response(results_response)
+            with patch.object(SplittingService, "get_split_results") as mock_results:
+                mock_results.return_value = {
+                    "output_files": [str(f) for f in output_files],
+                    "zip_file": str(temp_dir / "output.zip"),
+                    "manifest_file": str(temp_dir / "manifest.json"),
+                }
+
+                results_response = client.get(f"/api/splits/{split_id}/results")
+                results_data = assert_api_response(results_response)
             assert results_data["files_created"] == 3
             assert len(results_data["output_files"]) == 3
 

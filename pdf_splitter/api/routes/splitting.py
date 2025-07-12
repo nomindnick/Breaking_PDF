@@ -164,8 +164,33 @@ async def update_segment(
         if session.status not in ["pending", "modified"]:
             raise SessionStateError(session_id, session.status, "pending or modified")
 
-        # Update segment
+        # Validate page range if provided
         update_fields = request.model_dump(exclude_unset=True)
+
+        if "start_page" in update_fields or "end_page" in update_fields:
+            # Get current segment to check bounds
+            segment = session.proposal.get_segment(segment_id)
+            if not segment:
+                raise ResourceNotFoundError("segment", segment_id)
+
+            start_page = update_fields.get("start_page", segment.start_page)
+            end_page = update_fields.get("end_page", segment.end_page)
+
+            # Validate range
+            if start_page < 0:
+                raise ValidationError("start_page must be >= 0", field="start_page")
+            if end_page < start_page:
+                raise ValidationError(
+                    f"end_page ({end_page}) must be >= start_page ({start_page})",
+                    field="end_page",
+                )
+            if end_page >= session.proposal.total_pages:
+                raise ValidationError(
+                    f"end_page ({end_page}) must be < total_pages ({session.proposal.total_pages})",
+                    field="end_page",
+                )
+
+        # Update segment
         if not session.proposal.update_segment(segment_id, **update_fields):
             raise ResourceNotFoundError("segment", segment_id)
 
@@ -191,7 +216,12 @@ async def update_segment(
             message=f"Updated {len(update_fields)} fields",
         )
 
-    except (SessionNotFoundError, SessionStateError, ResourceNotFoundError) as e:
+    except (
+        SessionNotFoundError,
+        SessionStateError,
+        ResourceNotFoundError,
+        ValidationError,
+    ) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
     except Exception as e:
         logger.error(f"Failed to update segment: {str(e)}")

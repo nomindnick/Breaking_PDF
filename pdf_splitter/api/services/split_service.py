@@ -21,22 +21,22 @@ from pdf_splitter.api.utils.exceptions import ProcessingError, SessionNotFoundEr
 from pdf_splitter.preprocessing.pdf_handler import PDFHandler
 from pdf_splitter.splitting.models import (
     DocumentSegment,
-    ModificationType,
-    SessionModification,
-    SessionStatus,
     SplitProposal,
+    UserModification,
 )
 from pdf_splitter.splitting.pdf_splitter import PDFSplitter
-from pdf_splitter.splitting.session_manager import SessionManager
+from pdf_splitter.splitting.session_manager import SplitSessionManager
 
 
 class SplitService:
     """Service for managing split proposals and execution."""
 
     def __init__(
-        self, session_manager: SessionManager = None, pdf_splitter: PDFSplitter = None
+        self,
+        session_manager: SplitSessionManager = None,
+        pdf_splitter: PDFSplitter = None,
     ):
-        self.session_manager = session_manager or SessionManager(
+        self.session_manager = session_manager or SplitSessionManager(
             str(config.session_db_path)
         )
         self.pdf_splitter = pdf_splitter or PDFSplitter()
@@ -86,8 +86,8 @@ class SplitService:
             raise ProcessingError("No proposal found for session")
 
         # Track modification
-        modification = SessionModification(
-            modification_type=ModificationType.BOUNDARY_ADJUSTED,
+        modification = UserModification(
+            modification_type="boundary_adjusted",
             details=updates,
             timestamp=datetime.utcnow(),
         )
@@ -399,7 +399,7 @@ class SplitService:
             # Update session status
             self.session_manager.update_session_status(
                 session_id,
-                SessionStatus.PROCESSING,
+                "processing",
                 {"split_id": split_id, "stage": "splitting"},
             )
 
@@ -462,7 +462,7 @@ class SplitService:
             processing_time = time.time() - start_time
             self.session_manager.update_session_status(
                 session_id,
-                SessionStatus.COMPLETE,
+                "completed",
                 {
                     "split_id": split_id,
                     "completed_at": datetime.utcnow().isoformat(),
@@ -506,7 +506,7 @@ class SplitService:
             error_msg = str(e)
             self.session_manager.update_session_status(
                 session_id,
-                SessionStatus.CANCELLED,
+                "cancelled",
                 {
                     "split_id": split_id,
                     "error": error_msg,

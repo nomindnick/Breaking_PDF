@@ -114,3 +114,32 @@ class AuthenticationError(APIException):
             message=message,
             detail={},
         )
+
+
+class SecurityError(APIException):
+    """Raised when security validation fails."""
+
+    def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            error_type="security_error",
+            message=message,
+            detail=detail or {},
+        )
+
+
+class ValidationError(APIException):
+    """Raised when request validation fails."""
+
+    def __init__(
+        self,
+        message: str,
+        field: Optional[str] = None,
+        detail: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            error_type="validation_error",
+            message=message,
+            detail={"field": field, **(detail or {})},
+        )

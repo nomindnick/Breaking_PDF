@@ -9,26 +9,21 @@ from typing import Any, Dict, List, Optional
 
 from pdf_splitter.api.config import config
 from pdf_splitter.api.utils.exceptions import SessionNotFoundError
-from pdf_splitter.splitting.models import (
-    SessionModification,
-    SessionStatus,
-    SplitProposal,
-    SplitSession,
-)
-from pdf_splitter.splitting.session_manager import SessionManager
+from pdf_splitter.splitting.models import SplitProposal, SplitSession, UserModification
+from pdf_splitter.splitting.session_manager import SplitSessionManager
 
 
 class SessionService:
     """Service for managing processing sessions."""
 
-    def __init__(self, session_manager: SessionManager = None):
-        self.session_manager = session_manager or SessionManager(
+    def __init__(self, session_manager: SplitSessionManager = None):
+        self.session_manager = session_manager or SplitSessionManager(
             str(config.session_db_path)
         )
 
     def list_sessions(
         self,
-        status: Optional[SessionStatus] = None,
+        status: Optional[str] = None,
         limit: int = 20,
         offset: int = 0,
         order_by: str = "created_at",
@@ -65,9 +60,7 @@ class SessionService:
         # Calculate totals
         total_count = len(filtered_sessions)
         active_count = sum(
-            1
-            for s in filtered_sessions
-            if s.status in [SessionStatus.PROCESSING, SessionStatus.CONFIRMED]
+            1 for s in filtered_sessions if s.status in ["processing", "confirmed"]
         )
 
         # Apply pagination
@@ -208,15 +201,13 @@ class SessionService:
 
         # Count by status
         status_counts = {}
-        for status in SessionStatus:
-            status_counts[status.value] = sum(
+        for status in ["pending", "processing", "confirmed", "completed", "cancelled"]:
+            status_counts[status] = sum(
                 1 for s in all_sessions if s.status == status
             )
 
         # Calculate averages
-        completed_sessions = [
-            s for s in all_sessions if s.status == SessionStatus.COMPLETE
-        ]
+        completed_sessions = [s for s in all_sessions if s.status == "completed"]
 
         avg_processing_time = None
         if completed_sessions:
@@ -231,8 +222,8 @@ class SessionService:
         return {
             "total_sessions": len(all_sessions),
             "status_counts": status_counts,
-            "active_sessions": status_counts.get(SessionStatus.PROCESSING.value, 0),
-            "completed_sessions": status_counts.get(SessionStatus.COMPLETE.value, 0),
+            "active_sessions": status_counts.get("processing", 0),
+            "completed_sessions": status_counts.get("completed", 0),
             "average_processing_time": avg_processing_time,
             "oldest_session": min(all_sessions, key=lambda s: s.created_at).created_at
             if all_sessions

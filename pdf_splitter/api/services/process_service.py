@@ -25,12 +25,11 @@ from pdf_splitter.api.utils.exceptions import (
     SessionNotFoundError,
 )
 from pdf_splitter.detection import create_production_detector
-from pdf_splitter.detection.base_detector import BoundaryResult
-from pdf_splitter.preprocessing.models import ProcessedPage
+from pdf_splitter.detection.base_detector import BoundaryResult, ProcessedPage
 from pdf_splitter.preprocessing.pdf_handler import PDFHandler
-from pdf_splitter.splitting.models import SessionStatus, SplitProposal
+from pdf_splitter.splitting.models import SplitProposal
 from pdf_splitter.splitting.pdf_splitter import PDFSplitter
-from pdf_splitter.splitting.session_manager import SessionManager
+from pdf_splitter.splitting.session_manager import SplitSessionManager
 
 
 class ProcessingStage(str, Enum):
@@ -62,10 +61,12 @@ class ProcessingService:
     """Service for orchestrating PDF processing."""
 
     def __init__(
-        self, file_service: FileService = None, session_manager: SessionManager = None
+        self,
+        file_service: FileService = None,
+        session_manager: SplitSessionManager = None,
     ):
         self.file_service = file_service or FileService()
-        self.session_manager = session_manager or SessionManager(
+        self.session_manager = session_manager or SplitSessionManager(
             str(config.session_db_path)
         )
         self.active_processes: Dict[str, asyncio.Task] = {}
@@ -151,7 +152,7 @@ class ProcessingService:
                 # Update session
                 self.session_manager.update_session_status(
                     session_id,
-                    SessionStatus.PROCESSING,
+                    "processing",
                     {
                         "stage": stage.value,
                         "progress": progress,
@@ -293,7 +294,7 @@ class ProcessingService:
             # Update session to confirmed status
             self.session_manager.update_session_status(
                 session_id,
-                SessionStatus.CONFIRMED,
+                "confirmed",
                 {
                     "completed_at": datetime.utcnow().isoformat(),
                     "processing_time": processing_time,
@@ -317,7 +318,7 @@ class ProcessingService:
             # Update session status
             self.session_manager.update_session_status(
                 session_id,
-                SessionStatus.CANCELLED,
+                "cancelled",
                 {"error": error_message, "failed_at": datetime.utcnow().isoformat()},
             )
 
@@ -386,7 +387,7 @@ class ProcessingService:
                 # Update session status
                 self.session_manager.update_session_status(
                     session_id,
-                    SessionStatus.CANCELLED,
+                    "cancelled",
                     {"cancelled_at": datetime.utcnow().isoformat()},
                 )
 

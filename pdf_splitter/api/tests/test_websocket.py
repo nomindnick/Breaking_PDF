@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from fastapi.testclient import TestClient
 
-from pdf_splitter.api.models.websocket import MessageType, ProcessingStage
+from pdf_splitter.api.models.websocket import ProcessingStage, WebSocketEventType
 from pdf_splitter.api.services.progress_service import (
     ProgressService,
     WebSocketConnection,
@@ -24,7 +24,7 @@ class TestWebSocket:
         with client.websocket_connect("/ws") as websocket:
             # Should receive connected message
             data = websocket.receive_json()
-            assert data["type"] == MessageType.CONNECTED
+            assert data["type"] == WebSocketEventType.CONNECTION
             assert "client_id" in data
             assert data["protocol_version"] == "1.0"
             assert "progress" in data["features"]
@@ -80,7 +80,7 @@ class TestWebSocket:
 
             # Should receive pong
             response = websocket.receive_json()
-            assert response["type"] == MessageType.PONG
+            assert response["type"] == WebSocketEventType.PONG
 
     def test_websocket_invalid_message(self, client: TestClient):
         """Test handling of invalid messages."""
@@ -92,7 +92,7 @@ class TestWebSocket:
 
             # Should receive error
             response = websocket.receive_json()
-            assert response["type"] == MessageType.ERROR
+            assert response["type"] == WebSocketEventType.ERROR
             assert response["error_code"] == "INVALID_MESSAGE_TYPE"
             assert response["recoverable"] is True
 
@@ -106,7 +106,7 @@ class TestWebSocket:
 
             # Should receive error
             response = websocket.receive_json()
-            assert response["type"] == MessageType.ERROR
+            assert response["type"] == WebSocketEventType.ERROR
             assert response["error_code"] == "INVALID_JSON"
 
     def test_websocket_auto_subscribe(self, client: TestClient):
@@ -116,7 +116,7 @@ class TestWebSocket:
         with client.websocket_connect(f"/ws/{session_id}") as websocket:
             # Should receive connected message
             data = websocket.receive_json()
-            assert data["type"] == MessageType.CONNECTED
+            assert data["type"] == WebSocketEventType.CONNECTION
 
             # The session subscription happens automatically in the background
 
@@ -170,7 +170,7 @@ class TestProgressService:
         # Verify message sent
         mock_ws.send_json.assert_called_once()
         sent_data = mock_ws.send_json.call_args[0][0]
-        assert sent_data["type"] == MessageType.PROGRESS
+        assert sent_data["type"] == WebSocketEventType.PROGRESS
         assert sent_data["session_id"] == session_id
         assert sent_data["stage"] == ProcessingStage.DETECTION
         assert sent_data["progress"] == 0.5
@@ -207,7 +207,7 @@ class TestProgressService:
         # Verify message
         mock_ws.send_json.assert_called_once()
         sent_data = mock_ws.send_json.call_args[0][0]
-        assert sent_data["type"] == MessageType.STAGE_COMPLETE
+        assert sent_data["type"] == WebSocketEventType.PROCESSING_COMPLETE
         assert sent_data["success"] is True
         assert sent_data["duration_seconds"] == 15.5
         assert sent_data["next_stage"] == ProcessingStage.SPLITTING
@@ -241,7 +241,7 @@ class TestProgressService:
         # Verify message
         mock_ws.send_json.assert_called_once()
         sent_data = mock_ws.send_json.call_args[0][0]
-        assert sent_data["type"] == MessageType.ERROR
+        assert sent_data["type"] == WebSocketEventType.ERROR
         assert sent_data["error_code"] == "DETECTION_FAILED"
         assert sent_data["recoverable"] is False
 

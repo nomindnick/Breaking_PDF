@@ -283,7 +283,7 @@ async def uploaded_file(client: TestClient, test_pdf_path: Path) -> dict:
 
 
 @pytest.fixture
-async def test_session(client: TestClient, uploaded_file: dict) -> dict:
+def test_session(client: TestClient, uploaded_file: dict) -> dict:
     """Create a test session."""
     response = client.post(
         "/api/sessions/create",

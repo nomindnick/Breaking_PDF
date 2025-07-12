@@ -13,17 +13,14 @@ from fastapi import WebSocket
 from starlette.websockets import WebSocketState
 
 from pdf_splitter.api.models.websocket import (
-    ConnectedMessage,
-    DisconnectedMessage,
+    ConnectionMessage,
     ErrorMessage,
-    MessageType,
-    PongMessage,
+    HeartbeatMessage,
     ProcessingStage,
-    ProgressUpdate,
-    ServerMessage,
-    StageCompleteMessage,
-    SubscribeMessage,
-    UnsubscribeMessage,
+    ProgressMessage,
+    StatusMessage,
+    WebSocketEventType,
+    WebSocketMessage,
 )
 from pdf_splitter.core.logging import get_logger
 
@@ -46,7 +43,7 @@ class WebSocketConnection:
         self.connected_at = datetime.now()
         self.last_ping = datetime.now()
 
-    async def send_message(self, message: ServerMessage):
+    async def send_message(self, message: WebSocketMessage):
         """Send a message to the client.
 
         Args:
@@ -68,8 +65,8 @@ class WebSocketConnection:
         try:
             if self.websocket.client_state == WebSocketState.CONNECTED:
                 await self.send_message(
-                    DisconnectedMessage(
-                        reason=reason,
+                    ConnectionMessage(
+                        event_type=WebSocketEventType.DISCONNECTION,
                         reconnect_allowed=True,
                         reconnect_delay_seconds=5,
                     )
@@ -129,7 +126,8 @@ class ProgressService:
 
         # Send connected message
         await connection.send_message(
-            ConnectedMessage(
+            ConnectionMessage(
+                event_type=WebSocketEventType.CONNECTION,
                 client_id=client_id,
                 protocol_version="1.0",
                 features=["progress", "previews", "errors", "session_updates"],
@@ -150,15 +148,11 @@ class ProgressService:
                     # Parse message type
                     message_type = data.get("type")
 
-                    if message_type == MessageType.SUBSCRIBE:
-                        await self._handle_subscribe(
-                            connection, SubscribeMessage(**data)
-                        )
-                    elif message_type == MessageType.UNSUBSCRIBE:
-                        await self._handle_unsubscribe(
-                            connection, UnsubscribeMessage(**data)
-                        )
-                    elif message_type == MessageType.PING:
+                    if message_type == WebSocketEventType.CONNECTION:
+                        await self._handle_subscribe(connection, data)
+                    elif message_type == WebSocketEventType.DISCONNECTION:
+                        await self._handle_unsubscribe(connection, data)
+                    elif message_type == WebSocketEventType.HEARTBEAT:
                         await self._handle_ping(connection)
                     else:
                         await connection.send_message(
@@ -187,9 +181,7 @@ class ProgressService:
             # Clean up connection
             await self._disconnect_client(client_id)
 
-    async def _handle_subscribe(
-        self, connection: WebSocketConnection, message: SubscribeMessage
-    ):
+    async def _handle_subscribe(self, connection: WebSocketConnection, message: dict):
         """Handle subscribe message.
 
         Args:
@@ -208,9 +200,7 @@ class ProgressService:
 
         logger.info(f"Client {connection.client_id} subscribed to session {session_id}")
 
-    async def _handle_unsubscribe(
-        self, connection: WebSocketConnection, message: UnsubscribeMessage
-    ):
+    async def _handle_unsubscribe(self, connection: WebSocketConnection, message: dict):
         """Handle unsubscribe message.
 
         Args:
@@ -239,7 +229,9 @@ class ProgressService:
             connection: WebSocket connection
         """
         connection.last_ping = datetime.now()
-        await connection.send_message(PongMessage())
+        await connection.send_message(
+            HeartbeatMessage(event_type=WebSocketEventType.PONG)
+        )
 
     async def _disconnect_client(self, client_id: str):
         """Disconnect a client and clean up.
@@ -312,8 +304,8 @@ class ProgressService:
         if session_id not in self._session_subscribers:
             return
 
-        update = ProgressUpdate(
-            session_id=session_id,
+        update = ProgressMessage(
+            event_type=WebSocketEventType.PROGRESS,
             stage=stage,
             progress=progress,
             message=message,
@@ -355,14 +347,17 @@ class ProgressService:
         if session_id not in self._session_subscribers:
             return
 
-        update = StageCompleteMessage(
+        update = StatusMessage(
+            event_type=WebSocketEventType.PROCESSING_COMPLETE,
             session_id=session_id,
-            stage=stage,
+            stage=stage.value if stage else None,
             success=success,
             message=message,
-            duration_seconds=duration_seconds,
-            next_stage=next_stage,
-            results=results or {},
+            details={
+                "duration_seconds": duration_seconds,
+                "next_stage": next_stage.value if next_stage else None,
+                "results": results or {},
+            },
         )
 
         # Send to all subscribers

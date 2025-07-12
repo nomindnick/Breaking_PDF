@@ -27,20 +27,15 @@ from pdf_splitter.api.middleware import (
     StructuredLoggingMiddleware,
     TokenBucketStrategy,
 )
-from pdf_splitter.api.routers import (
-    docs,
-    download,
+from pdf_splitter.api.routes import (
+    detection,
     health,
-    health_enhanced,
-    process,
-    results,
+    pages,
     sessions,
-    splits,
+    splitting,
     upload,
     websocket,
-    websocket_enhanced,
 )
-from pdf_splitter.api.routers.docs import custom_openapi_schema
 
 # Configure logging
 logging.basicConfig(
@@ -86,7 +81,7 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
-app.openapi = lambda: custom_openapi_schema(app)
+# Custom OpenAPI schema will be set later if needed
 
 # Add middleware in correct order (executed in reverse order)
 # 1. Error handling and recovery (outermost)
@@ -114,7 +109,7 @@ if config.api_key_enabled:
 if config.rate_limit_enabled:
     # Use different strategies for different endpoints
     upload_strategy = TokenBucketStrategy(
-        tokens=10, refill_rate=0.0333
+        capacity=10, refill_rate=0.0333
     )  # 10 uploads per 5 min
     download_strategy = SlidingWindowStrategy(
         requests=100, window=3600
@@ -140,16 +135,12 @@ app.add_middleware(StructuredLoggingMiddleware)
 
 # Include routers
 app.include_router(health.router)
-app.include_router(health_enhanced.router)  # Enhanced health checks
 app.include_router(upload.router)
-app.include_router(process.router)
+app.include_router(detection.router)
 app.include_router(sessions.router)
-app.include_router(splits.router)
-app.include_router(results.router)  # Results and analytics
-app.include_router(download.router)  # File downloads
+app.include_router(splitting.router)
+app.include_router(pages.router)
 app.include_router(websocket.router)
-app.include_router(websocket_enhanced.router)  # Enhanced WebSocket endpoints
-app.include_router(docs.router)  # API documentation
 
 # Mount static files for frontend
 frontend_static = Path(__file__).parent.parent / "frontend" / "static"

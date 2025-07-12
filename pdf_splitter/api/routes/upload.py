@@ -67,7 +67,9 @@ async def upload_file(
             upload_id=upload_id,
             file_name=upload_info["file_name"],
             file_size=upload_info["file_size"],
-            total_pages=upload_info.get("total_pages", 0),
+            total_pages=upload_info.get(
+                "total_pages"
+            ),  # Allow None for validation-only
             status=upload_info["status"],
             validation_errors=None,
             processing_time=processing_time,
